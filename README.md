@@ -13,16 +13,23 @@ Progress is saved to `~/.local/share/godot/app_userdata/Pixel TD/pixel_td_save.j
 
 ## Controls
 
-| Action | How |
+Every key below is a default and can be changed in **Settings** (gear button in the main menu, or Settings in the pause menu). Keys follow the physical keyboard position, so they work on any layout.
+
+| Action | Default |
 |---|---|
 | Buy a tower | Button on the right or keys **1–5** (the shop only shows unlocked towers) |
 | Place it | Left click on a tile (hold **Shift** to place several) |
-| Cancel / deselect | Right click or **Esc** |
-| Select a tower | Left click on it: upgrade (**U**), targeting mode (**T**), sell |
-| Next wave | **Space** or the button at the bottom |
-| Speed 1x/2x/3x | **F** |
-| Pause | **Esc** |
-| Fullscreen | **F11** |
+| Select a tower | Left click on it |
+| Upgrade selected tower | **E** |
+| Sell selected tower | **X** |
+| Targeting mode | **T** |
+| Next wave | **Space** |
+| Game speed 1x/2x/3x | **F** |
+| Pause | **P** |
+| Zoom in / out | Mouse wheel (1x, 2x, 3x) |
+| Move the map when zoomed | Hold the mouse wheel and drag |
+| Cancel / deselect / back | **Esc** or right click (fixed) |
+| Fullscreen | **F11** (fixed) |
 
 Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, control strength and current effects.
 

@@ -841,20 +841,70 @@ func _tick_fx(dt: float) -> void:
 
 # ---------------------------------------------------------------- input & hover
 func _update_hover() -> void:
-	var m := get_global_mouse_position()
+	var m := get_local_mouse_position()   # map coordinates (zoom aware)
+	var on_map := get_viewport().get_mouse_position().x < VIEW_W
 	hover_tile = Vector2i(floori(m.x / TILE), floori(m.y / TILE))
-	hovered_tower = towers.get(hover_tile) if m.x < COLS * TILE else null
+	hovered_tower = towers.get(hover_tile) if on_map else null
 	if not demo:
-		var aim_cursor := m.x < COLS * TILE and not paused and not over and (placing != "" or enemy_at(m) != null)
+		var aim_cursor := on_map and not paused and not over and (placing != "" or enemy_at(m) != null)
 		Game.set_cursor(Input.CURSOR_CROSS if aim_cursor else Input.CURSOR_ARROW)
 
 
+# ---------------------------------------------------------------- camera zoom
+const VIEW_W := 512.0   # visible map area on screen (the sidebar covers the rest)
+const VIEW_H := 360.0
+const MAX_ZOOM := 3
+var _panning := false
+
+
+## Integer zoom steps (1x, 2x, 3x) keep pixel art crisp. The point under the cursor stays in place.
+func zoom_at(z: int, screen_pos: Vector2) -> void:
+	z = clampi(z, 1, MAX_ZOOM)
+	if z == int(scale.x):
+		return
+	var world := (screen_pos - position) / scale.x
+	scale = Vector2(z, z)
+	position = screen_pos - world * z
+	_clamp_view()
+
+
+func _clamp_view() -> void:
+	var z := scale.x
+	position.x = clampf(position.x, VIEW_W - VIEW_W * z, 0.0)
+	position.y = clampf(position.y, VIEW_H - VIEW_H * z, 0.0)
+	position = position.round()
+
+
+func _camera_input(event: InputEvent) -> bool:
+	if event is InputEventMouseButton:
+		var screen: Vector2 = event.position   # where the wheel was turned, in viewport pixels
+		if event.button_index == MOUSE_BUTTON_MIDDLE:
+			_panning = event.pressed and scale.x > 1.0
+			return true
+		if event.pressed and screen.x < VIEW_W:
+			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+				zoom_at(int(scale.x) + 1, screen)
+				return true
+			if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				zoom_at(int(scale.x) - 1, screen)
+				return true
+	elif event is InputEventMouseMotion and _panning:
+		position += event.relative
+		_clamp_view()
+		return true
+	return false
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	if demo or over or paused:
+	if demo:
+		return
+	if _camera_input(event):
+		get_viewport().set_input_as_handled()
+		return
+	if over or paused:
 		return
 	if event is InputEventMouseButton and event.pressed:
-		var m := get_global_mouse_position()
-		if m.x >= COLS * TILE:
+		if get_viewport().get_mouse_position().x >= VIEW_W:
 			return
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if placing != "":

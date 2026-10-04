@@ -72,6 +72,12 @@ func _ready() -> void:
 			battle.place_tower(["gunner", "soldier", "knight", "flamer", "gunner"][t.x % 5], t)
 		battle.start_wave()
 		battle.eruption_t = 0.3
+	if args.has("--settings"):
+		for c in ui_root.get_children():
+			if c.has_method("_open_settings"):
+				c._open_settings()
+	if args.has("--zoom") and battle:
+		battle.zoom_at(2, Vector2(150, 110))
 	if args.has("--popup"):
 		for c in ui_root.get_children():
 			if c.has_method("_open_difficulty"):
@@ -103,6 +109,7 @@ func _click(p: Vector2, button := MOUSE_BUTTON_LEFT) -> void:
 	# viewport (640x360) -> window coordinates
 	var scale := Vector2(get_window().size) / Vector2(640, 360)
 	var wp := p * minf(scale.x, scale.y)
+	Input.warp_mouse(wp)
 	var mv := InputEventMouseMotion.new()
 	mv.position = wp
 	Input.parse_input_event(mv)
@@ -115,6 +122,33 @@ func _click(p: Vector2, button := MOUSE_BUTTON_LEFT) -> void:
 		Input.parse_input_event(ev)
 		await get_tree().process_frame
 	await get_tree().create_timer(0.3).timeout
+
+
+func _key(code: int) -> void:
+	for pressed in [true, false]:
+		var ev := InputEventKey.new()
+		ev.keycode = code
+		ev.physical_keycode = code
+		ev.pressed = pressed
+		Input.parse_input_event(ev)
+		await get_tree().process_frame
+	await get_tree().create_timer(0.1).timeout
+
+
+func _wheel(p: Vector2, button: int) -> void:
+	var scale := Vector2(get_window().size) / Vector2(640, 360)
+	var wp := p * minf(scale.x, scale.y)
+	Input.warp_mouse(wp)
+	var mv := InputEventMouseMotion.new()
+	mv.position = wp
+	Input.parse_input_event(mv)
+	await get_tree().create_timer(0.1).timeout
+	var ev := InputEventMouseButton.new()
+	ev.button_index = button
+	ev.pressed = true
+	ev.position = wp
+	Input.parse_input_event(ev)
+	await get_tree().create_timer(0.2).timeout
 
 
 func _find_button(root: Node, text: String) -> Button:
@@ -155,6 +189,32 @@ func _ui_test() -> void:
 	Input.parse_input_event(ev)
 	await get_tree().process_frame
 	print("UITEST key 2 -> placing: ", battle.placing)
+	await _key(KEY_ESCAPE)
+	battle.cash = 5000
+	var tpos := Vector2(10 * 16 + 8, 6 * 16 + 8)
+	await _click(tpos)
+	var lv0: int = battle.selected.level if battle.selected else -1
+	await _key(KEY_E)
+	print("UITEST E upgrade: ", lv0, " -> ", battle.selected.level if battle.selected else -1)
+	await _wheel(tpos, MOUSE_BUTTON_WHEEL_UP)
+	print("UITEST zoom: ", battle.scale.x, " tile under cursor ", battle.hover_tile, " pos ", battle.position, " local ", battle.get_local_mouse_position(), " vp ", get_viewport().get_mouse_position())
+	var zpos: Vector2 = battle.position + (Vector2(12 * 16 + 8, 8 * 16 + 8)) * battle.scale.x
+	battle.begin_place("gunner")
+	await _click(zpos)
+	print("UITEST placed at zoom: ", battle.towers.has(Vector2i(12, 8)), " towers=", battle.towers.size())
+	await _wheel(zpos, MOUSE_BUTTON_WHEEL_DOWN)
+	print("UITEST zoom back: ", battle.scale.x, " pos ", battle.position)
+	await _click(tpos)
+	await _key(KEY_X)
+	print("UITEST X sell -> towers: ", battle.towers.size())
+	Game.bind_key("upgrade", KEY_Q)
+	await _click(Vector2(12 * 16 + 8, 8 * 16 + 8))
+	var lv1: int = battle.selected.level
+	await _key(KEY_E)
+	var lv2: int = battle.selected.level
+	await _key(KEY_Q)
+	print("UITEST rebind upgrade->Q: E gives ", lv2 - lv1, ", Q gives ", battle.selected.level - lv2, " label ", Game.key_label("upgrade"))
+	Game.reset_keys()
 	await get_tree().create_timer(4.0).timeout
 	print("UITEST enemies on field: ", battle.enemies.size(), " kills=", battle.kills)
 	get_tree().quit()

@@ -6,6 +6,18 @@ const SAVE_PATH := "user://pixel_td_save.json"
 
 var beaten := {}            # map_id -> Array of beaten difficulty indices
 var sfx_volume := 0.8
+var fullscreen := false
+
+# ---------------------------------------------------------------- key bindings
+# Physical keys (layout independent: E stays E on a Russian layout). Esc / right click are fixed (cancel, back).
+const ACTIONS := ["tower_1", "tower_2", "tower_3", "tower_4", "tower_5", "upgrade", "sell", "target",
+	"next_wave", "speed", "pause"]
+const ACTION_NAMES := {"tower_1": "Tower 1", "tower_2": "Tower 2", "tower_3": "Tower 3", "tower_4": "Tower 4",
+	"tower_5": "Tower 5", "upgrade": "Upgrade", "sell": "Sell", "target": "Targeting mode",
+	"next_wave": "Next wave", "speed": "Game speed", "pause": "Pause"}
+const DEFAULT_KEYS := {"tower_1": KEY_1, "tower_2": KEY_2, "tower_3": KEY_3, "tower_4": KEY_4, "tower_5": KEY_5,
+	"upgrade": KEY_E, "sell": KEY_X, "target": KEY_T, "next_wave": KEY_SPACE, "speed": KEY_F, "pause": KEY_P}
+var keys := DEFAULT_KEYS.duplicate()
 var selected_map := "meadow"
 var selected_difficulty := 1
 
@@ -20,6 +32,8 @@ func _ready() -> void:
 	if DisplayServer.get_name() != "headless":
 		get_window().size_changed.connect(_update_cursor)
 		_update_cursor()
+		if fullscreen:
+			set_fullscreen(true)
 	if OS.get_cmdline_user_args().has("--unlock-all"):
 		for m in MapsData.ORDER:
 			beaten[m] = [0, 1, 2, 3]
@@ -98,7 +112,8 @@ func record_win(map_id: String, diff: int) -> Array:
 func save_progress() -> void:
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f:
-		f.store_string(JSON.stringify({"beaten": beaten, "sfx_volume": sfx_volume}))
+		f.store_string(JSON.stringify({"beaten": beaten, "sfx_volume": sfx_volume, "fullscreen": fullscreen,
+			"keys": keys}))
 
 
 func load_progress() -> void:
@@ -118,12 +133,58 @@ func load_progress() -> void:
 				arr.append(int(d))
 			beaten[k] = arr
 	sfx_volume = float(data.get("sfx_volume", 0.8))
+	fullscreen = bool(data.get("fullscreen", false))
+	var k = data.get("keys", {})
+	if typeof(k) == TYPE_DICTIONARY:
+		for a in k:
+			if ACTIONS.has(a):
+				keys[a] = int(k[a])
+
+
+## Which action (if any) this key press triggers.
+func action_for(event: InputEvent) -> String:
+	if not (event is InputEventKey and event.pressed and not event.echo):
+		return ""
+	var pk: int = event.physical_keycode if event.physical_keycode != 0 else event.keycode
+	for a in ACTIONS:
+		if keys[a] == pk:
+			return a
+	return ""
+
+
+## Human readable name of the key bound to an action, as printed on the user's keyboard.
+func key_label(action: String) -> String:
+	var pk: int = keys.get(action, 0)
+	if pk == 0:
+		return "-"
+	var shown := pk
+	if DisplayServer.get_name() != "headless":
+		shown = DisplayServer.keyboard_get_keycode_from_physical(pk)
+	return OS.get_keycode_string(shown)
+
+
+## Bind a key; if another action already uses it, the two actions swap keys.
+func bind_key(action: String, physical_key: int) -> void:
+	for a in ACTIONS:
+		if a != action and keys[a] == physical_key:
+			keys[a] = keys[action]
+	keys[action] = physical_key
+	save_progress()
+
+
+func reset_keys() -> void:
+	keys = DEFAULT_KEYS.duplicate()
+	save_progress()
+
+
+func set_fullscreen(on: bool) -> void:
+	fullscreen = on
+	if DisplayServer.get_name() == "headless":
+		return
+	get_window().mode = Window.MODE_FULLSCREEN if on else Window.MODE_WINDOWED
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F11:
-		var w := get_window()
-		if w.mode == Window.MODE_FULLSCREEN or w.mode == Window.MODE_EXCLUSIVE_FULLSCREEN:
-			w.mode = Window.MODE_WINDOWED
-		else:
-			w.mode = Window.MODE_FULLSCREEN
+		set_fullscreen(not fullscreen)
+		save_progress()

@@ -39,8 +39,8 @@ func _ready() -> void:
 
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
-	row.position = Vector2(320 - 136, 310)
-	row.size = Vector2(272, 40)
+	row.position = Vector2(320 - 160, 310)
+	row.size = Vector2(320, 40)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	add_child(row)
 	var play := UI.button("PLAY", "green", Vector2(130, 36), 20)
@@ -51,6 +51,14 @@ func _ready() -> void:
 	towers.icon = load("res://assets/ui/icons/shield.png")
 	towers.pressed.connect(func(): Sfx.play("click"); main.show_towers())
 	row.add_child(towers)
+	var gear := UI.button("", "gray", Vector2(36, 36))
+	gear.tooltip_text = "Settings"
+	var gear_icon := UI.sprite_rect("res://assets/ui/icons/gear.png", 2)
+	gear_icon.position = Vector2(8, 7)
+	gear_icon.size = Vector2(18, 18)
+	gear.add_child(gear_icon)
+	gear.pressed.connect(_open_settings)
+	row.add_child(gear)
 
 	var quit := UI.button("Quit", "red", Vector2(40, 16))
 	quit.position = Vector2(594, 338)
@@ -68,6 +76,13 @@ func _ready() -> void:
 	add_child(prog)
 	prog.add_child(UI.icon("star"))
 	prog.add_child(UI.label("%d/%d" % [stars, Game.MapsData.ORDER.size() * 4], 10, Color("fee761")))
+
+
+func _open_settings() -> void:
+	Sfx.play("click")
+	var st := SettingsScreen.new()
+	add_child(st)
+	st.closed.connect(st.queue_free)
 
 
 func _process(delta: float) -> void:

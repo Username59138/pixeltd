@@ -672,6 +672,15 @@ ICONS = {
         ".r...r.",
         "..rrr..",
     ], {'r': 'red'}),
+    'gear': ([
+        "..g.g..",
+        ".ggggg.",
+        "ggg.ggg",
+        ".g...g.",
+        "ggg.ggg",
+        ".ggggg.",
+        "..g.g..",
+    ], {'g': 'lgray'}),
     'heal': ([
         "..g..",
         "..g..",

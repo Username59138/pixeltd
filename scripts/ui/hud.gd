@@ -38,6 +38,8 @@ var end_layer: Control
 var hint_l: Label
 var shop_order: Array = []   # unlocked towers only, in shop order (keys 1..N)
 var boss_bar: Control
+var keys_l: Label
+var settings_layer: Control
 
 
 func setup(b: Node2D) -> void:
@@ -97,7 +99,7 @@ func _build_sidebar() -> void:
 	pause_b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	pause_b.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	pause_b.pressed.connect(toggle_pause)
-	pause_b.tooltip_text = "Pause (Esc)"
+	pause_b.tooltip_text = "Pause"
 	top.add_child(pause_b)
 
 	# shop
@@ -118,8 +120,8 @@ func _build_sidebar() -> void:
 		b.mouse_exited.connect(func(): tip.hide_tip())
 		shop_box.add_child(b)
 		shop_buttons[t] = b
-	var keys := UI.label("Keys 1-%d: towers\nSpace: next wave\nShift: place many" % shop_order.size(), 10,
-		Color("5a6988"))
+	keys_l = UI.label(_keys_text(), 10, Color("5a6988"))
+	var keys := keys_l
 	shop_box.add_child(keys)
 
 	# selected tower info
@@ -201,6 +203,10 @@ func _stat_row(parent: Control, icon_name: String, col: Color) -> Label:
 
 # ---------------------------------------------------------------- refresh
 func _refresh() -> void:
+	keys_l.text = _keys_text()
+	up_btn.tooltip_text = "Upgrade (%s)" % Game.key_label("upgrade")
+	sell_btn.tooltip_text = "Sell (%s)" % Game.key_label("sell")
+	target_btn.tooltip_text = "Targeting mode (%s)" % Game.key_label("target")
 	lives_l.text = str(battle.lives)
 	cash_l.text = "$%d" % battle.cash
 	wave_l.text = "Wave %d/%d" % [battle.wave, battle.total_waves]
@@ -336,6 +342,8 @@ func _on_auto() -> void:
 func toggle_pause() -> void:
 	if battle.over:
 		return
+	if settings_layer:
+		return
 	battle.paused = not battle.paused
 	if battle.paused:
 		_show_pause()
@@ -413,7 +421,7 @@ func _update_tooltip() -> void:
 	var m := get_global_mouse_position()
 	if m.x >= 512:
 		return
-	var e = battle.enemy_at(m)
+	var e = battle.enemy_at(battle.get_local_mouse_position())
 	if e:
 		tip.show_lines(enemy_lines(e), m)
 		return
@@ -500,32 +508,47 @@ func _shop_tip(t: String, b: Button) -> void:
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
-	match event.keycode:
-		KEY_ESCAPE:
-			if battle.placing != "":
-				battle.placing = ""
-			elif battle.selected:
-				battle.select(null)
-			else:
-				toggle_pause()
-		KEY_SPACE:
-			if not battle.paused:
-				battle.start_wave()
-		KEY_1, KEY_2, KEY_3, KEY_4, KEY_5:
-			var k: int = event.keycode - KEY_1
-			if not battle.paused and k < shop_order.size():
-				_on_shop(shop_order[k])
-		KEY_F:
+	if event.keycode == KEY_ESCAPE:   # fixed: cancel -> deselect -> pause
+		if battle.placing != "":
+			battle.placing = ""
+		elif battle.selected:
+			battle.select(null)
+		else:
+			toggle_pause()
+		get_viewport().set_input_as_handled()
+		return
+	var action := Game.action_for(event)
+	if action == "":
+		return
+	if battle.paused and action != "pause":
+		return
+	match action:
+		"pause":
+			toggle_pause()
+		"next_wave":
+			battle.start_wave()
+		"speed":
 			_on_speed()
-		KEY_U:
+		"upgrade":
 			if battle.selected:
 				_on_upgrade()
-		KEY_T:
+		"sell":
+			if battle.selected:
+				_on_sell()
+		"target":
 			if battle.selected:
 				_on_target()
 		_:
-			return
+			if action.begins_with("tower_"):
+				var k := int(action.substr(6)) - 1
+				if k < shop_order.size():
+					_on_shop(shop_order[k])
 	get_viewport().set_input_as_handled()
+
+
+func _keys_text() -> String:
+	return "%s upgrade   %s sell\n%s wave   %s speed\nWheel zoom\nShift place many" % [
+		Game.key_label("upgrade"), Game.key_label("sell"), Game.key_label("next_wave"), Game.key_label("speed")]
 
 
 # ---------------------------------------------------------------- overlays
@@ -550,6 +573,18 @@ func _center_panel(root: Control, w: float) -> VBoxContainer:
 	return v
 
 
+func _open_settings() -> void:
+	pause_layer.visible = false
+	settings_layer = SettingsScreen.new()
+	add_child(settings_layer)
+	settings_layer.closed.connect(func():
+		settings_layer.queue_free()
+		settings_layer = null
+		if pause_layer:
+			pause_layer.visible = true
+		_refresh())
+
+
 func _show_pause() -> void:
 	pause_layer = _overlay()
 	var v := _center_panel(pause_layer, 180)
@@ -562,17 +597,9 @@ func _show_pause() -> void:
 	var rs := UI.button("Restart", "blue", Vector2(0, 20))
 	rs.pressed.connect(func(): restart.emit())
 	v.add_child(rs)
-	var vol := HBoxContainer.new()
-	v.add_child(vol)
-	vol.add_child(UI.label("Sound", 10, Color("c0cbdc")))
-	var sl := HSlider.new()
-	sl.min_value = 0
-	sl.max_value = 1
-	sl.step = 0.1
-	sl.value = Game.sfx_volume
-	sl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	sl.value_changed.connect(func(x): Game.sfx_volume = x; Game.save_progress(); Sfx.play("click"))
-	vol.add_child(sl)
+	var st := UI.button("Settings", "gray", Vector2(0, 20))
+	st.pressed.connect(_open_settings)
+	v.add_child(st)
 	var q := UI.button("Quit to menu", "red", Vector2(0, 20))
 	q.pressed.connect(func(): quit_to_menu.emit())
 	v.add_child(q)
