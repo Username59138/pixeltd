@@ -3,6 +3,7 @@
 import os, random, math
 from PIL import Image
 from sprites import *
+import units as U
 
 ROOT = os.path.join(os.path.dirname(__file__), '..')
 A = os.path.join(ROOT, 'assets')
@@ -42,19 +43,19 @@ def gen_sprites():
                            ('soldier', SOLDIER, SOLDIER_C), ('soldier_elite', SOLDIER, SOLDIER_ELITE),
                            ('garage', GARAGE, GARAGE_C), ('garage_elite', GARAGE, GARAGE_ELITE)]:
         make(rows, cm).save(out(f'sprites/towers/{name}.png'))
-    for name, (rows, cm) in ENEMY_SPRITES.items():
-        img = make(rows, cm)
-        img.save(out(f'sprites/enemies/{name}.png'))
-        flash(img).save(out(f'sprites/enemies/{name}_flash.png'))
+    # enemies and friendly vehicles: side view (name.png), front (name_down.png), back (name_up.png)
+    for name, u in U.UNITS.items():
+        folder = 'vehicles' if name in ('car', 'pickup', 'truck', 'armored') else 'enemies'
+        for view, suffix in (('side', ''), ('down', '_down'), ('up', '_up')):
+            img = U.render(u[view], u['colors'])
+            img.save(out(f'sprites/{folder}/{name}{suffix}.png'))
+            flash(img).save(out(f'sprites/{folder}/{name}{suffix}_flash.png'))
+            if folder == 'vehicles' and view == 'side':
+                img.save(out(f'ui/upgrades/{name}.png'))
     for name, (rows, cm) in ICONS.items():
         make(rows, cm).save(out(f'ui/icons/{name}.png'))
     for name, (rows, cm) in UP_ICONS.items():
         make(rows, cm).save(out(f'ui/upgrades/{name}.png'))
-    for name, (rows, cm) in VEHICLES.items():
-        img = make(rows, cm)
-        img.save(out(f'sprites/vehicles/{name}.png'))
-        img.save(out(f'ui/upgrades/{name}.png'))
-        flash(img).save(out(f'sprites/vehicles/{name}_flash.png'))
     for name, rows in [('arrow', CURSOR_ARROW), ('hand', CURSOR_HAND), ('cross', CURSOR_CROSS)]:
         make(rows, CURSOR_C).save(out(f'ui/cursor_{name}.png'))
 

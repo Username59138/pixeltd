@@ -334,7 +334,7 @@ func _build_enemies() -> void:
 		frame.custom_minimum_size = Vector2(36, 36)
 		frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		h.add_child(frame)
-		frame.add_child(UI.sprite_rect("res://assets/sprites/enemies/%s.png" % id, 2 if cls < 3 else 1))
+		frame.add_child(UI.sprite_rect("res://assets/sprites/enemies/%s_down.png" % id, 2 if cls < 3 else 1))
 		var v := VBoxContainer.new()
 		v.add_theme_constant_override("separation", 0)
 		h.add_child(v)

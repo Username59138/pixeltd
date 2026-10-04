@@ -39,8 +39,10 @@ var final_boss := false
 
 var anim_t := 0.0
 var sprite: Sprite2D
-var tex_normal: Texture2D
+var tex_normal: Texture2D   # texture of the current view
 var tex_flash: Texture2D
+var views := {}             # "side" / "down" / "up" -> [texture, hit flash texture]
+var view := "side"
 var effect_mult := 1.0
 
 
@@ -84,18 +86,27 @@ func _setup_friendly(t: String, p_i: int, p_len: float) -> void:
 
 
 func _make_sprite(base: String) -> void:
-	tex_normal = Game.tex(base + ".png")
-	tex_flash = Game.tex(base + "_flash.png")
+	for v: String in ["side", "down", "up"]:
+		var suffix := "" if v == "side" else "_" + v
+		views[v] = [Game.tex(base + suffix + ".png"), Game.tex(base + suffix + "_flash.png")]
 	sprite = Sprite2D.new()
-	sprite.texture = tex_normal
 	sprite.centered = true
+	add_child(sprite)
+	_set_view("side")
+
+
+## Show the side, front (walking down) or back (walking up) view, feet always on the same line.
+func _set_view(v: String) -> void:
+	view = v
+	tex_normal = views[v][0]
+	tex_flash = views[v][1]
+	sprite.texture = tex_normal
 	var h := tex_normal.get_height()
 	sprite.offset = Vector2(0, -h / 2.0 + 4)
 	if int(tex_normal.get_width()) % 2 == 1:
 		sprite.offset.x = 0.5
 	if h % 2 == 1:
 		sprite.offset.y += 0.5
-	add_child(sprite)
 
 
 func remaining() -> float:
@@ -162,8 +173,17 @@ func tick_status(dt: float) -> void:
 
 
 func update_visual(dir: Vector2) -> void:
-	if absf(dir.x) > 0.1:
+	# roads are straight lines, so the dominant axis tells which way we are walking
+	var want := view
+	if absf(dir.y) > absf(dir.x):
+		want = "down" if dir.y > 0.0 else "up"
+	elif absf(dir.x) > 0.1:
+		want = "side"
 		sprite.flip_h = dir.x < 0
+	if want != view:
+		_set_view(want)
+	if view != "side":
+		sprite.flip_h = false
 	var moving := current_speed() > 0.0
 	var bob := 0.0
 	if moving:

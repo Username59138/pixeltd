@@ -25,6 +25,7 @@ var _tex_cache := {}
 
 
 var _cursor_scale := 0
+var _real_beaten = null
 
 
 func _ready() -> void:
@@ -35,6 +36,7 @@ func _ready() -> void:
 		if fullscreen:
 			set_fullscreen(true)
 	if OS.get_cmdline_user_args().has("--unlock-all"):
+		_real_beaten = beaten.duplicate(true)   # dev flag: never written to the save file
 		for m in MapsData.ORDER:
 			beaten[m] = [0, 1, 2, 3]
 
@@ -112,7 +114,7 @@ func record_win(map_id: String, diff: int) -> Array:
 func save_progress() -> void:
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f:
-		f.store_string(JSON.stringify({"beaten": beaten, "sfx_volume": sfx_volume, "fullscreen": fullscreen,
+		f.store_string(JSON.stringify({"beaten": beaten if _real_beaten == null else _real_beaten, "sfx_volume": sfx_volume, "fullscreen": fullscreen,
 			"keys": keys}))
 
 
