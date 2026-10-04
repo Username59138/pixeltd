@@ -37,7 +37,6 @@ var particles: Array = []
 var texts: Array = []
 var slashes: Array = []
 var grenades: Array = []
-var cars: Array = []
 var path_tiles := {}
 var lava_tiles: Array = []
 var eruption_t := -1.0
@@ -255,7 +254,6 @@ func tick(dt: float) -> void:
 		tw.update(dt, enemies)
 	_tick_bullets(dt)
 	_tick_grenades(dt)
-	_tick_cars(dt)
 	_tick_fx(dt)
 	# cleanup
 	if enemies.any(func(e): return not e.alive):
@@ -289,7 +287,7 @@ func _tick_waves(dt: float) -> void:
 
 
 func _check_round() -> void:
-	if not spawning and enemies.is_empty() and bonus_pending:
+	if not spawning and not has_hostiles() and bonus_pending:
 		_award_bonus()
 		if wave >= total_waves:
 			_finish(true)
@@ -354,6 +352,9 @@ func _tick_enemies(dt: float) -> void:
 	for e in enemies:
 		if not e.alive:
 			continue
+		if e.is_friendly:
+			_tick_friendly(e, dt)
+			continue
 		e.tick_status(dt)
 		if e.burn_t > 0.0:
 			e.burn_t -= dt
@@ -375,8 +376,6 @@ func _tick_enemies(dt: float) -> void:
 		if e.dist >= e.path_len:
 			_leak(e)
 			continue
-		if e.is_friendly:
-			
 		var pp := path_point(e.path_i, e.dist)
 		e.position = pp[0]
 		if not headless:
@@ -386,7 +385,7 @@ func _tick_enemies(dt: float) -> void:
 func _shaman_heal(s: Node2D) -> void:
 	var healed := false
 	for o in enemies:
-		if o.alive and o.hp < o.max_hp and o.heal_lock <= 0.0 and o.position.distance_to(s.position) <= 48.0:
+		if o.alive and not o.is_friendly and o.hp < o.max_hp and o.heal_lock <= 0.0 and o.position.distance_to(s.position) <= 48.0:
 			o.heal_lock = 2.5  # heals from several shamans don't stack
 			var amt: float = o.max_hp * (float(s.def["heal"]) if o.cls < 4 else 0.02)
 			o.hp = minf(o.max_hp, o.hp + amt)
@@ -434,7 +433,7 @@ func _finish(win: bool) -> void:
 func damage_enemy(e: Node2D, amount: float, kind: String, src: Node, pierce := 0.0, flash := true) -> void:
 	if not e.alive or amount <= 0.0:
 		return
-	var dmg := amount
+	var dmg := amount   # kind "pure" (car crashes) ignores armor and resistances
 	if kind == "physical":
 		var arm: float = e.armor * (1.0 - pierce)
 		dmg = maxf(amount - arm, maxf(1.0, amount * 0.15))
@@ -594,7 +593,7 @@ func _tick_bullets(dt: float) -> void:
 		else:
 			b["target"] = null
 			for e in enemies:
-				if e.alive and (e.position + Vector2(0, -3)).distance_to(b["pos"]) < e.radius:
+				if e.alive and not e.is_friendly and (e.position + Vector2(0, -3)).distance_to(b["pos"]) < e.radius:
 					hit = e
 					break
 		if hit:
@@ -630,7 +629,7 @@ func _tick_grenades(dt: float) -> void:
 			continue
 		var src = g["src"] if is_instance_valid(g["src"]) else null
 		for e in enemies:
-			if e.alive and e.position.distance_to(g["to"]) <= g["r"] + e.radius * 0.5:
+			if e.alive and not e.is_friendly and e.position.distance_to(g["to"]) <= g["r"] + e.radius * 0.5:
 				damage_enemy(e, g["dmg"], "physical", src, 0.5)
 		if not headless:
 			Sfx.play("boom", 0.1)
@@ -642,67 +641,81 @@ func _tick_grenades(dt: float) -> void:
 	grenades = keep
 
 
-# ---------------------------------------------------------------- garage cars
-func spawn_car(src: Node) -> void:
+# ---------------------------------------------------------------- friendly units (garage cars)
+## Garage cars are Enemy nodes with is_friendly = true. They enter the road next to the garage,
+## drive back towards the start and crash into enemies: both sides lose min(car hp, enemy hp).
+func spawn_friendly(src: Node) -> Node2D:
 	var st: Dictionary = src.stats
-	var pi: int = src.road[0]
-	var d: float = src.road[1]
-	cars.append({"pi": pi, "dist": d, "speed": float(st["car_speed"]), "ram": float(st["ram"]),
-		"hits": int(st["hits"]), "knock": float(st["knock"]), "src": src, "vehicle": st["vehicle"],
-		"gun_dmg": float(st["gun_dmg"]), "gun_rate": float(st["gun_rate"]), "gun_cd": 0.0, "hit": {},
-		"pos": path_point(pi, d)[0], "dir": Vector2.LEFT})
+	var e := spawn_enemy(st["vehicle"], src.road[0], src.road[1], 1.0, true, st)
+	e.owner_tower = src
 	if not headless:
 		Sfx.play("honk", 0.1)
+	return e
 
 
-func _tick_cars(dt: float) -> void:
-	var keep: Array = []
-	for c in cars:
-		var src = c["src"] if is_instance_valid(c["src"]) else null
-		c["dist"] -= c["speed"] * dt
-		var pp := path_point(c["pi"], maxf(c["dist"], 0.0))
-		c["pos"] = pp[0]
-		c["dir"] = -pp[1]
-		for e in enemies:
-			if c["hits"] <= 0:
-				break
-			if not e.alive or c["hit"].has(e.get_instance_id()):
-				continue
-			if e.position.distance_to(c["pos"]) > e.radius + 6.0:
-				continue
-			c["hit"][e.get_instance_id()] = true
-			c["hits"] -= 3 if e.cls >= 4 else 1
-			damage_enemy(e, c["ram"], "physical", src, 0.5)
-			if e.alive:
-				e.apply_knockback(c["knock"])
-			if not headless:
-				Sfx.play("hit", 0.2)
-				for i in 5:
-					_spawn_particle(e.position + Vector2(0, -4), Vector2(randf_range(-30, 30), -randf_range(10, 40)),
-						0.25, Color("ead4aa"), 1, 80.0)
-		if c["gun_dmg"] > 0.0 and src:
-			c["gun_cd"] -= dt
-			if c["gun_cd"] <= 0.0:
-				var best: Node2D = null
-				var bd := 60.0 * 60.0
-				for e in enemies:
-					if e.alive and e.hp - e.incoming > 0.0:
-						var dd: float = e.position.distance_squared_to(c["pos"])
-						if dd < bd:
-							bd = dd
-							best = e
-				if best:
-					c["gun_cd"] = 1.0 / c["gun_rate"]
-					spawn_bullet(src, c["pos"] + Vector2(0, -5), best, c["gun_dmg"], 0.0, 0.0)
-		if c["hits"] <= 0 or c["dist"] <= 0.0:
-			if not headless:
-				for i in 12:
-					var a := randf() * TAU
-					_spawn_particle(c["pos"], Vector2(cos(a), sin(a)) * randf_range(10, 40), 0.4,
-						Color("8b9bb4") if i % 2 else Color("fee761"), 1)
+func has_hostiles() -> bool:
+	for e in enemies:
+		if e.alive and not e.is_friendly:
+			return true
+	return false
+
+
+func _tick_friendly(f: Node2D, dt: float) -> void:
+	f.anim_t += dt
+	if f.flash_t > 0.0:
+		f.flash_t -= dt
+	f.dist -= f.current_speed() * dt
+	if f.dist <= 0.0:
+		f.alive = false   # reached the start of the road: just leaves
+		return
+	var pp := path_point(f.path_i, f.dist)
+	f.position = pp[0]
+	var src = f.owner_tower if is_instance_valid(f.owner_tower) else null
+	# crashes
+	for e in enemies:
+		if not e.alive or e.is_friendly:
 			continue
-		keep.append(c)
-	cars = keep
+		if e.position.distance_to(f.position) > e.radius + f.radius:
+			continue
+		var dmg: float = minf(f.hp, e.hp)
+		damage_enemy(e, dmg, "pure", src)
+		f.hp -= dmg
+		f.flash_t = 0.06
+		if not headless:
+			Sfx.play("hit", 0.2)
+			for i in 6:
+				_spawn_particle(e.position + Vector2(0, -4), Vector2(randf_range(-30, 30), -randf_range(10, 40)),
+					0.25, Color("ead4aa"), 1, 80.0)
+		if f.hp <= 0.0:
+			_destroy_friendly(f)
+			return
+	# armored car turret
+	if float(f.stats.get("gun_dmg", 0)) > 0.0 and src:
+		f.gun_cd -= dt
+		if f.gun_cd <= 0.0:
+			var best: Node2D = null
+			var bd := 60.0 * 60.0
+			for e in enemies:
+				if e.alive and not e.is_friendly and e.hp - e.incoming > 0.0:
+					var dd: float = e.position.distance_squared_to(f.position)
+					if dd < bd:
+						bd = dd
+						best = e
+			if best:
+				f.gun_cd = 1.0 / float(f.stats["gun_rate"])
+				spawn_bullet(src, f.position + Vector2(0, -5), best, float(f.stats["gun_dmg"]), 0.0, 0.0)
+	if not headless:
+		f.update_visual(-pp[1])
+
+
+func _destroy_friendly(f: Node2D) -> void:
+	f.alive = false
+	if headless:
+		return
+	for i in 12:
+		var a := randf() * TAU
+		_spawn_particle(f.position, Vector2(cos(a), sin(a)) * randf_range(10, 40), 0.4,
+			Color("8b9bb4") if i % 2 else Color("fee761"), 1)
 
 
 # ---------------------------------------------------------------- volcano eruptions
@@ -905,16 +918,6 @@ func _draw_road_marker(n: Node2D, p: Vector2) -> void:
 
 func _draw_over(n: Node2D) -> void:
 	var f := UI.font()
-	for c in cars:
-		var tex := Game.tex("res://assets/sprites/vehicles/%s.png" % c["vehicle"])
-		var p: Vector2 = (c["pos"] as Vector2).round()
-		var flip: bool = (c["dir"] as Vector2).x < -0.1
-		var sz := tex.get_size()
-		var rect := Rect2(p - Vector2(sz.x / 2.0, sz.y - 3).round(), sz)
-		if flip:
-			rect = Rect2(rect.position + Vector2(sz.x, 0), Vector2(-sz.x, sz.y))
-		n.draw_rect(Rect2(p + Vector2(-sz.x / 2.0 + 1, 2).round(), Vector2(sz.x - 2, 2)), Color(0, 0, 0, 0.25))
-		n.draw_texture_rect(tex, rect, false)
 	for g in grenades:
 		var k: float = g["t"] / g["dur"]
 		var gp: Vector2 = (g["from"] as Vector2).lerp(g["to"], k) + Vector2(0, -sin(k * PI) * 18.0)

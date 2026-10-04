@@ -356,7 +356,7 @@ func _build_enemies() -> void:
 			tr.append("Splits")
 		v.add_child(UI.label(", ".join(tr) if tr.size() else "-", 10, Color("feae34")))
 		v.add_child(UI.label("Control %d%%" % int(Defs.CLASS_EFFECT[cls] * 100), 10, Defs.CLASS_COLORS[cls]))
-	var foot := UI.label("Class weakens only CONTROL (stun, slow, knockback):  I 100%  II 70%  III 40%  IV 20%.",
+	var foot := UI.label("Class weakens only CONTROL (stun, slow):  I 100%  II 70%  III 40%  IV 20%.",
 		10, Color("c0cbdc"), HORIZONTAL_ALIGNMENT_CENTER)
 	foot.position = Vector2(0, 202)
 	foot.size = Vector2(640, 12)

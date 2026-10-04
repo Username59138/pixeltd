@@ -5,7 +5,7 @@ extends RefCounted
 const MapsData = preload("res://scripts/data/maps_data.gd")
 
 # ---------------------------------------------------------------- enemy classes
-# Class only weakens CONTROL effects (stun, slow, knockback...). Damage of any kind is never reduced by class.
+# Class only weakens CONTROL effects (stun, slow...). Damage of any kind is never reduced by class.
 const CLASS_ROMAN := ["", "I", "II", "III", "IV"]
 const CLASS_EFFECT := [1.0, 1.0, 0.7, 0.4, 0.2]
 const CLASS_LEAK := [0, 1, 2, 5, 25]
@@ -79,19 +79,19 @@ const TOWERS := {
 		],
 	},
 	"garage": {
-		"name": "Garage", "role": "Road - rams & knockback", "cost": 400, "sprite": "garage",
-		"desc": "Build next to a road. Sends cars that drive INTO the enemies, ramming and knocking them back (control).",
+		"name": "Garage", "role": "Road - friendly cars", "cost": 400, "sprite": "garage",
+		"desc": "Build next to a road. Sends cars that drive INTO the enemies. On a crash both lose the HP of the weaker one.",
 		"unlock": {"map": "gas_station", "difficulty": 2},
-		"base": {"interval": 6.0, "ram": 10, "hits": 3, "knock": 10, "car_speed": 70, "vehicle": "car",
+		"base": {"interval": 6.0, "car_hp": 24, "car_speed": 70, "vehicle": "car",
 			"gun_dmg": 0, "gun_rate": 0.0, "range": 0},
 		"upgrades": [
-			{"name": "Pickup", "icon": "pickup", "cost": 260, "desc": "Sturdier car: ram 15, comes out more often.",
-				"set": {"vehicle": "pickup", "ram": 15, "interval": 5.0}},
-			{"name": "Truck", "icon": "truck", "cost": 580, "desc": "Heavy truck: ram 24, hits 4, double knockback.",
-				"set": {"vehicle": "truck", "ram": 24, "hits": 4, "knock": 20, "car_speed": 60}},
+			{"name": "Pickup", "icon": "pickup", "cost": 260, "desc": "Sturdier car (45 HP), comes out more often.",
+				"set": {"vehicle": "pickup", "car_hp": 45, "interval": 5.0}},
+			{"name": "Truck", "icon": "truck", "cost": 580, "desc": "Heavy truck with 85 HP. Plows through crowds.",
+				"set": {"vehicle": "truck", "car_hp": 85, "car_speed": 60}},
 			{"name": "Armored Car", "icon": "armored", "cost": 1350,
-				"desc": "Ram 34, hits 5 and a turret that shoots while driving.",
-				"set": {"vehicle": "armored", "ram": 34, "hits": 5, "gun_dmg": 5, "gun_rate": 2.5, "interval": 4.5}},
+				"desc": "130 HP and a turret that shoots while driving.",
+				"set": {"vehicle": "armored", "car_hp": 130, "gun_dmg": 5, "gun_rate": 2.5, "interval": 4.5}},
 		],
 	},
 	"flamer": {
@@ -139,6 +139,16 @@ const ENEMIES := {
 		"armor": 4, "fire_res": 0.5, "desc": "FINAL BOSS. Lord of the burning pit."},
 }
 
+# ---------------------------------------------------------------- friendly units (sent by the Garage)
+# They are Enemy nodes with is_friendly = true: drive backwards along the road and crash into enemies.
+# HP and speed come from the garage's stats (car_hp / car_speed).
+const VEHICLES := {
+	"car": {"name": "Car", "radius": 6, "desc": "Friendly. Crashes into enemies."},
+	"pickup": {"name": "Pickup", "radius": 7, "desc": "Friendly. Crashes into enemies."},
+	"truck": {"name": "Truck", "radius": 8, "desc": "Friendly. Crashes into enemies."},
+	"armored": {"name": "Armored Car", "radius": 8, "desc": "Friendly. Crashes and shoots."},
+}
+
 # first wave each enemy may appear in, and its "threat cost" for the wave budget
 const POOL := [
 	["slime", 1, 1.2], ["rat", 4, 1.0], ["goblin", 5, 2.6], ["wolf", 10, 4.5], ["ironclad", 11, 9.0],
@@ -149,7 +159,7 @@ const STAT_LABELS := {"damage": "Damage", "rate": "Attacks/s", "range": "Range",
 	"slow": "Slow", "slow_time": "Slow time", "armor_pierce": "Armor pierce", "cleave": "Cleave",
 	"stun_every": "Stun every N hits", "stun": "Stun time", "burst": "Burst size", "burst_gap": "Burst gap",
 	"grenade_every": "Grenade every N bursts", "grenade_dmg": "Grenade dmg", "grenade_radius": "Grenade radius",
-	"interval": "Car every (s)", "ram": "Ram dmg", "hits": "Hits per car", "knock": "Knockback",
+	"interval": "Car every (s)", "car_hp": "Car HP",
 	"car_speed": "Car speed", "vehicle": "Vehicle", "gun_dmg": "Turret dmg", "gun_rate": "Turret shots/s",
 	"cone": "Cone angle", "burn": "Burn dps", "burn_time": "Burn time", "fire_pierce": "Fire res. pierce"}
 const PERCENT_STATS := ["slow", "armor_pierce", "fire_pierce"]
