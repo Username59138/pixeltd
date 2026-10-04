@@ -88,6 +88,10 @@ func _shot(path: String, secs: float) -> void:
 	await get_tree().create_timer(secs).timeout
 	if OS.get_cmdline_user_args().has("--hover"):
 		var e = battle.enemies[0] if battle and battle.enemies.size() > 0 else null
+		if OS.get_cmdline_user_args().has("--hover-friendly"):
+			for x in battle.enemies:
+				if x.is_friendly:
+					e = x
 		if e:
 			Input.warp_mouse(e.position * 2.0 + Vector2(0, -6))
 			await get_tree().create_timer(0.2).timeout

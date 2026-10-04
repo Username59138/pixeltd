@@ -57,7 +57,7 @@ func step() -> void:
 	for guard in 6:
 		if not _act():
 			break
-	if battle.can_start_wave() and battle.enemies.is_empty():
+	if battle.can_start_wave() and not battle.has_hostiles():
 		battle.start_wave()
 
 

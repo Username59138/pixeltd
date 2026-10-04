@@ -15,9 +15,10 @@ var path_i := 0
 var dist := 0.0
 var path_len := 1.0
 var alive := true
-var is_friendly := false
-var stats := {}
-
+var is_friendly := false   # friendly units (garage cars) drive backwards and crash into enemies
+var stats := {}             # for friendly units: the stats of the garage that sent them
+var owner_tower: Node = null
+var gun_cd := 0.0
 
 # statuses
 var stun_t := 0.0
@@ -33,8 +34,8 @@ var heal_cd := 0.0
 var flash_t := 0.0
 var heal_flash_t := 0.0
 var heal_lock := 0.0
-var incoming := 0.0
-var final_boss := false  # damage of bullets already flying at this enemy
+var incoming := 0.0  # damage of bullets already flying at this enemy
+var final_boss := false
 
 var anim_t := 0.0
 var sprite: Sprite2D
@@ -44,6 +45,9 @@ var effect_mult := 1.0
 
 
 func setup(t: String, hp_mult: float, p_i: int, p_len: float) -> void:
+	if is_friendly:
+		_setup_friendly(t, p_i, p_len)
+		return
 	type = t
 	def = Defs.ENEMIES[t]
 	cls = int(def["class"])
@@ -60,8 +64,28 @@ func setup(t: String, hp_mult: float, p_i: int, p_len: float) -> void:
 	path_len = p_len
 	heal_cd = 2.5
 	anim_t = randf() * 10.0
-	tex_normal = Game.tex("res://assets/sprites/enemies/%s.png" % t)
-	tex_flash = Game.tex("res://assets/sprites/enemies/%s_flash.png" % t)
+	_make_sprite("res://assets/sprites/enemies/%s" % t)
+
+
+func _setup_friendly(t: String, p_i: int, p_len: float) -> void:
+	type = t
+	def = Defs.VEHICLES[t]
+	cls = 1
+	effect_mult = 0.0   # friendly units ignore control effects
+	max_hp = float(stats.get("car_hp", 24))
+	hp = max_hp
+	speed = float(stats.get("car_speed", 70))
+	radius = float(def.get("radius", 6))
+	bounty = 0
+	path_i = p_i
+	path_len = p_len
+	anim_t = randf() * 10.0
+	_make_sprite("res://assets/sprites/vehicles/%s" % t)
+
+
+func _make_sprite(base: String) -> void:
+	tex_normal = Game.tex(base + ".png")
+	tex_flash = Game.tex(base + "_flash.png")
 	sprite = Sprite2D.new()
 	sprite.texture = tex_normal
 	sprite.centered = true
@@ -108,11 +132,6 @@ func apply_slow(amount: float, duration: float) -> void:
 	if a >= slow_f or slow_t <= 0.0:
 		slow_f = a
 	slow_t = maxf(slow_t, d)
-
-
-## Knockback pushes the enemy back along the road; control, so scaled by class.
-func apply_knockback(px: float) -> void:
-	dist = maxf(0.0, dist - px * effect_mult)
 
 
 ## Burn is damage, so it is NOT reduced by class.

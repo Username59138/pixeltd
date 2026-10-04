@@ -81,7 +81,7 @@ func pick_targets(enemies: Array, count: int, skip_doomed := false) -> Array:
 	var r2 := range_px() * range_px()
 	var cands: Array = []
 	for e in enemies:
-		if e.alive and e.position.distance_squared_to(position) <= r2:
+		if e.alive and not e.is_friendly and e.position.distance_squared_to(position) <= r2:
 			if skip_doomed and e.hp - e.incoming <= 0.0:
 				continue
 			cands.append(e)
@@ -221,7 +221,7 @@ func _update_flamer(dt: float, enemies: Array) -> void:
 	var r := range_px()
 	var origin := position + Vector2(0, -2)
 	for e in enemies:
-		if not e.alive:
+		if not e.alive or e.is_friendly:
 			continue
 		var d: Vector2 = e.position - origin
 		if d.length() > r + e.radius:
@@ -239,16 +239,11 @@ func _update_flamer(dt: float, enemies: Array) -> void:
 func _update_garage(enemies: Array) -> void:
 	if cooldown > 0.0 or road.is_empty():
 		return
-	var any := false
-	for e in enemies:
-		if e.alive:
-			any = true
-			break
-	if not any:
+	if not battle.has_hostiles():
 		return
 	cooldown = float(stats["interval"])
 	attack_anim = 0.4
-	battle.spawn_car(self)
+	battle.spawn_friendly(self)
 
 
 func _update_visual() -> void:

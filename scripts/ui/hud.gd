@@ -275,8 +275,8 @@ static func _stats_text(t: String, s: Dictionary) -> String:
 				txt += "\nGrenade %d dmg every %d bursts" % [s["grenade_dmg"], s["grenade_every"]]
 			return txt
 		"garage":
-			var txt := "%s every %ss\nRam %d dmg, hits %d enemies\nKnockback %d (control)" % [
-				String(s["vehicle"]).capitalize(), UI.fmt_num(s["interval"]), s["ram"], s["hits"], s["knock"]]
+			var txt := "%s every %ss\nCar HP %d (crash: both lose\nthe weaker one's HP)" % [
+				String(s["vehicle"]).capitalize(), UI.fmt_num(s["interval"]), s["car_hp"]]
 			if s["gun_dmg"] > 0:
 				txt += "\nTurret %d dmg x%s/s" % [s["gun_dmg"], UI.fmt_num(s["gun_rate"])]
 			return txt
@@ -329,7 +329,7 @@ func _on_speed() -> void:
 func _on_auto() -> void:
 	battle.auto_start = not battle.auto_start
 	UI.color_button(auto_btn, "green" if battle.auto_start else "gray")
-	if battle.auto_start and battle.can_start_wave() and battle.enemies.is_empty() and battle.wave > 0:
+	if battle.auto_start and battle.can_start_wave() and not battle.has_hostiles() and battle.wave > 0:
 		battle.auto_t = 0.5
 
 
@@ -433,6 +433,8 @@ func _shop_hovered() -> bool:
 
 
 static func enemy_lines(e) -> Array:
+	if e.is_friendly:
+		return _friendly_lines(e)
 	var cls: int = e.cls
 	var lines: Array = []
 	lines.append({"t": e.def["name"], "c": Color.WHITE, "r": "Class " + Defs.CLASS_ROMAN[cls],
@@ -466,6 +468,20 @@ static func enemy_lines(e) -> Array:
 		lines.append_array(st)
 	lines.append({"t": ""})
 	lines.append({"t": e.def["desc"], "c": Color("5a6988"), "wrap": true})
+	return lines
+
+
+static func _friendly_lines(e) -> Array:
+	var f: float = clampf(e.hp / e.max_hp, 0, 1)
+	var lines: Array = [{"t": e.def["name"], "c": Color.WHITE, "r": "FRIENDLY", "rc": Color("63c74d")}]
+	lines.append({"t": "HP", "c": Color("8b9bb4"), "r": "%d / %d" % [ceili(e.hp), int(e.max_hp)],
+		"rc": Color("63c74d")})
+	lines.append({"bar": f, "bc": Color("0099db")})
+	lines.append({"t": "Speed", "c": Color("8b9bb4"), "r": str(int(e.speed)), "rc": Color.WHITE})
+	if float(e.stats.get("gun_dmg", 0)) > 0:
+		lines.append({"t": "Turret", "c": Color("8b9bb4"), "r": "%d dmg" % int(e.stats["gun_dmg"]), "rc": Color.WHITE})
+	lines.append({"t": ""})
+	lines.append({"t": "Crash: both lose the HP of the weaker one.", "c": Color("5a6988"), "wrap": true})
 	return lines
 
 
