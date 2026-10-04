@@ -83,7 +83,7 @@ func _build_towers() -> void:
 		frame.size = Vector2(cw - 16, 92)
 		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(frame)
-		var spr := UI.sprite_rect("res://assets/sprites/towers/%s.png" % d["sprite"], 4)
+		var spr := UI.sprite_rect("res://assets/sprites/towers/%s.png" % d["sprite"], 3)
 		if not unlocked:
 			spr.modulate = Color(0, 0, 0, 0.9)
 		frame.add_child(spr)
@@ -154,7 +154,7 @@ func _open_tower(t: String) -> void:
 	frame.position = Vector2(0, 0)
 	frame.size = Vector2(150, 140)
 	root.add_child(frame)
-	view_sprite = UI.sprite_rect("res://assets/sprites/towers/%s.png" % d["sprite"], 6)
+	view_sprite = UI.sprite_rect("res://assets/sprites/towers/%s.png" % d["sprite"], 5)
 	if not unlocked:
 		view_sprite.modulate = Color(0, 0, 0, 0.9)
 	frame.add_child(view_sprite)

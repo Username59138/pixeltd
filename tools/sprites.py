@@ -19,6 +19,48 @@ C = {  # Endesga-32 inspired palette
 }
 
 
+# shaded tones used by the detailed (v0.1) characters
+C['skin_l'] = (246, 214, 180)
+C['skin_d'] = (194, 133, 105)
+C['skin_dd'] = (150, 95, 80)
+C['hat_l'] = (184, 111, 80)
+C['hat'] = (138, 78, 62)
+C['hat_d'] = (92, 48, 48)
+C['den_l'] = (60, 120, 190)
+C['den'] = (36, 82, 150)
+C['den_d'] = (26, 52, 100)
+C['stl_l'] = (232, 238, 248)
+C['stl'] = (176, 188, 210)
+C['stl_d'] = (116, 130, 160)
+C['stl_dd'] = (70, 80, 112)
+C['blu_l'] = (60, 170, 230)
+C['blu'] = (24, 112, 190)
+C['blu_d'] = (18, 70, 130)
+C['gld_l'] = (255, 236, 120)
+C['gld'] = (240, 180, 50)
+C['gld_d'] = (180, 110, 40)
+C['olv_l'] = (150, 170, 80)
+C['olv'] = (100, 125, 60)
+C['olv_d'] = (62, 82, 46)
+C['olv_dd'] = (40, 52, 36)
+C['tan_l'] = (220, 196, 140)
+C['tan_m'] = (176, 150, 100)
+C['tan_d'] = (124, 100, 70)
+C['org_l'] = (255, 170, 70)
+C['org'] = (240, 120, 30)
+C['org_d'] = (180, 70, 30)
+C['red_l'] = (240, 90, 90)
+C['red_m'] = (200, 45, 55)
+C['red_d'] = (130, 30, 45)
+C['gun_l'] = (200, 210, 225)
+C['gun'] = (110, 120, 145)
+C['gun_d'] = (60, 66, 90)
+C['wd'] = (130, 80, 50)
+C['wd_d'] = (85, 50, 35)
+C['glass'] = (120, 230, 245)
+C['glass_d'] = (40, 140, 180)
+
+
 def make(rows, cmap, outline=True, ocol=None):
     h = len(rows)
     w = max(len(r) for r in rows)
@@ -50,68 +92,91 @@ def make(rows, cmap, outline=True, ocol=None):
 
 # ---------------------------------------------------------------- TOWERS (face right)
 GUNNER = [
-    "................",
-    "......HHHH......",
-    ".....HHhhHH.....",
-    "...BBBBBBBBBB...",
-    "......SSSS......",
-    "......SSES......",
-    "......SSSS......",
-    ".....RRRRRR.....",
-    "....CCCCCCCC....",
-    "....CCLCCCCAAGGG",
-    "....CCLCCCC.GG..",
-    "....CCLCCCC.....",
-    ".....WWYWWW.....",
-    ".....PP..PP.....",
-    ".....FF..FF.....",
+    "....................",
+    "........hhh.........",
+    ".......hHHHH........",
+    "......hHHHHHd.......",
+    "......HHHHHHd.......",
+    "......rrrrrrd.......",
+    "...BBBBBBBBBBBBB....",
+    "....ddddddddddd.....",
+    "......kfFFFFF.......",
+    "......kFFFFeF.......",
+    "......kFFFFFFn......",
+    "......kfzFFFz.......",
+    ".......fzzzz........",
+    "......RRRRRRR.......",
+    ".....wVVRRRVVv......",
+    "....wwVVWWWVvFFlgggG",
+    "....wWVVWWWVvFFGGgg.",
+    "....FfVVWWWVv...G...",
+    ".....vVVWWWVV.......",
+    ".....LLLLyLLLx......",
+    ".....jjJ..jjJx......",
+    ".....jjJ..jjJ.......",
+    ".....oooO.oooO......",
+    "....ooooy.ooooy.....",
 ]
-GUNNER_C = {'H': 'dbrown', 'h': 'gold', 'B': 'maroon', 'S': 'skin', 'E': 'black', 'R': 'red',
-            'C': 'brown', 'L': 'lorange', 'A': 'skin', 'G': 'gray', 'W': 'xdbrown', 'Y': 'gold',
-            'P': 'dblue', 'F': 'xdbrown'}
-GUNNER_ELITE = dict(GUNNER_C, H='navy', h='yellow', B='xdgray', C='purple', L='magenta', R='gold', G='lgray')
+GUNNER_C = {'h': 'hat_l', 'H': 'hat', 'd': 'hat_d', 'r': 'red_m', 'B': 'hat', 'k': 'xdbrown', 'F': 'skin', 'f': 'skin_d', 'e': 'black', 'n': 'skin_d', 'z': 'skin_dd', 'R': 'red_l', 'V': 'hat_l', 'v': 'hat_d', 'w': 'sand', 'W': 'tan_l', 'l': 'gun_l', 'g': 'gun', 'G': 'gun_d', 'L': 'xdbrown', 'y': 'gld', 'x': 'hat', 'j': 'den', 'J': 'den_d', 'o': 'hat', 'O': 'hat_d'}
+GUNNER_ELITE = {'h': 'xdgray', 'H': 'navy', 'd': 'black', 'r': 'gld', 'B': 'navy', 'k': 'xdbrown', 'F': 'skin', 'f': 'skin_d', 'e': 'black', 'n': 'skin_d', 'z': 'skin_dd', 'R': 'gld_l', 'V': 'purple', 'v': 'black', 'w': 'sand', 'W': 'tan_l', 'l': 'gld_l', 'g': 'gld', 'G': 'gld_d', 'L': 'xdbrown', 'y': 'gld', 'x': 'navy', 'j': 'den', 'J': 'den_d', 'o': 'navy', 'O': 'black'}
 
 KNIGHT = [
-    ".......RR.......",
-    "......HHHH...w..",
-    ".....HHHHHH..w..",
-    ".....HHHHvv..w..",
-    ".....HHHHHH..w..",
-    "......GGGG...w..",
-    "..SSSTTTTTT..w..",
-    ".SSySSTTtTT.ggg.",
-    ".SyyySTTtTTMAb..",
-    ".SSySSTTtTTM.b..",
-    "..SSSTTTTTT.....",
-    "......LLLL......",
-    "......LL.LL.....",
-    ".....DDD.DDD....",
+    "........RR..........",
+    ".......RrRR.....w...",
+    ".......Rr.......wW..",
+    "......aaaa......wW..",
+    ".....aAAAAs.....wW..",
+    ".....AAAAAAs....wW..",
+    ".....AAAvvvs....wW..",
+    ".....AAAAAAs....wW..",
+    "......sAAAs.....wW..",
+    "....pPPgggPPp...wW..",
+    "..ccc.TTTTTPPp..wW..",
+    ".cCCCc.TTyTTPaGYYYG.",
+    "cCCyCCcTyyyTPaQAAb..",
+    "cCyyyCcTTyTTPa..b...",
+    "cCCyCCcTTTTTt.......",
+    ".cCCCc.TTTTTt.......",
+    "..ccc..MMMMMM.......",
+    ".......mMmMmM.......",
+    ".......LLl.LLl......",
+    ".......LLl.LLl......",
+    ".......LLl.LLl......",
+    "......DDDd.DDDd.....",
+    "......DDDd.DDDd.....",
+    "....................",
 ]
-KNIGHT_C = {'R': 'red', 'H': 'lgray', 'v': 'navy', 'G': 'gray', 'S': 'dblue', 'y': 'gold', 'T': 'blue',
-            't': 'white', 'w': 'white', 'g': 'gold', 'M': 'gray', 'A': 'lgray', 'b': 'dbrown', 'L': 'gray',
-            'D': 'dgray'}
-KNIGHT_ELITE = dict(KNIGHT_C, R='cyan', H='gold', G='yellow', S='dred', T='red', t='gold', w='cyan', L='gold',
-                    D='brown', M='gold', A='yellow')
+KNIGHT_C = {'R': 'red_m', 'r': 'red_l', 'w': 'stl_l', 'W': 'stl', 'a': 'stl_l', 'A': 'stl', 's': 'stl_d', 'v': 'black', 'p': 'stl_l', 'P': 'stl_d', 'g': 'stl_dd', 'c': 'gld_d', 'C': 'blu', 'y': 'gld_l', 'T': 'blu', 't': 'blu_d', 'G': 'gld_d', 'Y': 'gld', 'Q': 'stl', 'b': 'wd', 'M': 'stl_d', 'm': 'stl_dd', 'L': 'stl', 'l': 'stl_d', 'D': 'stl_d', 'd': 'stl_dd'}
+KNIGHT_ELITE = {'R': 'glass', 'r': 'red_l', 'w': 'glass', 'W': 'blu_l', 'a': 'gld_l', 'A': 'gld', 's': 'gld_d', 'v': 'black', 'p': 'gld_l', 'P': 'gld_d', 'g': 'stl_dd', 'c': 'gld_d', 'C': 'red_m', 'y': 'gld_l', 'T': 'red_m', 't': 'red_d', 'G': 'gld_d', 'Y': 'gld', 'Q': 'stl', 'b': 'wd', 'M': 'gld_d', 'm': 'stl_dd', 'L': 'gld', 'l': 'gld_d', 'D': 'gld_d', 'd': 'hat_d'}
 
 FLAMER = [
-    "................",
-    ".....HHHH.......",
-    "....HHHHHH......",
-    ".TTHHgGHgG......",
-    ".TTHHHHHHH......",
-    ".TTHHmmmH.......",
-    ".TT.SSSSSS......",
-    ".TTSSSSSSSS.....",
-    ".TTSSsSSSAAnnnN.",
-    ".TTSSsSSSA......",
-    ".TT.SSSSSS......",
-    "....WWWWWW......",
-    ".....SS.SS......",
-    ".....BB.BB......",
+    "....................",
+    "....................",
+    ".......HHHHH........",
+    "......HhHHHHH.......",
+    ".....HhHHHHHHd......",
+    ".....HHHmmmHHd......",
+    ".nn..HHmgGmgGd......",
+    "tTTt.HHmGgmGgd......",
+    "tTTt.HHHmmmmHd......",
+    "tTTt..dHmffmd.......",
+    "tYYt.SSSSccSSS......",
+    "tYYtSSsSSSSSSSs.....",
+    "tTTtSSsSSSSSSAAnnnnq",
+    "tTTtSSsSSSSSSAAnNNNQ",
+    "tTTt.SskykykyS......",
+    ".tt..SsSSSSSSs......",
+    ".....WWWWWWWWW......",
+    ".....SSS..SSS.......",
+    ".....SSs..SSs.......",
+    ".....SSs..SSs.......",
+    ".....BBB..BBB.......",
+    "....BBBBb.BBBBb.....",
+    "....................",
+    "....................",
 ]
-FLAMER_C = {'H': 'gold', 'g': 'cyan', 'G': 'dblue', 'm': 'dgray', 'T': 'red', 'S': 'orange', 's': 'gold',
-            'A': 'xdbrown', 'n': 'gray', 'N': 'dgray', 'W': 'xdbrown', 'B': 'xdbrown'}
-FLAMER_ELITE = dict(FLAMER_C, H='lgray', S='dgray', s='cyan', T='blue', g='orange', G='red', n='lgray')
+FLAMER_C = {'H': 'org', 'h': 'org_l', 'd': 'org_d', 'm': 'gun_d', 'g': 'glass', 'G': 'glass_d', 'f': 'gun', 't': 'red_d', 'T': 'red_m', 'S': 'org', 's': 'org_d', 'c': 'gld', 'A': 'xdbrown', 'n': 'gun', 'N': 'gun_d', 'W': 'xdbrown', 'B': 'xdbrown', 'b': 'black', 'Y': 'gld', 'q': 'yellow', 'Q': 'org_l', 'k': 'black', 'y': 'gld'}
+FLAMER_ELITE = {'H': 'stl', 'h': 'stl_l', 'd': 'stl_d', 'm': 'gun_d', 'g': 'org_l', 'G': 'org_d', 'f': 'gun', 't': 'blu_d', 'T': 'blu', 'S': 'stl', 's': 'stl_d', 'c': 'glass', 'A': 'xdbrown', 'n': 'gun', 'N': 'gun_d', 'W': 'xdbrown', 'B': 'xdbrown', 'b': 'black', 'Y': 'glass', 'q': 'glass', 'Q': 'blu_l', 'k': 'black', 'y': 'gld'}
 
 # ---------------------------------------------------------------- ENEMIES (face right)
 SLIME = [
@@ -692,24 +757,33 @@ ICONS = {
 
 # ---------------------------------------------------------------- v0.1 additions
 SOLDIER = [
-    "................",
-    ".....GGGG.......",
-    "....GgGGGG......",
-    "....GGGGGGG.....",
-    "......SSSE......",
-    "......SSSS......",
-    ".....UUUUU......",
-    "....UUUUUUUKKKKk",
-    "....UUuUUUAKK...",
-    "....UUuUUUU.....",
-    "....UUuUUUU.....",
-    ".....BBBBB......",
-    ".....UU.UU......",
-    ".....KK.KK......",
+    "....................",
+    "....................",
+    "........hhhh........",
+    "......hhHHHHH.......",
+    ".....hHHHnHHHd......",
+    ".....HHHHqQqQd......",
+    ".....dddddddddd.....",
+    "......kFFFFFF.......",
+    "......kFFFeFF.......",
+    "......kfFFFFFn......",
+    ".......fzzzf........",
+    "....BBOOOOOOO.......",
+    "...BBbOoOOOoO.......",
+    "...BBbOoOOOOOFtGGGGl",
+    "...BBbOoOPPOOttGGG..",
+    "...BBbOOOPPOOO..G...",
+    "....bbOOOOOOOO......",
+    ".....wwwwywwww......",
+    ".....OOO..OOO.......",
+    ".....OOo..OOo.......",
+    ".....OOo..OOo.......",
+    ".....KKK..KKK.......",
+    "....KKKKk.KKKKk.....",
+    "....................",
 ]
-SOLDIER_C = {'G': 'dgreen', 'g': 'green', 'S': 'skin', 'E': 'black', 'U': 'green', 'u': 'dgreen',
-             'K': 'xdgray', 'k': 'gray', 'A': 'skin', 'B': 'dbrown'}
-SOLDIER_ELITE = dict(SOLDIER_C, G='black', g='xdgray', U='navy', u='black', K='gold', k='yellow', B='gold')
+SOLDIER_C = {'q': 'glass', 'Q': 'glass_d', 'e': 'black', 'h': 'olv_l', 'H': 'olv', 'n': 'olv_l', 'd': 'olv_d', 'k': 'xdbrown', 'F': 'skin', 'f': 'skin_d', 'z': 'skin_dd', 'g': 'glass', 'G': 'gun_d', 'B': 'tan_m', 'b': 'tan_d', 'O': 'tan_l', 'o': 'tan_m', 'P': 'olv', 't': 'wd', 'T': 'wd_d', 'l': 'gun_l', 'w': 'olv_dd', 'y': 'gld', 'K': 'xdbrown'}
+SOLDIER_ELITE = {'q': 'red_l', 'Q': 'red_d', 'e': 'black', 'h': 'xdgray', 'H': 'navy', 'n': 'xdgray', 'd': 'black', 'k': 'xdbrown', 'F': 'skin', 'f': 'skin_d', 'z': 'skin_dd', 'g': 'glass', 'G': 'gun_d', 'B': 'gun_d', 'b': 'black', 'O': 'gun', 'o': 'gun_d', 'P': 'navy', 't': 'gld', 'T': 'gld_d', 'l': 'gld_l', 'w': 'black', 'y': 'gld', 'K': 'xdbrown'}
 
 GARAGE = [
     "..RRRRRRRRRRRR..",

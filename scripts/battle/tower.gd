@@ -58,8 +58,15 @@ func recompute() -> void:
 	var elite: bool = level >= def["upgrades"].size()
 	var name: String = def["sprite"] + ("_elite" if elite else "")
 	sprite.texture = Game.tex("res://assets/sprites/towers/%s.png" % name)
-	sprite.offset = Vector2(0, -3)
+	sprite.offset = Vector2(0, base_offset_y(sprite.texture))
 	queue_redraw()
+
+
+## Keeps a sprite's feet on the same spot whatever its height (old sprites were 18 px tall).
+static func base_offset_y(tex: Texture2D) -> float:
+	if tex == null:
+		return -3.0
+	return -3.0 - maxf(0.0, (tex.get_height() - 18) / 2.0)
 
 
 func max_level() -> int:
@@ -251,7 +258,7 @@ func _update_visual() -> void:
 		return
 	if type != "garage":
 		sprite.flip_h = aim.x < -0.05
-	var off := Vector2(0, -3)
+	var off := Vector2(0, base_offset_y(sprite.texture))
 	if attack_anim > 0.0:
 		match type:
 			"gunner", "soldier":

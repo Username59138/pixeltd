@@ -114,10 +114,10 @@ func _build_sidebar() -> void:
 		if Game.is_tower_unlocked(t):
 			shop_order.append(t)
 	for t in shop_order:
-		var b := UI.button("", "blue", Vector2(118, 28))
+		var b := UI.button("", "blue", Vector2(118, 32))
 		b.icon = Game.tex("res://assets/sprites/towers/%s.png" % Defs.TOWERS[t]["sprite"])
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.add_theme_constant_override("icon_max_width", 18)
+		b.add_theme_constant_override("icon_max_width", 22)
 		b.pressed.connect(func(): _on_shop(t))
 		b.mouse_entered.connect(func(): _shop_tip(t, b))
 		b.mouse_exited.connect(func(): tip.hide_tip())
@@ -135,7 +135,7 @@ func _build_sidebar() -> void:
 	var head := HBoxContainer.new()
 	info_box.add_child(head)
 	info_icon = TextureRect.new()
-	info_icon.custom_minimum_size = Vector2(18, 18)
+	info_icon.custom_minimum_size = Vector2(22, 26)
 	info_icon.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	head.add_child(info_icon)
 	var hv := VBoxContainer.new()

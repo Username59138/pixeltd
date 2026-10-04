@@ -1018,7 +1018,7 @@ func _draw_over(n: Node2D) -> void:
 	if placing != "" and not demo:
 		var tex := Game.tex("res://assets/sprites/towers/%s.png" % Defs.TOWERS[placing]["sprite"])
 		var c := tile_center(hover_tile)
-		n.draw_texture(tex, (c - tex.get_size() / 2.0 + Vector2(0, -3)).round(),
+		n.draw_texture(tex, (c - tex.get_size() / 2.0 + Vector2(0, TowerScript.base_offset_y(tex))).round(),
 			Color(1, 1, 1, 0.75) if can_place(hover_tile, placing) else Color(1, 0.4, 0.4, 0.6))
 
 
