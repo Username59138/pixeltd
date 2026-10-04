@@ -1,0 +1,289 @@
+extends Node2D
+## A placed tower. Battle calls update(dt) every fixed tick.
+
+enum Target { FIRST, LAST, STRONG, CLOSE }
+const TARGET_NAMES := ["First", "Last", "Strong", "Close"]
+
+var type := ""
+var def: Dictionary
+var level := 0
+var spent := 0
+var stats := {}
+var target_mode := Target.FIRST
+var cooldown := 0.0
+var hit_count := 0
+var damage_dealt := 0.0
+var kills := 0
+var tile := Vector2i.ZERO
+var battle: Node
+var selected := false
+var disabled_t := 0.0   # > 0 while buried by a volcano eruption
+
+var sprite: Sprite2D
+var anim_t := 0.0
+var attack_anim := 0.0
+var aim := Vector2.RIGHT
+var flame_on := 0.0
+var flame_tick := 0.0
+# soldier
+var burst_left := 0
+var burst_t := 0.0
+var burst_count := 0
+# garage
+var road: Array = []   # [path index, distance] where cars enter the road
+
+
+func setup(t: String, b: Node, cost_paid: int) -> void:
+	type = t
+	def = Defs.TOWERS[t]
+	battle = b
+	spent = cost_paid
+	sprite = Sprite2D.new()
+	add_child(sprite)
+	recompute()
+	cooldown = 0.2
+	if type == "garage":
+		road = battle.nearest_road(position)
+		cooldown = 1.0
+
+
+func recompute() -> void:
+	stats = (def["base"] as Dictionary).duplicate()
+	for i in level:
+		var up: Dictionary = def["upgrades"][i]
+		for k in up["set"]:
+			stats[k] = up["set"][k]
+	if battle and battle.headless:
+		return
+	var elite: bool = level >= def["upgrades"].size()
+	var name: String = def["sprite"] + ("_elite" if elite else "")
+	sprite.texture = Game.tex("res://assets/sprites/towers/%s.png" % name)
+	sprite.offset = Vector2(0, -3)
+	queue_redraw()
+
+
+func max_level() -> int:
+	return def["upgrades"].size()
+
+
+func next_upgrade() -> Dictionary:
+	if level >= max_level():
+		return {}
+	return def["upgrades"][level]
+
+
+func range_px() -> float:
+	return float(stats["range"])
+
+
+# ---------------------------------------------------------------- targeting
+func pick_targets(enemies: Array, count: int, skip_doomed := false) -> Array:
+	var r2 := range_px() * range_px()
+	var cands: Array = []
+	for e in enemies:
+		if e.alive and e.position.distance_squared_to(position) <= r2:
+			if skip_doomed and e.hp - e.incoming <= 0.0:
+				continue
+			cands.append(e)
+	if cands.is_empty():
+		return []
+	match target_mode:
+		Target.FIRST:
+			cands.sort_custom(func(a, b): return a.remaining() < b.remaining())
+		Target.LAST:
+			cands.sort_custom(func(a, b): return a.remaining() > b.remaining())
+		Target.STRONG:
+			cands.sort_custom(func(a, b): return a.hp > b.hp if a.cls == b.cls else a.cls > b.cls)
+		Target.CLOSE:
+			cands.sort_custom(func(a, b): return a.position.distance_squared_to(position) < b.position.distance_squared_to(position))
+	return cands.slice(0, count)
+
+
+func update(dt: float, enemies: Array) -> void:
+	anim_t += dt
+	if disabled_t > 0.0:
+		disabled_t -= dt
+		burst_left = 0
+		_update_visual()
+		return
+	cooldown -= dt
+	if attack_anim > 0.0:
+		attack_anim -= dt
+	if flame_on > 0.0:
+		flame_on -= dt
+	match type:
+		"gunner":
+			_update_gunner(enemies)
+		"knight":
+			_update_knight(enemies)
+		"flamer":
+			_update_flamer(dt, enemies)
+		"soldier":
+			_update_soldier(dt, enemies)
+		"garage":
+			_update_garage(enemies)
+	_update_visual()
+
+
+func _face(p: Vector2) -> void:
+	var d := p - position
+	if d.length() > 0.5:
+		aim = d.normalized()
+
+
+func _muzzle() -> Vector2:
+	return position + Vector2(7 * (1.0 if aim.x >= 0 else -1.0), -4)
+
+
+func _update_gunner(enemies: Array) -> void:
+	if cooldown > 0.0:
+		return
+	var ts := pick_targets(enemies, int(stats["targets"]), true)
+	if ts.is_empty():
+		return
+	cooldown = 1.0 / float(stats["rate"])
+	_face(ts[0].position)
+	for e in ts:
+		battle.spawn_bullet(self, _muzzle(), e, float(stats["damage"]), float(stats["slow"]), float(stats["slow_time"]))
+	attack_anim = 0.08
+	battle.fx_muzzle(_muzzle() + Vector2(aim.x, 0))
+	Sfx.play("shot", 0.1)
+
+
+func _update_soldier(dt: float, enemies: Array) -> void:
+	if burst_left > 0:
+		burst_t -= dt
+		if burst_t <= 0.0:
+			var ts := pick_targets(enemies, 1, true)
+			if ts.is_empty():
+				ts = pick_targets(enemies, 1)
+			if ts.is_empty():
+				burst_left = 0
+				return
+			burst_t = float(stats["burst_gap"])
+			burst_left -= 1
+			_face(ts[0].position)
+			battle.spawn_bullet(self, _muzzle(), ts[0], float(stats["damage"]), 0.0, 0.0, float(stats["armor_pierce"]))
+			attack_anim = 0.05
+			battle.fx_muzzle(_muzzle() + Vector2(aim.x, 0))
+			Sfx.play("shot", 0.2)
+		return
+	if cooldown > 0.0:
+		return
+	var ts := pick_targets(enemies, 1)
+	if ts.is_empty():
+		return
+	cooldown = 1.0 / float(stats["rate"])
+	burst_left = int(stats["burst"])
+	burst_t = 0.0
+	burst_count += 1
+	var ge := int(stats["grenade_every"])
+	if ge > 0 and burst_count % ge == 0:
+		var e = ts[0]
+		var lead: Vector2 = battle.path_point(e.path_i, maxf(0.0, e.dist + e.current_speed() * 0.45))[0]
+		battle.spawn_grenade(self, position + Vector2(0, -6), lead, float(stats["grenade_dmg"]),
+			float(stats["grenade_radius"]))
+
+
+func _update_knight(enemies: Array) -> void:
+	if cooldown > 0.0:
+		return
+	var ts := pick_targets(enemies, 1)
+	if ts.is_empty():
+		return
+	cooldown = 1.0 / float(stats["rate"])
+	_face(ts[0].position)
+	hit_count += 1
+	var stun_now: bool = int(stats["stun_every"]) > 0 and hit_count % int(stats["stun_every"]) == 0
+	var victims: Array = ts
+	if stats["cleave"]:
+		victims = pick_targets(enemies, 999)
+	for e in victims:
+		battle.damage_enemy(e, float(stats["damage"]), "physical", self, float(stats["armor_pierce"]))
+		if stun_now and e.alive:
+			e.apply_stun(float(stats["stun"]))
+	attack_anim = 0.18
+	battle.fx_slash(position + Vector2(0, -3), aim, range_px(), bool(stats["cleave"]), stun_now)
+	Sfx.play("slash", 0.15)
+
+
+func _update_flamer(dt: float, enemies: Array) -> void:
+	flame_tick -= dt
+	if flame_tick > 0.0:
+		return
+	var ts := pick_targets(enemies, 1)
+	if ts.is_empty():
+		return
+	flame_tick = 0.1
+	_face(ts[0].position)
+	flame_on = 0.15
+	var half_cone := deg_to_rad(float(stats["cone"]) * 0.5)
+	var r := range_px()
+	var origin := position + Vector2(0, -2)
+	for e in enemies:
+		if not e.alive:
+			continue
+		var d: Vector2 = e.position - origin
+		if d.length() > r + e.radius:
+			continue
+		if d.length() > 6.0 and absf(aim.angle_to(d)) > half_cone:
+			continue
+		battle.damage_enemy(e, float(stats["damage"]), "fire", self, float(stats["fire_pierce"]))
+		if e.alive:
+			e.apply_burn(float(stats["burn"]), float(stats["burn_time"]), float(stats["fire_pierce"]), self)
+	battle.fx_flame(position + Vector2(6 * (1.0 if aim.x >= 0 else -1.0), -3), aim, r, half_cone,
+		level >= max_level())
+	Sfx.play("flame", 0.1)
+
+
+func _update_garage(enemies: Array) -> void:
+	if cooldown > 0.0 or road.is_empty():
+		return
+	var any := false
+	for e in enemies:
+		if e.alive:
+			any = true
+			break
+	if not any:
+		return
+	cooldown = float(stats["interval"])
+	attack_anim = 0.4
+	battle.spawn_car(self)
+
+
+func _update_visual() -> void:
+	if battle.headless:
+		return
+	if type != "garage":
+		sprite.flip_h = aim.x < -0.05
+	var off := Vector2(0, -3)
+	if attack_anim > 0.0:
+		match type:
+			"gunner", "soldier":
+				off.x -= signf(aim.x) * 1.0
+			"knight":
+				off += (aim * 2.0).round()
+			"garage":
+				off.y += float(int(anim_t * 20.0) % 2)
+	if type == "flamer" and flame_on > 0.0:
+		off.y += float(int(anim_t * 30.0) % 2)
+	sprite.offset = off
+	sprite.modulate = Color(0.55, 0.35, 0.35) if disabled_t > 0.0 else Color.WHITE
+	queue_redraw()
+
+
+func _draw() -> void:
+	draw_rect(Rect2(-5, 4, 10, 2), Color(0, 0, 0, 0.3))
+	# level bar: always full, colour goes red -> yellow -> green -> purple
+	var col: Color = Defs.RAINBOW[clampi(level, 0, Defs.RAINBOW.size() - 1)]
+	draw_rect(Rect2(-6, 6, 12, 3), Color("181425"))
+	draw_rect(Rect2(-5, 7, 10, 1), col)
+	if disabled_t > 0.0:
+		var blink := int(anim_t * 6.0) % 2 == 0
+		draw_rect(Rect2(-8, -14, 16, 1), Color("f77622") if blink else Color("a22633"))
+	if selected:
+		var t := int(anim_t * 4.0) % 2
+		var c := Color("fee761")
+		var s := 8 + t
+		for p in [Vector2(-s, -s - 2), Vector2(s - 2, -s - 2), Vector2(-s, s - 2), Vector2(s - 2, s - 2)]:
+			draw_rect(Rect2(p, Vector2(2, 2)), c)

@@ -1,0 +1,181 @@
+extends Node2D
+## A walking enemy. Logic is driven by Battle.tick(); this node only stores state and draws itself.
+
+var type := ""
+var def: Dictionary
+var cls := 1
+var max_hp := 1.0
+var hp := 1.0
+var speed := 30.0
+var armor := 0.0
+var fire_res := 0.0
+var bounty := 0
+var radius := 6.0
+var path_i := 0
+var dist := 0.0
+var path_len := 1.0
+var alive := true
+var is_friendly := false
+var stats := {}
+
+
+# statuses
+var stun_t := 0.0
+var stun_immune_t := 0.0
+var slow_f := 0.0
+var slow_t := 0.0
+var burn_dps := 0.0
+var burn_t := 0.0
+var burn_pierce := 0.0
+var burn_src: Node = null
+var burn_acc := 0.0
+var heal_cd := 0.0
+var flash_t := 0.0
+var heal_flash_t := 0.0
+var heal_lock := 0.0
+var incoming := 0.0
+var final_boss := false  # damage of bullets already flying at this enemy
+
+var anim_t := 0.0
+var sprite: Sprite2D
+var tex_normal: Texture2D
+var tex_flash: Texture2D
+var effect_mult := 1.0
+
+
+func setup(t: String, hp_mult: float, p_i: int, p_len: float) -> void:
+	type = t
+	def = Defs.ENEMIES[t]
+	cls = int(def["class"])
+	effect_mult = Defs.CLASS_EFFECT[cls]
+	max_hp = roundf(float(def["hp"]) * hp_mult)
+	hp = max_hp
+	speed = float(def["speed"])
+	armor = float(def.get("armor", 0))
+	fire_res = float(def.get("fire_res", 0.0))
+	# reward grows with toughness so the economy keeps up with later waves
+	bounty = maxi(1, int(roundf(float(def["bounty"]) * Defs.BOUNTY_MULT * (1.0 + 0.5 * maxf(0.0, hp_mult - 1.0)))))
+	radius = float(def.get("radius", 6))
+	path_i = p_i
+	path_len = p_len
+	heal_cd = 2.5
+	anim_t = randf() * 10.0
+	tex_normal = Game.tex("res://assets/sprites/enemies/%s.png" % t)
+	tex_flash = Game.tex("res://assets/sprites/enemies/%s_flash.png" % t)
+	sprite = Sprite2D.new()
+	sprite.texture = tex_normal
+	sprite.centered = true
+	var h := tex_normal.get_height()
+	sprite.offset = Vector2(0, -h / 2.0 + 4)
+	if int(tex_normal.get_width()) % 2 == 1:
+		sprite.offset.x = 0.5
+	if h % 2 == 1:
+		sprite.offset.y += 0.5
+	add_child(sprite)
+
+
+func remaining() -> float:
+	return path_len - dist
+
+
+func is_stunned() -> bool:
+	return stun_t > 0.0
+
+
+func current_speed() -> float:
+	if stun_t > 0.0:
+		return 0.0
+	var s := speed
+	if slow_t > 0.0:
+		s *= (1.0 - slow_f)
+	return s
+
+
+## Control effects are scaled by class (I 100% ... IV 20%).
+func apply_stun(duration: float) -> void:
+	if stun_immune_t > 0.0:
+		return
+	var d := duration * effect_mult
+	if d < 0.04:
+		return
+	stun_t = maxf(stun_t, d)
+	stun_immune_t = d + 0.35
+
+
+func apply_slow(amount: float, duration: float) -> void:
+	var a := amount * effect_mult
+	var d := duration * effect_mult
+	if a >= slow_f or slow_t <= 0.0:
+		slow_f = a
+	slow_t = maxf(slow_t, d)
+
+
+## Knockback pushes the enemy back along the road; control, so scaled by class.
+func apply_knockback(px: float) -> void:
+	dist = maxf(0.0, dist - px * effect_mult)
+
+
+## Burn is damage, so it is NOT reduced by class.
+func apply_burn(dps: float, duration: float, pierce: float, src: Node) -> void:
+	if dps >= burn_dps or burn_t <= 0.0:
+		burn_dps = dps
+		burn_pierce = pierce
+		burn_src = src
+	burn_t = maxf(burn_t, duration)
+
+
+func tick_status(dt: float) -> void:
+	anim_t += dt
+	if stun_t > 0.0:
+		stun_t -= dt
+	if stun_immune_t > 0.0:
+		stun_immune_t -= dt
+	if slow_t > 0.0:
+		slow_t -= dt
+		if slow_t <= 0.0:
+			slow_f = 0.0
+	if flash_t > 0.0:
+		flash_t -= dt
+	if heal_flash_t > 0.0:
+		heal_flash_t -= dt
+	if heal_lock > 0.0:
+		heal_lock -= dt
+
+
+func update_visual(dir: Vector2) -> void:
+	if absf(dir.x) > 0.1:
+		sprite.flip_h = dir.x < 0
+	var moving := current_speed() > 0.0
+	var bob := 0.0
+	if moving:
+		bob = -roundf(absf(sin(anim_t * (6.0 + speed * 0.08))) * (1.0 if cls < 4 else 2.0))
+	sprite.position = Vector2(0, bob)
+	sprite.texture = tex_flash if flash_t > 0.0 else tex_normal
+	if burn_t > 0.0:
+		sprite.modulate = Color(1.0, 0.75, 0.6)
+	elif slow_t > 0.0:
+		sprite.modulate = Color(0.7, 0.85, 1.0)
+	elif heal_flash_t > 0.0:
+		sprite.modulate = Color(0.7, 1.0, 0.7)
+	else:
+		sprite.modulate = Color.WHITE
+	queue_redraw()
+
+
+func _draw() -> void:
+	var h := tex_normal.get_height()
+	# shadow
+	var sw := maxf(4.0, tex_normal.get_width() * 0.35)
+	draw_rect(Rect2(-sw, 3, sw * 2, 2), Color(0, 0, 0, 0.25))
+	# status pixels
+	if stun_t > 0.0:
+		var a := anim_t * 8.0
+		for i in 3:
+			var ang := a + i * TAU / 3.0
+			var p := Vector2(cos(ang) * 6.0, -h + sin(ang) * 2.0 - 2.0).round()
+			draw_rect(Rect2(p, Vector2(1, 1)), Color("fee761"))
+	if burn_t > 0.0:
+		for i in 2:
+			var fy := -fmod(anim_t * 20.0 + i * 5.0, 10.0)
+			var fx := sin(anim_t * 9.0 + i * 2.0) * 3.0
+			draw_rect(Rect2(Vector2(fx, fy - 2).round(), Vector2(1, 2)), Color("f77622"))
