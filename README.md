@@ -57,6 +57,11 @@ Open **Towers** in the main menu and click a portrait to see every tower's full 
 
 ## Source
 
+> **After cloning or pulling**, open the project in the Godot editor once (or run `godot --headless --import`)
+> before running the game. Scripts use `class_name`, and Godot only registers those names when it scans the
+> project. Without that step you get errors like `Identifier "Defs" not declared in the current scope`.
+
+
 - `scripts/data/defs.gd`: all the numbers (towers, enemies, difficulties, wave generator).
 - `scripts/battle/`: the battlefield (`battle.gd`), towers (`tower.gd`) and enemies (`enemy.gd`).
 - `scripts/ui/`: menus, the in-battle HUD and tooltips.

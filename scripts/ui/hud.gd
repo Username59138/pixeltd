@@ -7,6 +7,9 @@ const MapsData = preload("res://scripts/data/maps_data.gd")
 const UI = preload("res://scripts/ui/ui.gd")
 const Tooltip = preload("res://scripts/ui/tooltip.gd")
 
+# preload instead of the global class name: works even if the editor class cache is stale
+const SettingsScreenScript := preload("res://scripts/ui/settings_screen.gd")
+
 signal quit_to_menu
 signal restart
 
@@ -575,7 +578,7 @@ func _center_panel(root: Control, w: float) -> VBoxContainer:
 
 func _open_settings() -> void:
 	pause_layer.visible = false
-	settings_layer = SettingsScreen.new()
+	settings_layer = SettingsScreenScript.new()
 	add_child(settings_layer)
 	settings_layer.closed.connect(func():
 		settings_layer.queue_free()

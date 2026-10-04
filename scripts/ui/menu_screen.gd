@@ -3,6 +3,9 @@ extends Control
 ## Title screen: logo on top, PLAY / TOWERS at the bottom, live battle diorama behind.
 
 
+# preload instead of the global class name: works even if the editor class cache is stale
+const SettingsScreenScript := preload("res://scripts/ui/settings_screen.gd")
+
 var main: Node
 var logo: TextureRect
 var t := 0.0
@@ -80,7 +83,7 @@ func _ready() -> void:
 
 func _open_settings() -> void:
 	Sfx.play("click")
-	var st := SettingsScreen.new()
+	var st := SettingsScreenScript.new()
 	add_child(st)
 	st.closed.connect(st.queue_free)
 
