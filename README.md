@@ -1,57 +1,73 @@
 # Pixel TD v0.1
 
-Пиксельный Tower Defense на Godot 4.7.2 (рендер GL Compatibility, работает почти на любом Linux с OpenGL 3.3).
+A pixel art tower defense game made with Godot 4.7.2 (GL Compatibility renderer, runs on pretty much any Linux machine with OpenGL 3.3).
 
-## Запуск
+## Running
+
 ```
 chmod +x PixelTD.x86_64
 ./PixelTD.x86_64
 ```
-Прогресс сохраняется в `~/.local/share/godot/app_userdata/Pixel TD/pixel_td_save.json`.
 
-## Управление
-| Действие | Как |
+Progress is saved to `~/.local/share/godot/app_userdata/Pixel TD/pixel_td_save.json`.
+
+## Controls
+
+| Action | How |
 |---|---|
-| Купить башню | кнопка справа или клавиши **1–5** (в магазине только открытые башни) |
-| Поставить | ЛКМ по клетке (с **Shift** можно ставить несколько подряд) |
-| Отмена / снять выделение | ПКМ или **Esc** |
-| Выбрать башню | ЛКМ по башне: апгрейд (**U**), режим цели (**T**), продажа |
-| Следующая волна | **Пробел** или кнопка внизу |
-| Скорость 1x/2x/3x | **F** |
-| Пауза | **Esc** |
-| Полный экран | **F11** |
+| Buy a tower | Button on the right or keys **1–5** (the shop only shows unlocked towers) |
+| Place it | Left click on a tile (hold **Shift** to place several) |
+| Cancel / deselect | Right click or **Esc** |
+| Select a tower | Left click on it: upgrade (**U**), targeting mode (**T**), sell |
+| Next wave | **Space** or the button at the bottom |
+| Speed 1x/2x/3x | **F** |
+| Pause | **Esc** |
+| Fullscreen | **F11** |
 
-Наведи курсор на врага: увидишь имя, класс, HP, скорость, броню, огнестойкость, силу контроля и текущие эффекты.
+Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, control strength and current effects.
 
-## Механики
-- **Классы врагов I–IV** ослабляют только контроль (оглушение, замедление): 100% / 70% / 40% / 20%. Урон, включая поджог, проходит всегда полностью.
-- **Сложности:** Light (20 волн), Medium (30), Difficult (40), Hardcore (40 волн, 1 жизнь, без продажи).
-- **Открытие башен прохождением карт** (более высокая сложность тоже засчитывается):
-  - Soldier: Green Meadow на Medium
-  - Garage: Gas Station на Difficult
-  - Flamethrower: Volcano на Medium
-- **Volcano:** две короткие дороги, лава на лучших местах, каждую вторую волну извержение. Клетки у лавы мигают оранжевым, а башни на них потом 6 секунд не стреляют.
-- У финального босса катки сверху экрана большая полоса HP. HP остальных врагов смотри наведением.
-- Полоска под башней показывает уровень цветом: красный → жёлтый → зелёный → фиолетовый (максимум).
+## Mechanics
 
-## Башни
-- **Gunslinger:** одиночные выстрелы, броня режет урон пуль. Quick Draw → Hollow Points → Dual Pistols (2 цели + замедление).
-- **Knight:** ближний бой, игнорирует 50% брони, каждый 3-й удар оглушает. Sharpened Blade → Cleave → Champion.
-- **Soldier:** очереди из автомата с большой дальности. AP Rounds (пробивают броню) → Grenades → Machine Gun.
-- **Garage:** ставится только вплотную к дороге. Выпускает дружественные машины (`is_friendly` враги), которые едут по дороге навстречу врагам. При столкновении обе стороны теряют `min(HP машины, HP врага)`. Pickup → Truck → Armored Car (с турелью).
-- **Flamethrower:** конус огня и поджог, игнорирует броню, но Fire Imp к нему иммунен. Bigger Tank → Napalm → Blue Flame.
+- **Enemy classes I–IV** only weaken control effects (stun, slow): 100% / 70% / 40% / 20%. Damage, including burning, always applies in full.
+- **Difficulties:** Light (20 waves), Medium (30), Difficult (40), Hardcore (40 waves, 1 life, no selling).
+- **Towers are unlocked by beating maps** (a higher difficulty counts too):
+  - Soldier: Green Meadow on Medium
+  - Garage: Gas Station on Difficult
+  - Flamethrower: Volcano on Medium
+- **Volcano:** two short roads, lava on the best spots and an eruption every second wave. Tiles next to the lava flash orange, then towers on them stop shooting for 6 seconds.
+- The final boss of a run gets a big HP bar at the top of the screen. Hover other enemies to see their HP.
+- The bar under a tower shows its level by color: red → yellow → green → purple (max).
 
-Полное описание каждой башни и её улучшений смотри в меню **Towers**: нажми на портрет.
+## Towers
 
-## Исходники
-- `scripts/data/defs.gd`: все числа (башни, враги, сложности, генератор волн).
-- `tools/gen_art.py`, `tools/sprites.py`: генератор всей пиксельной графики и карт (Python + Pillow). После правок запусти `python3 tools/gen_art.py`.
-- `tools/gen_sfx.py`: генератор 8-битных звуков.
-- Сборка: открыть в Godot 4.7.2 → Project → Export → Linux.
+- **Gunslinger:** single shots; armor reduces bullet damage. Quick Draw → Hollow Points → Dual Pistols (2 targets + slow).
+- **Knight:** melee, ignores 50% of armor, every 3rd hit stuns. Sharpened Blade → Cleave → Champion.
+- **Soldier:** long range rifle bursts. AP Rounds (armor piercing) → Grenades → Machine Gun.
+- **Garage:** must be built next to a road. Sends friendly cars (`is_friendly` enemies) that drive along the road towards the enemies. On a crash both sides lose `min(car HP, enemy HP)`. Pickup → Truck → Armored Car (with a turret).
+- **Flamethrower:** fire cone and burning, ignores armor, but the Fire Imp is immune. Bigger Tank → Napalm → Blue Flame.
 
-Для разработчика (аргументы после `--`):
-- `--sim`: прогнать бота по всем картам и сложностям (проверка баланса, работает с `--headless`).
-- `--unlock-all`: открыть всё.
-- `--battle <map> <0-3> --bot`: смотреть, как играет бот.
+Open **Towers** in the main menu and click a portrait to see every tower's full stats and upgrade path.
 
-Шрифты: Tiny5 и Press Start 2P (SIL Open Font License).
+## Source
+
+- `scripts/data/defs.gd`: all the numbers (towers, enemies, difficulties, wave generator).
+- `scripts/battle/`: the battlefield (`battle.gd`), towers (`tower.gd`) and enemies (`enemy.gd`).
+- `scripts/ui/`: menus, the in-battle HUD and tooltips.
+- `tools/gen_art.py`, `tools/sprites.py`: generate all the pixel art and maps (Python + Pillow). Run `python3 tools/gen_art.py` after editing them. `scripts/data/maps_data.gd` is generated too, so don't edit it by hand.
+- `tools/gen_sfx.py`: generates the 8-bit sound effects.
+- Building: open the project in Godot 4.7.2 → Project → Export → Linux.
+
+Developer flags (passed after `--`):
+
+- `--sim`: run the balance bot on every map and difficulty (works with `--headless`).
+- `--unlock-all`: unlock everything.
+- `--battle <map> <0-3> --bot`: watch the bot play.
+
+## License
+
+The game is licensed under the **GNU General Public License v3.0**, see [LICENSE](LICENSE).
+
+The fonts are third party and keep their own license, the SIL Open Font License 1.1:
+
+- Tiny5: [assets/fonts/OFL-tiny5.txt](assets/fonts/OFL-tiny5.txt)
+- Press Start 2P: [assets/fonts/OFL-pressstart2p.txt](assets/fonts/OFL-pressstart2p.txt)
