@@ -38,7 +38,6 @@ var end_layer: Control
 var hint_l: Label
 var shop_order: Array = []   # unlocked towers only, in shop order (keys 1..N)
 var boss_bar: Control
-var keys_l: Label
 var settings_layer: Control
 
 
@@ -120,8 +119,6 @@ func _build_sidebar() -> void:
 		b.mouse_exited.connect(func(): tip.hide_tip())
 		shop_box.add_child(b)
 		shop_buttons[t] = b
-	var keys := keys_l
-	shop_box.add_child(keys)
 
 	# selected tower info
 	info_box = VBoxContainer.new()
