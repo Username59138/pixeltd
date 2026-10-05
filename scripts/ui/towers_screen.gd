@@ -62,8 +62,8 @@ func _show(towers: bool) -> void:
 # ---------------------------------------------------------------- portrait grid
 func _build_towers() -> void:
 	var n := Defs.TOWER_ORDER.size()
-	var cw := 112
-	var gap := 8
+	var cw := 96
+	var gap := 6
 	var x0 := (640 - (n * cw + (n - 1) * gap)) / 2
 	for i in n:
 		var t: String = Defs.TOWER_ORDER[i]
@@ -315,7 +315,7 @@ func _close_tower() -> void:
 func _build_enemies() -> void:
 	var cols := 4
 	var cw := 150
-	var ch := 62
+	var ch := 48
 	var gap := 4
 	var x0 := (640 - (cols * cw + (cols - 1) * gap)) / 2
 	for i in Defs.ENEMY_ORDER.size():
@@ -342,8 +342,17 @@ func _build_enemies() -> void:
 		v.add_child(top)
 		top.add_child(UI.label(e["name"], 10, Color.WHITE))
 		top.add_child(UI.label(Defs.CLASS_ROMAN[cls], 10, Defs.CLASS_COLORS[cls]))
+		top.add_child(UI.label("ctrl %d%%" % int(Defs.CLASS_EFFECT[cls] * 100), 10, Defs.CLASS_COLORS[cls]))
 		v.add_child(UI.label("HP %d   Speed %d" % [e["hp"], e["speed"]], 10, Color("c0cbdc")))
 		var tr: Array = []
+		if e.get("flying", false):
+			tr.append("Flying")
+		if e.get("invisible", false):
+			tr.append("Invisible")
+		if e.has("revive"):
+			tr.append("Revives")
+		if e.has("rage"):
+			tr.append("Enrages")
 		if e.has("armor"):
 			tr.append("Armor %d" % e["armor"])
 		if e.get("fire_res", 0.0) >= 1.0:
@@ -355,10 +364,9 @@ func _build_enemies() -> void:
 		if e.has("split"):
 			tr.append("Splits")
 		v.add_child(UI.label(", ".join(tr) if tr.size() else "-", 10, Color("feae34")))
-		v.add_child(UI.label("Control %d%%" % int(Defs.CLASS_EFFECT[cls] * 100), 10, Defs.CLASS_COLORS[cls]))
 	var foot := UI.label("Class weakens only CONTROL (stun, slow):  I 100%  II 70%  III 40%  IV 20%.",
 		10, Color("c0cbdc"), HORIZONTAL_ALIGNMENT_CENTER)
-	foot.position = Vector2(0, 202)
+	foot.position = Vector2(0, 212)
 	foot.size = Vector2(640, 12)
 	content.add_child(foot)
 

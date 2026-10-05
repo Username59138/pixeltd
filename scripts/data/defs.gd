@@ -29,18 +29,19 @@ const DIFFICULTIES := [
 
 # ---------------------------------------------------------------- towers
 # "base" holds level-0 stats; each upgrade overrides some of them ("set"). Upgrades are a single line.
-const TOWER_ORDER := ["gunner", "knight", "soldier", "garage", "flamer"]
+const TOWER_ORDER := ["gunner", "knight", "soldier", "garage", "flamer", "sniper"]
 const TOWERS := {
 	"gunner": {
 		"name": "Gunslinger", "role": "Ranged - single target", "cost": 200, "sprite": "gunner",
 		"desc": "Quick pistol shots at one target. Armor reduces each bullet.",
 		"unlock": {},
 		"base": {"damage": 4, "rate": 2.0, "range": 72, "targets": 1, "slow": 0.0, "slow_time": 0.0,
-			"kind": "physical", "armor_pierce": 0.0},
+			"kind": "physical", "armor_pierce": 0.0, "camo": false, "air": true},
 		"upgrades": [
 			{"name": "Quick Draw", "icon": "quick_draw", "cost": 150, "desc": "Fire rate +50%.", "set": {"rate": 3.0}},
-			{"name": "Hollow Points", "icon": "hollow_points", "cost": 340, "desc": "Damage 4 > 8. Range +12.",
-				"set": {"damage": 8, "range": 84}},
+			{"name": "Hollow Points", "icon": "hollow_points", "cost": 340,
+				"desc": "Damage 4 > 8. Range +12. Spots INVISIBLE enemies.",
+				"set": {"damage": 8, "range": 84, "camo": true}},
 			{"name": "Dual Pistols", "icon": "dual_pistols", "cost": 800,
 				"desc": "Shoots 2 targets, dmg 11. Bullets slow by 35% (control).",
 				"set": {"targets": 2, "damage": 11, "slow": 0.35, "slow_time": 0.7, "rate": 3.4}},
@@ -51,7 +52,7 @@ const TOWERS := {
 		"desc": "Heavy sword. Ignores half of armor. Every 3rd hit stuns (control).",
 		"unlock": {},
 		"base": {"damage": 14, "rate": 0.9, "range": 30, "cleave": false, "stun_every": 3, "stun": 0.5,
-			"kind": "physical", "armor_pierce": 0.5},
+			"kind": "physical", "armor_pierce": 0.5, "camo": false, "air": false},
 		"upgrades": [
 			{"name": "Sharpened Blade", "icon": "sharpened_blade", "cost": 190, "desc": "Damage 14 > 24, swings faster.",
 				"set": {"damage": 24, "rate": 1.1}},
@@ -66,10 +67,12 @@ const TOWERS := {
 		"desc": "Assault rifle firing 3-round bursts from long range.",
 		"unlock": {"map": "meadow", "difficulty": 1},
 		"base": {"damage": 4, "rate": 0.8, "burst": 3, "burst_gap": 0.09, "range": 92, "armor_pierce": 0.0,
-			"grenade_every": 0, "grenade_dmg": 0, "grenade_radius": 0, "kind": "physical"},
+			"grenade_every": 0, "grenade_dmg": 0, "grenade_radius": 0, "kind": "physical",
+			"camo": false, "air": true},
 		"upgrades": [
 			{"name": "AP Rounds", "icon": "ap_rounds", "cost": 230,
-				"desc": "Bullets ignore 75% of armor. Damage 4 > 5.", "set": {"armor_pierce": 0.75, "damage": 5}},
+				"desc": "Bullets ignore 75% of armor. Damage 4 > 5. Spots INVISIBLE enemies.",
+				"set": {"armor_pierce": 0.75, "damage": 5, "camo": true}},
 			{"name": "Grenades", "icon": "grenades", "cost": 500,
 				"desc": "Every 3rd burst also throws a grenade that hits a whole area.",
 				"set": {"grenade_every": 3, "grenade_dmg": 40, "grenade_radius": 24}},
@@ -80,10 +83,11 @@ const TOWERS := {
 	},
 	"garage": {
 		"name": "Garage", "role": "Road - friendly cars", "cost": 400, "sprite": "garage",
-		"desc": "Build next to a road. Sends cars that drive INTO the enemies. On a crash both lose the HP of the weaker one.",
+		"desc": "Build next to a road. Sends cars that drive INTO the enemies, invisible ones too. On a crash both lose the HP of the weaker one.",
 		"unlock": {"map": "gas_station", "difficulty": 2},
 		"base": {"interval": 6.0, "car_hp": 24, "car_speed": 70, "vehicle": "car",
-			"gun_dmg": 0, "gun_rate": 0.0, "range": 0},
+			"gun_dmg": 0, "gun_rate": 0.0, "range": 0,
+			"camo": true, "air": false},
 		"upgrades": [
 			{"name": "Pickup", "icon": "pickup", "cost": 260, "desc": "Sturdier car (45 HP), comes out more often.",
 				"set": {"vehicle": "pickup", "car_hp": 45, "interval": 5.0}},
@@ -96,10 +100,10 @@ const TOWERS := {
 	},
 	"flamer": {
 		"name": "Flamethrower", "role": "Close - area burn", "cost": 400, "sprite": "flamer",
-		"desc": "Sprays fire in a cone and sets enemies ablaze. Fire ignores armor.",
+		"desc": "Sprays fire in a cone and sets enemies ablaze. Fire ignores armor. Can't aim at invisible enemies, but the flames still burn them.",
 		"unlock": {"map": "volcano", "difficulty": 1},
 		"base": {"damage": 3.5, "range": 46, "cone": 56.0, "burn": 4.0, "burn_time": 2.0, "fire_pierce": 0.0,
-			"kind": "fire"},
+			"kind": "fire", "camo": false, "air": false},
 		"upgrades": [
 			{"name": "Bigger Tank", "icon": "bigger_tank", "cost": 300, "desc": "Range 46 > 58. Wider cone.",
 				"set": {"range": 58, "cone": 72.0}},
@@ -109,11 +113,28 @@ const TOWERS := {
 				"set": {"damage": 10.0, "burn": 26.0, "fire_pierce": 0.5}},
 		],
 	},
+	"sniper": {
+		"name": "Sniper", "role": "Ranged - huge range, sees all", "cost": 400, "sprite": "sniper",
+		"desc": "Slow, heavy shots from across the map. Sees INVISIBLE and hits FLYING enemies.",
+		"unlock": {"map": "meadow", "difficulty": 2},
+		"base": {"damage": 20, "rate": 0.45, "range": 170, "armor_pierce": 0.3, "headshot": 0.0,
+			"kind": "physical", "camo": true, "air": true},
+		"upgrades": [
+			{"name": "Optics", "icon": "optics", "cost": 240, "desc": "Range 170 > 240. Damage 20 > 28.",
+				"set": {"range": 240, "damage": 28}},
+			{"name": "Full Metal Jacket", "icon": "fmj", "cost": 480,
+				"desc": "Ignores ALL armor. Damage 28 > 55, shoots faster.",
+				"set": {"armor_pierce": 1.0, "damage": 55, "rate": 0.55}},
+			{"name": "Headshot", "icon": "headshot", "cost": 1300,
+				"desc": "Damage 110. 15% chance to kill any non-boss enemy outright.",
+				"set": {"damage": 110, "rate": 0.65, "headshot": 0.15}},
+		],
+	},
 }
 
 # ---------------------------------------------------------------- enemies
-const ENEMY_ORDER := ["slime", "rat", "goblin", "wolf", "ironclad", "imp", "shaman", "slime_king", "ogre",
-	"golem", "demon"]
+const ENEMY_ORDER := ["slime", "rat", "bat", "goblin", "skeleton", "wolf", "ironclad", "imp", "ghost",
+	"berserker", "shaman", "slime_king", "harpy", "ogre", "golem", "demon"]
 const ENEMIES := {
 	"slime": {"name": "Slime", "class": 1, "hp": 12, "speed": 28, "bounty": 2, "radius": 6,
 		"desc": "Bouncy and squishy."},
@@ -121,6 +142,16 @@ const ENEMIES := {
 		"desc": "Small and very fast."},
 	"goblin": {"name": "Goblin", "class": 1, "hp": 26, "speed": 34, "bounty": 3, "radius": 6,
 		"desc": "Standard foot soldier."},
+	"bat": {"name": "Bat", "class": 1, "hp": 9, "speed": 52, "bounty": 2, "radius": 5, "flying": true,
+		"desc": "Flies in swarms. Melee, fire and cars can't reach it."},
+	"skeleton": {"name": "Skeleton", "class": 1, "hp": 28, "speed": 32, "bounty": 3, "radius": 6, "revive": 0.5,
+		"desc": "Falls apart, then gets back up once with half HP."},
+	"ghost": {"name": "Ghost", "class": 2, "hp": 60, "speed": 36, "bounty": 6, "radius": 6, "invisible": true,
+		"desc": "Invisible. Only towers that spot invisible enemies can aim at it."},
+	"berserker": {"name": "Orc Berserker", "class": 2, "hp": 130, "speed": 28, "bounty": 9, "radius": 7,
+		"rage": 2.0, "desc": "Runs twice as fast once below half HP."},
+	"harpy": {"name": "Harpy", "class": 3, "hp": 420, "speed": 30, "bounty": 22, "radius": 8, "flying": true,
+		"armor": 1, "desc": "Tough flyer. Ground and melee towers can't touch her."},
 	"wolf": {"name": "Dire Wolf", "class": 2, "hp": 40, "speed": 56, "bounty": 5, "radius": 7,
 		"desc": "Runs past slow defences."},
 	"ironclad": {"name": "Ironclad", "class": 2, "hp": 80, "speed": 25, "bounty": 7, "radius": 7, "armor": 4,
@@ -151,8 +182,9 @@ const VEHICLES := {
 
 # first wave each enemy may appear in, and its "threat cost" for the wave budget
 const POOL := [
-	["slime", 1, 1.2], ["rat", 4, 1.0], ["goblin", 5, 2.6], ["wolf", 10, 4.5], ["ironclad", 11, 9.0],
-	["imp", 13, 5.5], ["shaman", 16, 17.0], ["slime_king", 19, 36.0], ["ogre", 23, 52.0],
+	["slime", 1, 1.2], ["rat", 4, 1.0], ["goblin", 5, 2.6], ["bat", 8, 2.2], ["skeleton", 9, 4.2],
+	["wolf", 10, 4.5], ["ironclad", 11, 9.0], ["ghost", 12, 7.0], ["imp", 13, 5.5], ["berserker", 15, 11.0],
+	["shaman", 16, 17.0], ["slime_king", 19, 36.0], ["harpy", 21, 42.0], ["ogre", 23, 52.0],
 ]
 # readable names for stats (tower info screens)
 const STAT_LABELS := {"damage": "Damage", "rate": "Attacks/s", "range": "Range", "targets": "Targets",
@@ -161,8 +193,9 @@ const STAT_LABELS := {"damage": "Damage", "rate": "Attacks/s", "range": "Range",
 	"grenade_every": "Grenade every N bursts", "grenade_dmg": "Grenade dmg", "grenade_radius": "Grenade radius",
 	"interval": "Car every (s)", "car_hp": "Car HP",
 	"car_speed": "Car speed", "vehicle": "Vehicle", "gun_dmg": "Turret dmg", "gun_rate": "Turret shots/s",
-	"cone": "Cone angle", "burn": "Burn dps", "burn_time": "Burn time", "fire_pierce": "Fire res. pierce"}
-const PERCENT_STATS := ["slow", "armor_pierce", "fire_pierce"]
+	"cone": "Cone angle", "burn": "Burn dps", "burn_time": "Burn time", "fire_pierce": "Fire res. pierce",
+	"headshot": "Headshot chance", "camo": "Sees invisible", "air": "Hits flying"}
+const PERCENT_STATS := ["slow", "armor_pierce", "fire_pierce", "headshot"]
 const RAINBOW := [Color("e43b44"), Color("fee761"), Color("63c74d"), Color("b25aff")]
 
 # global knobs used for balancing
@@ -171,7 +204,8 @@ static var HP_GROWTH := 1.0
 static var BOUNTY_MULT := 2.5
 const BOSS_TYPES := ["golem", "demon"]
 const SPACING := {"slime": 0.55, "rat": 0.35, "goblin": 0.6, "wolf": 0.45, "ironclad": 0.9, "imp": 0.6,
-	"shaman": 1.4, "slime_king": 1.8, "ogre": 2.2, "golem": 6.0, "demon": 6.0}
+	"shaman": 1.4, "slime_king": 1.8, "ogre": 2.2, "golem": 6.0, "demon": 6.0,
+	"bat": 0.3, "skeleton": 0.6, "ghost": 0.8, "berserker": 1.1, "harpy": 2.0}
 
 
 static func enemy_hp_scale(wave: int) -> float:

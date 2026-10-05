@@ -20,7 +20,9 @@ signal selection_changed
 
 const FX_COLORS := {"slime": Color("63c74d"), "rat": Color("8b9bb4"), "goblin": Color("63c74d"),
 	"wolf": Color("5a6988"), "ironclad": Color("c0cbdc"), "imp": Color("e43b44"), "shaman": Color("68386c"),
-	"slime_king": Color("0099db"), "ogre": Color("e4a672"), "golem": Color("8b9bb4"), "demon": Color("a22633")}
+	"slime_king": Color("0099db"), "ogre": Color("e4a672"), "golem": Color("8b9bb4"), "demon": Color("a22633"),
+	"bat": Color("68386c"), "ghost": Color("e8eef8"), "harpy": Color("8a4e3e"), "skeleton": Color("ead4aa"),
+	"berserker": Color("647d3c")}
 
 var demo := false
 var headless := false
@@ -37,6 +39,9 @@ var particles: Array = []
 var texts: Array = []
 var slashes: Array = []
 var grenades: Array = []
+var tracers: Array = []
+var seen_types := {}
+var rng := RandomNumberGenerator.new()
 var path_tiles := {}
 var lava_tiles: Array = []
 var eruption_t := -1.0
@@ -87,6 +92,7 @@ func setup(p_map_id: String, p_diff: int, p_demo := false) -> void:
 	lives = int(diff["lives"])
 	total_waves = int(diff["waves"])
 	wave_seed = MapsData.ORDER.find(map_id) * 10 + diff_idx + 3
+	rng.seed = wave_seed
 	for pts in map["paths"]:
 		var cum := PackedFloat32Array([0.0])
 		var total := 0.0
@@ -217,7 +223,7 @@ func enemy_at(p: Vector2) -> Node2D:
 	for e in enemies:
 		if not e.alive:
 			continue
-		var c: Vector2 = e.position + Vector2(0, -e.radius + 3)
+		var c: Vector2 = e.position + Vector2(0, -e.radius + 3 - (EnemyScript.FLY_HEIGHT if e.flying else 0.0))
 		var d := c.distance_to(p)
 		if d <= e.radius + 3 and d < bd:
 			bd = d
@@ -322,8 +328,18 @@ func start_wave() -> void:
 	auto_t = -1.0
 	if not lava_tiles.is_empty() and wave % 2 == 0:
 		eruption_t = randf_range(4.0, 9.0)
+	# warn about the first invisible / flying enemies of the run
+	var warn := ""
+	for sp in spawn_queue:
+		var d: Dictionary = Defs.ENEMIES[sp[1]]
+		var tag := "INVISIBLE" if d.get("invisible", false) else ("FLYING" if d.get("flying", false) else "")
+		if tag != "" and not seen_types.has(sp[1]):
+			warn = "%s: %s!" % [String(d["name"]).to_upper(), tag]
+		seen_types[sp[1]] = true
 	if w["boss"]:
 		announce.emit("BOSS WAVE %d!" % wave, Color("e43b44"))
+	elif warn != "":
+		announce.emit("WAVE %d - %s" % [wave, warn], Color("b25aff"))
 	else:
 		announce.emit("WAVE %d" % wave, Color("fee761"))
 	Sfx.play("wave")
@@ -385,7 +401,7 @@ func _tick_enemies(dt: float) -> void:
 func _shaman_heal(s: Node2D) -> void:
 	var healed := false
 	for o in enemies:
-		if o.alive and not o.is_friendly and o.hp < o.max_hp and o.heal_lock <= 0.0 and o.position.distance_to(s.position) <= 48.0:
+		if o.targetable() and o.hp < o.max_hp and o.heal_lock <= 0.0 and o.position.distance_to(s.position) <= 48.0:
 			o.heal_lock = 2.5  # heals from several shamans don't stack
 			var amt: float = o.max_hp * (float(s.def["heal"]) if o.cls < 4 else 0.02)
 			o.hp = minf(o.max_hp, o.hp + amt)
@@ -431,7 +447,7 @@ func _finish(win: bool) -> void:
 
 # ---------------------------------------------------------------- damage
 func damage_enemy(e: Node2D, amount: float, kind: String, src: Node, pierce := 0.0, flash := true) -> void:
-	if not e.alive or amount <= 0.0:
+	if not e.alive or amount <= 0.0 or e.downed_t > 0.0:
 		return
 	var dmg := amount   # kind "pure" (car crashes) ignores armor and resistances
 	if kind == "physical":
@@ -451,7 +467,28 @@ func damage_enemy(e: Node2D, amount: float, kind: String, src: Node, pierce := 0
 	if src and is_instance_valid(src):
 		src.damage_dealt += minf(dmg, before)
 	if e.hp <= 0.0:
-		_kill(e, src)
+		if e.revives > 0:
+			_fall_apart(e)
+		else:
+			_kill(e, src)
+
+
+## Skeleton: collapses into a pile of bones and gets back up with part of its HP.
+func _fall_apart(e: Node2D) -> void:
+	e.revives -= 1
+	e.hp = e.max_hp * float(e.def["revive"])
+	e.downed_t = 1.6
+	e.burn_t = 0.0
+	e.burn_dps = 0.0
+	e.slow_t = 0.0
+	e.incoming = 0.0
+	if not headless:
+		Sfx.play("rattle")
+		add_text(e.position + Vector2(0, -12), "...", Color("ead4aa"))
+		for i in 6:
+			var a := randf() * TAU
+			_spawn_particle(e.position + Vector2(0, -4), Vector2(cos(a), sin(a) - 0.5) * 30.0, 0.3,
+				Color("ead4aa"), 1, 120.0)
 
 
 func _kill(e: Node2D, src: Node) -> void:
@@ -580,11 +617,16 @@ func _tick_bullets(dt: float) -> void:
 			tgt = null
 			b["target"] = null
 		var hit: Node2D = null
+		if tgt and tgt.downed_t > 0.0:
+			if b["exp"] > 0.0:
+				b["exp"] = 0.0
+			tgt = null
+			b["target"] = null
 		if b["exp"] > 0.0 and tgt and (not tgt.alive or b["life"] - dt <= 0.0):
 			tgt.incoming -= b["exp"]
 			b["exp"] = 0.0
 		if tgt and tgt.alive:
-			var aimp: Vector2 = tgt.position + Vector2(0, -3)
+			var aimp: Vector2 = tgt.position + Vector2(0, -3 - (EnemyScript.FLY_HEIGHT if tgt.flying else 0.0))
 			var d: Vector2 = aimp - b["pos"]
 			if d.length() <= BULLET_SPEED * dt + 3.0:
 				hit = tgt
@@ -593,7 +635,7 @@ func _tick_bullets(dt: float) -> void:
 		else:
 			b["target"] = null
 			for e in enemies:
-				if e.alive and not e.is_friendly and (e.position + Vector2(0, -3)).distance_to(b["pos"]) < e.radius:
+				if e.targetable() and (e.position + Vector2(0, -3 - (EnemyScript.FLY_HEIGHT if e.flying else 0.0))).distance_to(b["pos"]) < e.radius:
 					hit = e
 					break
 		if hit:
@@ -629,7 +671,7 @@ func _tick_grenades(dt: float) -> void:
 			continue
 		var src = g["src"] if is_instance_valid(g["src"]) else null
 		for e in enemies:
-			if e.alive and not e.is_friendly and e.position.distance_to(g["to"]) <= g["r"] + e.radius * 0.5:
+			if e.targetable() and not e.flying and e.position.distance_to(g["to"]) <= g["r"] + e.radius * 0.5:
 				damage_enemy(e, g["dmg"], "physical", src, 0.5)
 		if not headless:
 			Sfx.play("boom", 0.1)
@@ -673,7 +715,7 @@ func _tick_friendly(f: Node2D, dt: float) -> void:
 	var src = f.owner_tower if is_instance_valid(f.owner_tower) else null
 	# crashes
 	for e in enemies:
-		if not e.alive or e.is_friendly:
+		if not e.targetable() or e.flying:
 			continue
 		if e.position.distance_to(f.position) > e.radius + f.radius:
 			continue
@@ -696,7 +738,7 @@ func _tick_friendly(f: Node2D, dt: float) -> void:
 			var best: Node2D = null
 			var bd := 60.0 * 60.0
 			for e in enemies:
-				if e.alive and not e.is_friendly and e.hp - e.incoming > 0.0:
+				if e.targetable() and not e.invisible and e.hp - e.incoming > 0.0:
 					var dd: float = e.position.distance_squared_to(f.position)
 					if dd < bd:
 						bd = dd
@@ -800,6 +842,15 @@ func fx_slash(p: Vector2, dir: Vector2, r: float, cleave: bool, stun: bool) -> v
 		"stun": stun})
 
 
+func fx_tracer(a: Vector2, b: Vector2, gold: bool) -> void:
+	if headless:
+		return
+	tracers.append({"a": a, "b": b, "life": 0.12, "gold": gold})
+	for i in 4:
+		_spawn_particle(b, Vector2(randf_range(-30, 30), randf_range(-30, 10)), 0.2, Color("fee761"), 1)
+	fx_muzzle(a)
+
+
 func fx_flame(p: Vector2, dir: Vector2, r: float, half_cone: float, blue: bool) -> void:
 	if headless:
 		return
@@ -837,6 +888,12 @@ func _tick_fx(dt: float) -> void:
 		if s["life"] > 0.0:
 			ks.append(s)
 	slashes = ks
+	var ktr: Array = []
+	for tr in tracers:
+		tr["life"] -= dt
+		if tr["life"] > 0.0:
+			ktr.append(tr)
+	tracers = ktr
 
 
 # ---------------------------------------------------------------- input & hover
@@ -973,6 +1030,11 @@ func _draw_over(n: Node2D) -> void:
 		var gp: Vector2 = (g["from"] as Vector2).lerp(g["to"], k) + Vector2(0, -sin(k * PI) * 18.0)
 		n.draw_rect(Rect2(gp.round() - Vector2(1, 1), Vector2(3, 3)), Color("181425"))
 		n.draw_rect(Rect2(gp.round(), Vector2(1, 1)), Color("63c74d"))
+	for tr in tracers:
+		var k: float = tr["life"] / 0.12
+		var col := Color("feae34") if tr["gold"] else Color("fee761")
+		n.draw_line((tr["a"] as Vector2).round(), (tr["b"] as Vector2).round(), Color(col, k), 1.0)
+		n.draw_line((tr["a"] as Vector2).round(), (tr["b"] as Vector2).round(), Color(1, 1, 1, k * 0.5), 1.0)
 	for b in bullets:
 		var p: Vector2 = (b["pos"] as Vector2).round()
 		var d: Vector2 = b["dir"]

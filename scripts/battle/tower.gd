@@ -84,11 +84,22 @@ func range_px() -> float:
 
 
 # ---------------------------------------------------------------- targeting
+## Flying enemies need "air", invisible ones need "camo" to be aimed at.
+func can_target(e) -> bool:
+	if not e.targetable():
+		return false
+	if e.flying and not stats.get("air", false):
+		return false
+	if e.invisible and not stats.get("camo", false):
+		return false
+	return true
+
+
 func pick_targets(enemies: Array, count: int, skip_doomed := false) -> Array:
 	var r2 := range_px() * range_px()
 	var cands: Array = []
 	for e in enemies:
-		if e.alive and not e.is_friendly and e.position.distance_squared_to(position) <= r2:
+		if can_target(e) and e.position.distance_squared_to(position) <= r2:
 			if skip_doomed and e.hp - e.incoming <= 0.0:
 				continue
 			cands.append(e)
@@ -129,6 +140,8 @@ func update(dt: float, enemies: Array) -> void:
 			_update_soldier(dt, enemies)
 		"garage":
 			_update_garage(enemies)
+		"sniper":
+			_update_sniper(enemies)
 	_update_visual()
 
 
@@ -228,7 +241,8 @@ func _update_flamer(dt: float, enemies: Array) -> void:
 	var r := range_px()
 	var origin := position + Vector2(0, -2)
 	for e in enemies:
-		if not e.alive or e.is_friendly:
+		# the flames can't reach flyers, but they do burn invisible enemies standing in them
+		if not e.targetable() or e.flying:
 			continue
 		var d: Vector2 = e.position - origin
 		if d.length() > r + e.radius:
@@ -241,6 +255,28 @@ func _update_flamer(dt: float, enemies: Array) -> void:
 	battle.fx_flame(position + Vector2(6 * (1.0 if aim.x >= 0 else -1.0), -3), aim, r, half_cone,
 		level >= max_level())
 	Sfx.play("flame", 0.1)
+
+
+func _update_sniper(enemies: Array) -> void:
+	if cooldown > 0.0:
+		return
+	var ts := pick_targets(enemies, 1, true)
+	if ts.is_empty():
+		return
+	var e = ts[0]
+	cooldown = 1.0 / float(stats["rate"])
+	_face(e.position)
+	var from := position + Vector2(10 * (1.0 if aim.x >= 0 else -1.0), -3)
+	var to: Vector2 = e.position + Vector2(0, -4 + (e.sprite.position.y if e.sprite else 0.0))
+	attack_anim = 0.15
+	var hs := float(stats.get("headshot", 0.0))
+	if hs > 0.0 and e.cls < 4 and battle.rng.randf() < hs:
+		battle.damage_enemy(e, e.hp + 1.0, "pure", self)
+		battle.add_text(e.position + Vector2(0, -14), "HEADSHOT", Color("e43b44"))
+	else:
+		battle.damage_enemy(e, float(stats["damage"]), "physical", self, float(stats["armor_pierce"]))
+	battle.fx_tracer(from, to, level >= max_level())
+	Sfx.play("snipe", 0.05)
 
 
 func _update_garage(enemies: Array) -> void:
@@ -263,6 +299,8 @@ func _update_visual() -> void:
 		match type:
 			"gunner", "soldier":
 				off.x -= signf(aim.x) * 1.0
+			"sniper":
+				off.x -= signf(aim.x) * 2.0
 			"knight":
 				off += (aim * 2.0).round()
 			"garage":

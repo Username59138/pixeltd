@@ -36,6 +36,11 @@ var heal_flash_t := 0.0
 var heal_lock := 0.0
 var incoming := 0.0  # damage of bullets already flying at this enemy
 var final_boss := false
+var flying := false      # only towers that hit flying can attack it; no melee, fire, grenades or cars
+var invisible := false   # only towers that spot invisible enemies can aim at it
+var revives := 0         # skeleton: times it can still get back up
+var downed_t := 0.0      # > 0 while lying in pieces before getting back up
+var rage := 0.0          # berserker: speed multiplier below half HP
 
 var anim_t := 0.0
 var sprite: Sprite2D
@@ -44,6 +49,8 @@ var tex_flash: Texture2D
 var views := {}             # "side" / "down" / "up" -> [texture, hit flash texture]
 var view := "side"
 var effect_mult := 1.0
+
+const FLY_HEIGHT := 9.0
 
 
 func setup(t: String, hp_mult: float, p_i: int, p_len: float) -> void:
@@ -62,6 +69,10 @@ func setup(t: String, hp_mult: float, p_i: int, p_len: float) -> void:
 	# reward grows with toughness so the economy keeps up with later waves
 	bounty = maxi(1, int(roundf(float(def["bounty"]) * Defs.BOUNTY_MULT * (1.0 + 0.5 * maxf(0.0, hp_mult - 1.0)))))
 	radius = float(def.get("radius", 6))
+	flying = bool(def.get("flying", false))
+	invisible = bool(def.get("invisible", false))
+	revives = 1 if def.has("revive") else 0
+	rage = float(def.get("rage", 0.0))
 	path_i = p_i
 	path_len = p_len
 	heal_cd = 2.5
@@ -117,10 +128,21 @@ func is_stunned() -> bool:
 	return stun_t > 0.0
 
 
+## Can this enemy be hit / targeted right now (skeletons lying in pieces can't).
+func targetable() -> bool:
+	return alive and not is_friendly and downed_t <= 0.0
+
+
+func is_enraged() -> bool:
+	return rage > 0.0 and hp < max_hp * 0.5
+
+
 func current_speed() -> float:
-	if stun_t > 0.0:
+	if stun_t > 0.0 or downed_t > 0.0:
 		return 0.0
 	var s := speed
+	if is_enraged():
+		s *= rage
 	if slow_t > 0.0:
 		s *= (1.0 - slow_f)
 	return s
@@ -170,6 +192,8 @@ func tick_status(dt: float) -> void:
 		heal_flash_t -= dt
 	if heal_lock > 0.0:
 		heal_lock -= dt
+	if downed_t > 0.0:
+		downed_t -= dt
 
 
 func update_visual(dir: Vector2) -> void:
@@ -186,18 +210,31 @@ func update_visual(dir: Vector2) -> void:
 		sprite.flip_h = false
 	var moving := current_speed() > 0.0
 	var bob := 0.0
-	if moving:
+	if flying:
+		bob = -FLY_HEIGHT + roundf(sin(anim_t * 7.0) * 1.5)
+	elif moving:
 		bob = -roundf(absf(sin(anim_t * (6.0 + speed * 0.08))) * (1.0 if cls < 4 else 2.0))
 	sprite.position = Vector2(0, bob)
 	sprite.texture = tex_flash if flash_t > 0.0 else tex_normal
+	# a skeleton in pieces lies on its side
+	sprite.rotation = PI * 0.5 if downed_t > 0.0 else 0.0
+	if downed_t > 0.0:
+		sprite.position = Vector2(-sprite.offset.y, -2.0)
+	var m := Color.WHITE
 	if burn_t > 0.0:
-		sprite.modulate = Color(1.0, 0.75, 0.6)
+		m = Color(1.0, 0.75, 0.6)
 	elif slow_t > 0.0:
-		sprite.modulate = Color(0.7, 0.85, 1.0)
+		m = Color(0.7, 0.85, 1.0)
 	elif heal_flash_t > 0.0:
-		sprite.modulate = Color(0.7, 1.0, 0.7)
-	else:
-		sprite.modulate = Color.WHITE
+		m = Color(0.7, 1.0, 0.7)
+	elif is_enraged():
+		m = Color(1.0, 0.6 + 0.2 * sin(anim_t * 12.0), 0.6)
+	if downed_t > 0.0:
+		m = Color(0.7, 0.7, 0.75)
+	if invisible:
+		# shimmering, see-through
+		m.a = 0.32 + 0.12 * sin(anim_t * 5.0)
+	sprite.modulate = m
 	queue_redraw()
 
 
@@ -205,16 +242,20 @@ func _draw() -> void:
 	var h := tex_normal.get_height()
 	# shadow
 	var sw := maxf(4.0, tex_normal.get_width() * 0.35)
-	draw_rect(Rect2(-sw, 3, sw * 2, 2), Color(0, 0, 0, 0.25))
+	if flying:
+		sw *= 0.6
+	if not invisible:
+		draw_rect(Rect2(-sw, 3, sw * 2, 2), Color(0, 0, 0, 0.25 if not flying else 0.18))
+	var top := -h + (sprite.position.y if sprite else 0.0)
 	# status pixels
 	if stun_t > 0.0:
 		var a := anim_t * 8.0
 		for i in 3:
 			var ang := a + i * TAU / 3.0
-			var p := Vector2(cos(ang) * 6.0, -h + sin(ang) * 2.0 - 2.0).round()
+			var p := Vector2(cos(ang) * 6.0, top + sin(ang) * 2.0 - 2.0).round()
 			draw_rect(Rect2(p, Vector2(1, 1)), Color("fee761"))
 	if burn_t > 0.0:
 		for i in 2:
 			var fy := -fmod(anim_t * 20.0 + i * 5.0, 10.0)
 			var fx := sin(anim_t * 9.0 + i * 2.0) * 3.0
-			draw_rect(Rect2(Vector2(fx, fy - 2).round(), Vector2(1, 2)), Color("f77622"))
+			draw_rect(Rect2(Vector2(fx, fy - 2 + (sprite.position.y if flying else 0.0)).round(), Vector2(1, 2)), Color("f77622"))

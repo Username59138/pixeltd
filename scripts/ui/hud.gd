@@ -260,6 +260,22 @@ func _short(v: float) -> String:
 
 
 static func _stats_text(t: String, s: Dictionary) -> String:
+	var txt := _stats_core(t, s)
+	var sees: Array = []
+	if s.get("camo", false) and t != "garage":
+		sees.append("Invisible")
+	if s.get("air", false):
+		sees.append("Flying")
+	if t == "flamer":
+		txt += "\nGround only. Can't aim at invisible\nbut the flames still burn them"
+	elif t == "garage":
+		txt += "\nRuns over invisible, not flying"
+	elif t != "garage":
+		txt += "\nHits: " + ("ground" if sees.is_empty() else "ground + " + ", ".join(sees).to_lower())
+	return txt
+
+
+static func _stats_core(t: String, s: Dictionary) -> String:
 	match t:
 		"gunner":
 			var txt := "Dmg %s  Rate %s/s\nRange %d" % [UI.fmt_num(s["damage"]), UI.fmt_num(s["rate"]), s["range"]]
@@ -294,6 +310,12 @@ static func _stats_text(t: String, s: Dictionary) -> String:
 				UI.fmt_num(s["burn"]), UI.fmt_num(s["burn_time"])]
 			if s["fire_pierce"] > 0.0:
 				txt += "\nIgnores %d%% fire resist" % int(s["fire_pierce"] * 100)
+			return txt
+		"sniper":
+			var txt := "Dmg %s  Rate %s/s\nRange %d  Armor pierce %d%%" % [UI.fmt_num(s["damage"]),
+				UI.fmt_num(s["rate"]), s["range"], int(s["armor_pierce"] * 100)]
+			if s["headshot"] > 0.0:
+				txt += "\nHeadshot %d%% (non-boss)" % int(s["headshot"] * 100)
 			return txt
 	return ""
 
@@ -462,6 +484,15 @@ static func enemy_lines(e) -> Array:
 			"r": "IMMUNE" if e.fire_res >= 1.0 else "%d%%" % int(e.fire_res * 100), "rc": Color("f77622")})
 	lines.append({"t": "Control effects", "c": Color("8b9bb4"), "r": "%d%%" % int(Defs.CLASS_EFFECT[cls] * 100),
 		"rc": Defs.CLASS_COLORS[cls]})
+	if e.flying:
+		lines.append({"t": "+ FLYING", "c": Color("c0cbdc")})
+	if e.invisible:
+		lines.append({"t": "+ INVISIBLE", "c": Color("8bc8e8")})
+	if e.def.has("revive"):
+		lines.append({"t": "+ Gets back up once" if e.revives > 0 else "+ Already got back up", "c": Color("ead4aa")})
+	if e.rage > 0.0:
+		lines.append({"t": "+ ENRAGED: x%s speed" % UI.fmt_num(e.rage) if e.is_enraged() else "+ Enrages below 50% HP",
+			"c": Color("e43b44")})
 	if e.def.has("heal"):
 		lines.append({"t": "+ Heals nearby enemies", "c": Color("63c74d")})
 	if e.def.has("split"):

@@ -61,7 +61,29 @@ func step() -> void:
 		battle.start_wave()
 
 
+## Like a player who notices ghosts: once invisible enemies can show up, make sure some tower spots them.
+func _camo_upgrade() -> int:
+	if battle.wave < 9:
+		return 0
+	var cand: Node2D = null
+	for tw in battle.towers.values():
+		if tw.stats.get("camo", false) and tw.type != "garage":
+			return 0
+		if tw.type in ["gunner", "soldier"] and (cand == null or tw.damage_dealt > cand.damage_dealt):
+			cand = tw
+	if cand == null:
+		return 0
+	var c: int = battle.upgrade_cost(cand)
+	if battle.cash < c:
+		return -1   # save up for it
+	battle.upgrade_tower(cand)
+	return 1
+
+
 func _act() -> bool:
+	var cu := _camo_upgrade()
+	if cu != 0:
+		return cu > 0
 	var count: int = battle.towers.size()
 	var want_towers: int = 3 + battle.wave / 2
 	var cheapest_up: Node2D = null

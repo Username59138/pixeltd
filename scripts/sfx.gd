@@ -2,8 +2,8 @@ extends Node
 ## Small pooled sound player with per-sound rate limiting.
 
 const NAMES := ["shot", "slash", "flame", "hit", "pop", "boss_die", "place", "click", "upgrade", "sell", "wave",
-	"leak", "heal", "win", "lose", "unlock", "error", "boom", "honk"]
-const MIN_GAP := {"shot": 0.05, "slash": 0.06, "flame": 0.12, "hit": 0.04, "pop": 0.04, "heal": 0.2, "leak": 0.1, "boom": 0.08, "honk": 0.3}
+	"leak", "heal", "win", "lose", "unlock", "error", "boom", "honk", "snipe", "rattle"]
+const MIN_GAP := {"shot": 0.05, "slash": 0.06, "flame": 0.12, "hit": 0.04, "pop": 0.04, "heal": 0.2, "leak": 0.1, "boom": 0.08, "honk": 0.3, "snipe": 0.08, "rattle": 0.15}
 
 var _streams := {}
 var _players: Array[AudioStreamPlayer] = []

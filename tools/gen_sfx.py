@@ -81,4 +81,7 @@ save('unlock', mix(tone([523, 784, 1046, 1568], 0.8, 'square', 0.25, 0, 0.8),
 save('error', tone([180, 140], 0.15, 'square', 0.5, 0, 1.0), 0.2)
 save('boom', mix(noise(0.45, 1.5, 0.18, 3), tone([90, 60], 0.35, 'square', 0.5, -0.4, 1.5)), 0.45)
 save('honk', tone([440, 370], 0.18, 'square', 0.35, 0, 0.8), 0.18)
+save('snipe', mix(noise(0.05, 4, 0.95, 1), tone([1400, 300], 0.05, 'square', 0.5, -0.8, 3),
+                  noise(0.35, 2.2, 0.08, 4)), 0.4)
+save('rattle', mix(*[[0.0] * int(SR * 0.05 * k) + tone([700 + 90 * k], 0.04, 'square', 0.3, -0.4, 2) for k in range(4)]), 0.18)
 print('sfx ok')

@@ -10,13 +10,13 @@ var fullscreen := false
 
 # ---------------------------------------------------------------- key bindings
 # Physical keys (layout independent: E stays E on a Russian layout). Esc / right click are fixed (cancel, back).
-const ACTIONS := ["tower_1", "tower_2", "tower_3", "tower_4", "tower_5", "upgrade", "sell", "target",
+const ACTIONS := ["tower_1", "tower_2", "tower_3", "tower_4", "tower_5", "tower_6", "upgrade", "sell", "target",
 	"next_wave", "speed", "pause"]
 const ACTION_NAMES := {"tower_1": "Tower 1", "tower_2": "Tower 2", "tower_3": "Tower 3", "tower_4": "Tower 4",
-	"tower_5": "Tower 5", "upgrade": "Upgrade", "sell": "Sell", "target": "Targeting mode",
+	"tower_5": "Tower 5", "tower_6": "Tower 6", "upgrade": "Upgrade", "sell": "Sell", "target": "Targeting mode",
 	"next_wave": "Next wave", "speed": "Game speed", "pause": "Pause"}
 const DEFAULT_KEYS := {"tower_1": KEY_1, "tower_2": KEY_2, "tower_3": KEY_3, "tower_4": KEY_4, "tower_5": KEY_5,
-	"upgrade": KEY_E, "sell": KEY_X, "target": KEY_T, "next_wave": KEY_SPACE, "speed": KEY_F, "pause": KEY_P}
+	"tower_6": KEY_6, "upgrade": KEY_E, "sell": KEY_X, "target": KEY_T, "next_wave": KEY_SPACE, "speed": KEY_F, "pause": KEY_P}
 var keys := DEFAULT_KEYS.duplicate()
 var selected_map := "meadow"
 var selected_difficulty := 1

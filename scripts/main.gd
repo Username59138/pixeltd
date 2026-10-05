@@ -1,6 +1,8 @@
 extends Node
 ## Root: switches between the menu screens (with the live diorama behind them) and battles.
 
+const TowerScript = preload("res://scripts/battle/tower.gd")
+
 
 var ui_layer: CanvasLayer
 var ui_root: Control
@@ -23,6 +25,9 @@ func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	if args.has("--sim"):
 		_run_sims(args)
+		return
+	if args.has("--mechtest"):
+		_mech_test()
 		return
 	var i := args.find("--battle")
 	if i >= 0 and i + 2 < args.size():
@@ -47,6 +52,22 @@ func _ready() -> void:
 			var boss = battle.spawn_enemy("golem", 0, 20.0)
 			boss.final_boss = true
 			boss.hp *= 0.7
+		if args.has("--newfx"):
+			battle.cash = 99999
+			for t in [[Vector2i(7, 6), "sniper", 3], [Vector2i(9, 5), "knight", 1], [Vector2i(9, 3), "gunner", 2],
+					[Vector2i(6, 3), "sniper", 0], [Vector2i(9, 8), "flamer", 1], [Vector2i(9, 13), "garage", 1]]:
+				var tw = battle.place_tower(t[1], t[0])
+				for k in t[2]:
+					battle.upgrade_tower(tw)
+			for k in 12:
+				battle.start_wave()
+				battle.spawning = false
+			battle.spawn_queue = []
+			var kinds := ["ghost", "bat", "harpy", "skeleton", "berserker", "bat", "ghost", "skeleton", "bat"]
+			for k in kinds.size():
+				var e = battle.spawn_enemy(kinds[k], 0, 40.0 + k * 14.0)
+				if kinds[k] == "berserker":
+					e.hp *= 0.4
 	elif args.has("--maps"):
 		show_map_select()
 	elif args.has("--towers"):
@@ -72,6 +93,10 @@ func _ready() -> void:
 			battle.place_tower(["gunner", "soldier", "knight", "flamer", "gunner"][t.x % 5], t)
 		battle.start_wave()
 		battle.eruption_t = 0.3
+	if args.has("--bestiary"):
+		for c in ui_root.get_children():
+			if c.has_method("_build_enemies"):
+				c._show(false)
 	if args.has("--settings"):
 		for c in ui_root.get_children():
 			if c.has_method("_open_settings"):
@@ -94,6 +119,12 @@ func _shot(path: String, secs: float) -> void:
 	await get_tree().create_timer(secs).timeout
 	if OS.get_cmdline_user_args().has("--hover"):
 		var e = battle.enemies[0] if battle and battle.enemies.size() > 0 else null
+		var hi := OS.get_cmdline_user_args().find("--hover-type")
+		if hi >= 0:
+			for x in battle.enemies:
+				if x.alive and x.type == OS.get_cmdline_user_args()[hi + 1]:
+					e = x
+					break
 		if OS.get_cmdline_user_args().has("--hover-friendly"):
 			for x in battle.enemies:
 				if x.is_friendly:
@@ -220,6 +251,106 @@ func _ui_test() -> void:
 	get_tree().quit()
 
 
+## Headless checks of invisible / flying / revive / rage / sniper rules.
+func _mech_test() -> void:
+	var b := Battle.new()
+	b.headless = true
+	add_child(b)
+	b.setup("meadow", 1)
+	b.cash = 999999
+	var pth: Dictionary = b.paths[0]
+	var mid: Vector2 = b.path_point(0, 120.0)[0]
+	var spot := Vector2i(-1, -1)
+	for y in Battle.ROWS:
+		for x in Battle.COLS:
+			var t := Vector2i(x, y)
+			if b.can_place(t) and b.tile_center(t).distance_to(mid) < 28.0:
+				spot = t
+	var ok := true
+	var check := func(name: String, cond: bool) -> void:
+		print("MECH %s %s" % ["ok  " if cond else "FAIL", name])
+		if not cond:
+			ok = false
+	var gun = b.place_tower("gunner", spot)
+	var ghost = b.spawn_enemy("ghost", 0, 120.0)
+	var bat = b.spawn_enemy("bat", 0, 120.0)
+	check.call("gunner lv0 can't see ghost", not gun.can_target(ghost))
+	check.call("gunner lv0 hits bat", gun.can_target(bat))
+	b.upgrade_tower(gun)
+	b.upgrade_tower(gun)
+	check.call("gunner Hollow Points sees ghost", gun.can_target(ghost))
+	var kn = TowerScript.new()
+	kn.setup("knight", b, 0)
+	check.call("knight can't hit bat", not kn.can_target(bat))
+	check.call("knight can't see ghost", not kn.can_target(ghost))
+	var so = TowerScript.new()
+	so.setup("soldier", b, 0)
+	check.call("soldier lv0 can't see ghost", not so.can_target(ghost))
+	so.level = 1
+	so.recompute()
+	check.call("soldier AP Rounds sees ghost", so.can_target(ghost))
+	var sn = TowerScript.new()
+	sn.setup("sniper", b, 0)
+	check.call("sniper sees ghost and bat", sn.can_target(ghost) and sn.can_target(bat))
+	# flamer: can't aim at a lone ghost, but burns it next to a goblin
+	b.sell_tower(gun)
+	ghost.alive = false
+	bat.alive = false
+	b.enemies.clear()
+	var fl = b.place_tower("flamer", spot)
+	var g2 = b.spawn_enemy("ghost", 0, 120.0)
+	g2.position = fl.position + Vector2(20, 0)
+	for k in 30:
+		fl.update(Battle.STEP, b.enemies)
+	check.call("flamer ignores lone ghost", g2.hp == g2.max_hp)
+	var gob = b.spawn_enemy("goblin", 0, 120.0)
+	gob.position = fl.position + Vector2(22, 0)
+	var bt = b.spawn_enemy("bat", 0, 120.0)
+	bt.position = fl.position + Vector2(20, 2)
+	for k in 30:
+		fl.update(Battle.STEP, b.enemies)
+	check.call("flamer burns ghost near goblin", g2.hp < g2.max_hp)
+	check.call("flamer can't hit bat", bt.hp == bt.max_hp)
+	b.sell_tower(fl)
+	b.enemies.clear()
+	# cars: run over ghosts, drive under bats
+	var car = b.spawn_enemy("car", 0, 200.0, 1.0, true, {"car_hp": 500, "car_speed": 70})
+	var g3 = b.spawn_enemy("ghost", 0, 196.0)
+	var b3 = b.spawn_enemy("bat", 0, 198.0)
+	b.stats_changed.connect(func(): pass)
+	b._tick_friendly(car, Battle.STEP)
+	check.call("car hits ghost", not g3.alive)
+	check.call("car misses bat", b3.alive and b3.hp == b3.max_hp)
+	b.enemies.clear()
+	# skeleton
+	var sk = b.spawn_enemy("skeleton", 0, 50.0)
+	b.damage_enemy(sk, 999.0, "physical", null)
+	check.call("skeleton falls apart", sk.alive and sk.downed_t > 0.0 and sk.hp == sk.max_hp * 0.5)
+	check.call("bones can't be targeted", not sn.can_target(sk))
+	check.call("bones don't move", sk.current_speed() == 0.0)
+	for k in 120:
+		sk.tick_status(Battle.STEP)
+	check.call("skeleton gets back up", sk.current_speed() > 0.0)
+	b.damage_enemy(sk, 999.0, "physical", null)
+	check.call("skeleton dies the second time", not sk.alive)
+	# berserker
+	var be = b.spawn_enemy("berserker", 0, 50.0)
+	var s0: float = be.current_speed()
+	b.damage_enemy(be, be.max_hp * 0.6, "pure", null)
+	check.call("berserker enrages", absf(be.current_speed() - s0 * 2.0) < 0.01)
+	# sniper headshot never on bosses
+	sn.level = 3
+	sn.recompute()
+	var gol = b.spawn_enemy("golem", 0, 50.0)
+	gol.position = sn.position + Vector2(30, 0)
+	sn.target_mode = 2
+	for k in 400:
+		sn.update(Battle.STEP, b.enemies)
+	check.call("sniper hurts boss, no headshot", gol.alive and gol.hp < gol.max_hp)
+	print("MECH RESULT ", "PASS" if ok else "FAIL")
+	get_tree().quit()
+
+
 func _bot_drive() -> void:
 	var Bot = load("res://scripts/debug/bot.gd")
 	var bot = Bot.new(battle, ["gunner", "knight", "flamer"])
@@ -238,7 +369,8 @@ func _run_sims(args: Array) -> void:
 	if k >= 0:
 		only_map = args[k + 1]
 	var sets := [["gunner", "knight"], ["gunner", "knight", "soldier"], ["gunner", "knight", "soldier", "garage"],
-		["gunner", "knight", "soldier", "garage", "flamer"], ["flamer", "gunner", "knight"], ["gunner", "flamer", "knight"], ["flamer"], ["gunner"]]
+		["gunner", "knight", "soldier", "garage", "flamer"], ["flamer", "gunner", "knight"], ["gunner", "flamer", "knight"], ["flamer"], ["gunner"],
+		["gunner", "knight", "sniper"], ["gunner", "knight", "soldier", "garage", "flamer", "sniper"]]
 	var si := args.find("--sets")
 	if si >= 0:
 		var chosen: Array = []

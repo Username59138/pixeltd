@@ -17,7 +17,7 @@ Every key below is a default and can be changed in **Settings** (gear button in 
 
 | Action | Default |
 |---|---|
-| Buy a tower | Button on the right or keys **1–5** (the shop only shows unlocked towers) |
+| Buy a tower | Button on the right or keys **1–6** (the shop only shows unlocked towers) |
 | Place it | Left click on a tile (hold **Shift** to place several) |
 | Select a tower | Left click on it |
 | Upgrade selected tower | **E** |
@@ -31,7 +31,7 @@ Every key below is a default and can be changed in **Settings** (gear button in 
 | Cancel / deselect / back | **Esc** or right click (fixed) |
 | Fullscreen | **F11** (fixed) |
 
-Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, control strength and current effects.
+Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, control strength, traits (flying, invisible...) and current effects.
 
 ## Mechanics
 
@@ -41,7 +41,11 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
   - Soldier: Green Meadow on Medium
   - Garage: Gas Station on Difficult
   - Flamethrower: Volcano on Medium
+  - Sniper: Green Meadow on Difficult
 - **Volcano:** two short roads, lava on the best spots and an eruption every second wave. Tiles next to the lava flash orange, then towers on them stop shooting for 6 seconds.
+- **Invisible enemies** (Ghost) are drawn see-through and can only be aimed at by towers that spot them: Gunslinger from Hollow Points, Soldier from AP Rounds, and the Sniper always. The Flamethrower can't aim at them, but its flames still burn any that walk through the cone. Garage cars run them over.
+- **Flying enemies** (Bat, Harpy) follow the road in the air. Gunslinger, Soldier and Sniper can shoot them. Knight, Flamethrower, grenades and cars can't reach them.
+- **Skeletons** fall apart when killed and get back up once with half HP. **Orc Berserkers** run twice as fast below half HP.
 - The final boss of a run gets a big HP bar at the top of the screen. Hover other enemies to see their HP.
 - The bar under a tower shows its level by color: red → yellow → green → purple (max).
 
@@ -52,6 +56,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 - **Soldier:** long range rifle bursts. AP Rounds (armor piercing) → Grenades → Machine Gun.
 - **Garage:** must be built next to a road. Sends friendly cars (`is_friendly` enemies) that drive along the road towards the enemies. On a crash both sides lose `min(car HP, enemy HP)`. Pickup → Truck → Armored Car (with a turret).
 - **Flamethrower:** fire cone and burning, ignores armor, but the Fire Imp is immune. Bigger Tank → Napalm → Blue Flame.
+- **Sniper:** slow, heavy shots from almost across the map, sees invisible and hits flying enemies. Optics → Full Metal Jacket (ignores all armor) → Headshot (15% chance to kill any non-boss outright).
 
 Open **Towers** in the main menu and click a portrait to see every tower's full stats and upgrade path.
 
@@ -65,7 +70,7 @@ Open **Towers** in the main menu and click a portrait to see every tower's full 
 - `scripts/data/defs.gd`: all the numbers (towers, enemies, difficulties, wave generator).
 - `scripts/battle/`: the battlefield (`battle.gd`), towers (`tower.gd`) and enemies (`enemy.gd`).
 - `scripts/ui/`: menus, the in-battle HUD and tooltips.
-- `tools/gen_art.py`, `tools/sprites.py`: generate all the pixel art and maps (Python + Pillow). Run `python3 tools/gen_art.py` after editing them. `scripts/data/maps_data.gd` is generated too, so don't edit it by hand.
+- `tools/gen_art.py`, `tools/sprites.py`, `tools/units.py`: generate all the pixel art and maps (Python + Pillow). Run `python3 tools/gen_art.py` after editing them. `scripts/data/maps_data.gd` is generated too, so don't edit it by hand.
 - `tools/gen_sfx.py`: generates the 8-bit sound effects.
 - Building: open the project in Godot 4.7.2 → Project → Export → Linux.
 
@@ -73,6 +78,7 @@ Developer flags (passed after `--`):
 
 - `--sim`: run the balance bot on every map and difficulty (works with `--headless`).
 - `--unlock-all`: unlock everything.
+- `--mechtest`: headless checks of the invisible / flying / skeleton / berserker / sniper rules.
 - `--battle <map> <0-3> --bot`: watch the bot play.
 
 ## License

@@ -589,6 +589,39 @@ SOLDIER = [
 SOLDIER_C = {'q': 'glass', 'Q': 'glass_d', 'e': 'black', 'h': 'olv_l', 'H': 'olv', 'n': 'olv_l', 'd': 'olv_d', 'k': 'xdbrown', 'F': 'skin', 'f': 'skin_d', 'z': 'skin_dd', 'g': 'glass', 'G': 'gun_d', 'B': 'tan_m', 'b': 'tan_d', 'O': 'tan_l', 'o': 'tan_m', 'P': 'olv', 't': 'wd', 'T': 'wd_d', 'l': 'gun_l', 'w': 'olv_dd', 'y': 'gld', 'K': 'xdbrown'}
 SOLDIER_ELITE = {'q': 'red_l', 'Q': 'red_d', 'e': 'black', 'h': 'xdgray', 'H': 'navy', 'n': 'xdgray', 'd': 'black', 'k': 'xdbrown', 'F': 'skin', 'f': 'skin_d', 'z': 'skin_dd', 'g': 'glass', 'G': 'gun_d', 'B': 'gun_d', 'b': 'black', 'O': 'gun', 'o': 'gun_d', 'P': 'navy', 't': 'gld', 'T': 'gld_d', 'l': 'gld_l', 'w': 'black', 'y': 'gld', 'K': 'xdbrown'}
 
+SNIPER = [
+    "....................",
+    ".......g.g..........",
+    "......gHHHHg........",
+    ".....gHHHHHHh.......",
+    "....hHHgHHHHHd......",
+    "....HHHHHHgHHd......",
+    "....HHkFFFFFFd......",
+    "....HdkFFFFeF.......",
+    "....HdkfFFPPFn......",
+    "....Hd.fFFFFf.......",
+    "...gHd..fzzz........",
+    "..HHHHHCCCCCC.......",
+    "..HgHHCCcCCCCwSSSo..",
+    "..HHHCCCcCCCAAbbbbbL",
+    "..HHgCCCcCCCAa.b....",
+    "...HHCCCcCCCC.......",
+    "...gHHWWWWyWW.......",
+    "....HHCCC..CCC......",
+    ".....hCCc..CCc......",
+    "......CCc..CCc......",
+    "......KKK..KKK......",
+    ".....KKKKk.KKKKk....",
+    "....................",
+    "....................",
+]
+SNIPER_C = {'g': 'olv_l', 'h': 'olv_l', 'H': 'olv_d', 'd': 'olv_dd', 'k': 'olv_dd', 'F': 'skin', 'f': 'skin_d',
+            'z': 'skin_dd', 'e': 'black', 'n': 'skin_d', 'P': 'olv_dd', 'C': 'tan_m', 'c': 'tan_d',
+            'w': 'gun', 'S': 'gun_d', 'o': 'glass', 'A': 'xdbrown', 'a': 'wd', 'b': 'gun', 'L': 'gun_l',
+            'W': 'xdbrown', 'y': 'gld', 'K': 'xdbrown'}
+SNIPER_ELITE = dict(SNIPER_C, g='xdgray', h='xdgray', H='navy', d='black', k="black", P="black", C="gun",
+                    c='gun_d', o='red_l', S='gld_d', w='gld', b='gld', L='gld_l', W='black')
+
 GARAGE = [
     "..RRRRRRRRRRRR..",
     ".RRRRRRRRRRRRRR.",
@@ -690,6 +723,33 @@ UP_ICONS = {
         "rRrrrr",
         ".rrrr.",
     ], {'r': 'red', 'R': 'pink', 'w': 'white', 'k': 'black'}),
+    'optics': ([
+        "..ggg..",
+        ".g.r.g.",
+        "g..r..g",
+        "grrrrrg",
+        "g..r..g",
+        ".g.r.g.",
+        "..ggg..",
+    ], {'g': 'lgray', 'r': 'red'}),
+    'fmj': ([
+        "..o..",
+        ".ooo.",
+        ".ooo.",
+        ".OOO.",
+        ".sss.",
+        ".sss.",
+        ".sss.",
+        ".ddd.",
+    ], {'o': 'orange', 'O': 'rust', 's': 'gold', 'd': 'lorange'}),
+    'headshot': ([
+        "r.www.r",
+        ".wwwww.",
+        ".wkwkw.",
+        ".wwwww.",
+        "..www..",
+        "r.w.w.r",
+    ], {'w': 'white', 'k': 'black', 'r': 'red'}),
     'napalm': ([
         "..o..",
         "..o..",
