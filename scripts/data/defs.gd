@@ -8,7 +8,6 @@ const MapsData = preload("res://scripts/data/maps_data.gd")
 # Class only weakens CONTROL effects (stun, slow...). Damage of any kind is never reduced by class.
 const CLASS_ROMAN := ["", "I", "II", "III", "IV"]
 const CLASS_EFFECT := [1.0, 1.0, 0.7, 0.4, 0.2]
-const CLASS_LEAK := [0, 1, 2, 5, 25]
 const CLASS_COLORS := [Color.WHITE, Color("c0cbdc"), Color("63c74d"), Color("feae34"), Color("e43b44")]
 
 # ---------------------------------------------------------------- difficulties

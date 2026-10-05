@@ -418,7 +418,7 @@ func _leak(e: Node2D) -> void:
 	e.alive = false
 	if demo:
 		return
-	var dmg: int = Defs.CLASS_LEAK[e.cls]
+	var dmg: int = e.hp
 	if headless and OS.get_cmdline_user_args().has("--verbose-leaks"):
 		print("  LEAK wave %d: %s hp %d/%d" % [wave, e.type, int(e.hp), int(e.max_hp)])
 	lives = maxi(0, lives - dmg)
