@@ -80,7 +80,7 @@ const TOWERS := {
 				"set": {"burst": 8, "burst_gap": 0.06, "rate": 1.0, "damage": 7, "grenade_every": 2}},
 			{"name": "Elite Soldier", "icon": "headshot", "cost": 2000,
 				"desc": "Long 11-round bursts, and faster. Damage 7 > 8.",
-				"set": {"burst": 11, "burst_gap": 0.06, "rate": 0.8, "damage": 8, "grenade_every": 2}},
+				"set": {"burst": 11, "burst_gap": 0.06, "rate": 1.1, "damage": 8, "grenade_every": 2}},
 		],
 	},
 	"garage": {
@@ -114,7 +114,7 @@ const TOWERS := {
 			{"name": "Blue Flame", "icon": "blue_flame", "cost": 1400, "desc": "Huge damage. Ignores half of fire resistance.",
 				"set": {"damage": 10.0, "burn": 26.0, "fire_pierce": 0.5}},
 			{"name": "Pyromania", "icon": "blue_flame", "cost": 2500, "desc": "Better damage. Ignores 3/4 of fire resistance.",
-				"set": {"damage": 12.0, "burn": 28.0, "fire_pierce": 0.75}},
+				"set": {"damage": 14.0, "burn": 28.0, "fire_pierce": 0.75}},
 		],
 	},
 	"sniper": {
@@ -134,7 +134,7 @@ const TOWERS := {
 				"set": {"damage": 110, "rate": 0.65, "headshot": 0.15}},
 			{"name": "Elite Sniper", "icon": "headshot", "cost": 1850,
 				"desc": "Damage 130 and faster rate. 20% chance to kill any non-boss enemy outright.",
-				"set": {"damage": 130, "rate": 0.60, "headshot": 0.20}},
+				"set": {"damage": 130, "rate": 0.70, "headshot": 0.20}},
 		],
 	},
 }
