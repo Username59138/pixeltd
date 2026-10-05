@@ -2,9 +2,6 @@ class_name Hud
 extends Control
 ## In-battle interface: right sidebar (stats, shop, selected tower), enemy tooltips, banners, pause & end screens.
 
-const Defs = preload("res://scripts/data/defs.gd")
-const MapsData = preload("res://scripts/data/maps_data.gd")
-const UI = preload("res://scripts/ui/ui.gd")
 const Tooltip = preload("res://scripts/ui/tooltip.gd")
 
 # preload instead of the global class name: works even if the editor class cache is stale
@@ -123,7 +120,6 @@ func _build_sidebar() -> void:
 		b.mouse_exited.connect(func(): tip.hide_tip())
 		shop_box.add_child(b)
 		shop_buttons[t] = b
-	keys_l = UI.label(_keys_text(), 10, Color("5a6988"))
 	var keys := keys_l
 	shop_box.add_child(keys)
 
@@ -206,7 +202,6 @@ func _stat_row(parent: Control, icon_name: String, col: Color) -> Label:
 
 # ---------------------------------------------------------------- refresh
 func _refresh() -> void:
-	keys_l.text = _keys_text()
 	up_btn.tooltip_text = "Upgrade (%s)" % Game.key_label("upgrade")
 	sell_btn.tooltip_text = "Sell (%s)" % Game.key_label("sell")
 	target_btn.tooltip_text = "Targeting mode (%s)" % Game.key_label("target")
@@ -578,12 +573,6 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				if k < shop_order.size():
 					_on_shop(shop_order[k])
 	get_viewport().set_input_as_handled()
-
-
-func _keys_text() -> String:
-	return "%s upgrade   %s sell\n%s wave   %s speed\nWheel zoom\nShift place many" % [
-		Game.key_label("upgrade"), Game.key_label("sell"), Game.key_label("next_wave"), Game.key_label("speed")]
-
 
 # ---------------------------------------------------------------- overlays
 func _overlay() -> Control:
