@@ -78,6 +78,9 @@ const TOWERS := {
 			{"name": "Machine Gun", "icon": "machine_gun", "cost": 1200,
 				"desc": "Long 8-round bursts. Damage 5 > 7. Grenades every 2nd burst.",
 				"set": {"burst": 8, "burst_gap": 0.06, "rate": 1.0, "damage": 7, "grenade_every": 2}},
+			{"name": "Elite Soldier", "icon": "headshot", "cost": 2000,
+				"desc": "Long 11-round bursts, and faster. Damage 7 > 8.",
+				"set": {"burst": 11, "burst_gap": 0.06, "rate": 0.8, "damage": 8, "grenade_every": 2}},
 		],
 	},
 	"garage": {
@@ -110,6 +113,8 @@ const TOWERS := {
 				"set": {"burn": 12.0, "burn_time": 3.0, "damage": 5.2}},
 			{"name": "Blue Flame", "icon": "blue_flame", "cost": 1400, "desc": "Huge damage. Ignores half of fire resistance.",
 				"set": {"damage": 10.0, "burn": 26.0, "fire_pierce": 0.5}},
+			{"name": "Pyromania", "icon": "blue_flame", "cost": 2500, "desc": "Better damage. Ignores 3/4 of fire resistance.",
+				"set": {"damage": 12.0, "burn": 28.0, "fire_pierce": 0.75}},
 		],
 	},
 	"sniper": {
@@ -127,6 +132,9 @@ const TOWERS := {
 			{"name": "Headshot", "icon": "headshot", "cost": 1300,
 				"desc": "Damage 110. 15% chance to kill any non-boss enemy outright.",
 				"set": {"damage": 110, "rate": 0.65, "headshot": 0.15}},
+			{"name": "Elite Sniper", "icon": "headshot", "cost": 1850,
+				"desc": "Damage 130 and faster rate. 20% chance to kill any non-boss enemy outright.",
+				"set": {"damage": 130, "rate": 0.60, "headshot": 0.20}},
 		],
 	},
 }
@@ -195,7 +203,7 @@ const STAT_LABELS := {"damage": "Damage", "rate": "Attacks/s", "range": "Range",
 	"cone": "Cone angle", "burn": "Burn dps", "burn_time": "Burn time", "fire_pierce": "Fire res. pierce",
 	"headshot": "Headshot chance", "camo": "Sees invisible", "air": "Hits flying"}
 const PERCENT_STATS := ["slow", "armor_pierce", "fire_pierce", "headshot"]
-const RAINBOW := [Color("e43b44"), Color("fee761"), Color("63c74d"), Color("b25aff")]
+const RAINBOW := [Color("e43b44"), Color("fee761"), Color("63c74d"), Color("2c9aceff"), Color(0.473, 0.411, 0.962, 1.0)]
 
 # global knobs used for balancing
 static var BUDGET_MULT := 1.0
@@ -212,7 +220,7 @@ static func enemy_hp_scale(wave: int) -> float:
 
 
 static func wave_bonus(wave: int) -> int:
-	return 60 + wave * 4
+	return roundi(125.0 * (float(wave) /  5.0))
 
 
 ## Returns {"spawns": [[time, type], ...], "boss": bool}
