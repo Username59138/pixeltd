@@ -204,7 +204,7 @@ func _open_tower(t: String) -> void:
 	root.add_child(line)
 	var n: int = d["upgrades"].size() + 1
 	var cx0 := 40.0
-	var step := 70.0
+	var step := 60.0
 	line.draw.connect(func():
 		for i in n - 1:
 			var a := Vector2(cx0 + i * step + 17, path_y)
