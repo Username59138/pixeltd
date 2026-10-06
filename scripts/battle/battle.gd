@@ -24,6 +24,7 @@ const FX_COLORS := {"slime": Color("63c74d"), "rat": Color("8b9bb4"), "goblin": 
 	"bat": Color("68386c"), "ghost": Color("e8eef8"), "harpy": Color("8a4e3e"), "skeleton": Color("ead4aa"),
 	"berserker": Color("647d3c")}
 
+var continued := false
 var demo := false
 var headless := false
 var map_id := ""
@@ -295,7 +296,7 @@ func _tick_waves(dt: float) -> void:
 func _check_round() -> void:
 	if not spawning and not has_hostiles() and bonus_pending:
 		_award_bonus()
-		if wave >= total_waves:
+		if wave >= total_waves and not continued:
 			_finish(true)
 			return
 		if auto_start:
@@ -311,7 +312,7 @@ func _award_bonus() -> void:
 
 
 func can_start_wave() -> bool:
-	return not over and not spawning and wave < total_waves and not demo
+	return ((not over and wave < total_waves) or continued) and not spawning and not demo
 
 
 func start_wave() -> void:

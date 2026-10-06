@@ -9,6 +9,7 @@ const SettingsScreenScript := preload("res://scripts/ui/settings_screen.gd")
 
 signal quit_to_menu
 signal restart
+signal continue_after_win
 
 var battle: Node2D
 
@@ -632,6 +633,9 @@ func _on_ended(win: bool, newly: Array) -> void:
 	var v := _center_panel(end_layer, 240)
 	if win:
 		v.add_child(UI.title("VICTORY!", 16, Color("fee761")))
+		var cnt := UI.button("Continue", "green", Vector2(0, 20))
+		cnt.pressed.connect(func(): continue_after_win.emit())
+		v.add_child(cnt)
 	else:
 		v.add_child(UI.title("DEFEAT", 16, Color("e43b44")))
 	v.add_child(UI.label("%s - %s" % [battle.map["name"], battle.diff["name"]], 10, battle.diff["color"],

@@ -483,3 +483,10 @@ func start_battle(map_id: String, diff: int) -> void:
 	hud.setup(battle)
 	hud.quit_to_menu.connect(show_menu)
 	hud.restart.connect(func(): start_battle(map_id, diff))
+	hud.continue_after_win.connect(func(): continue_battle_after_win())
+	
+func continue_battle_after_win():
+	hud.end_layer.queue_free()
+	hud.end_layer = null
+	battle.over = false
+	battle.continued = true

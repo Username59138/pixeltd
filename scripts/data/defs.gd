@@ -255,7 +255,7 @@ static func build_wave(wave: int, total: int, seed_base: int) -> Dictionary:
 	var t := 0.0
 	var avail: Array = []
 	for p in POOL:
-		if wave >= p[1]:
+		if wave >= p[1] and not (wave >= 15 and p[1] <= 5):
 			avail.append(p)
 	var groups := 1
 	if wave >= 4:
