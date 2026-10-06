@@ -304,7 +304,7 @@ func _check_round() -> void:
 
 func _award_bonus() -> void:
 	bonus_pending = false
-	var b := Defs.wave_bonus(wave)
+	var b := roundi(Defs.wave_bonus(wave) * diff["bonus_multi"])
 	cash += b
 	add_text(Vector2(256, 40), "+$%d wave bonus" % b, Color("fee761"))
 	stats_changed.emit()

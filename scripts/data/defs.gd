@@ -1,9 +1,6 @@
 class_name Defs
 extends RefCounted
 ## All static game data of Pixel TD: classes, difficulties, towers, enemies and the wave generator.
-
-const MapsData = preload("res://scripts/data/maps_data.gd")
-
 # ---------------------------------------------------------------- enemy classes
 # Class only weakens CONTROL effects (stun, slow...). Damage of any kind is never reduced by class.
 const CLASS_ROMAN := ["", "I", "II", "III", "IV"]
@@ -14,16 +11,20 @@ const CLASS_COLORS := [Color.WHITE, Color("c0cbdc"), Color("63c74d"), Color("fea
 const DIFFICULTIES := [
 	{"id": "light", "name": "Light", "lives": 200, "cash": 800, "hp": 0.8, "cost": 0.85, "waves": 20,
 		"sell": 0.8, "color": Color("63c74d"), "btn": "green",
-		"desc": "20 waves. Weaker enemies, cheaper towers, 200 lives."},
+		"desc": "20 waves. Weaker enemies, cheaper towers, 200 lives.",
+		"bonus_multi": 1.2},
 	{"id": "medium", "name": "Medium", "lives": 150, "cash": 650, "hp": 1.0, "cost": 1.0, "waves": 30,
 		"sell": 0.7, "color": Color("0099db"), "btn": "blue",
-		"desc": "30 waves. The standard challenge, 150 lives."},
+		"desc": "30 waves. The standard challenge, 150 lives.",
+		"bonus_multi": 1.0},
 	{"id": "difficult", "name": "Difficult", "lives": 100, "cash": 600, "hp": 1.12, "cost": 1.08, "waves": 40,
 		"sell": 0.7, "color": Color("f77622"), "btn": "gold",
-		"desc": "40 waves. Tougher enemies, pricier towers, 100 lives."},
+		"desc": "40 waves. Tougher enemies, pricier towers, 100 lives.",
+		"bonus_multi": 0.95},
 	{"id": "hardcore", "name": "Hardcore", "lives": 1, "cash": 650, "hp": 1.12, "cost": 1.08, "waves": 40,
 		"sell": 0.0, "color": Color("e43b44"), "btn": "red",
-		"desc": "40 waves. ONE life. Towers can't be sold."},
+		"desc": "40 waves. ONE life. Towers can't be sold.",
+		"bonus_multi": 0.7},
 ]
 
 # ---------------------------------------------------------------- towers
@@ -220,7 +221,7 @@ static func enemy_hp_scale(wave: int) -> float:
 
 
 static func wave_bonus(wave: int) -> int:
-	return roundi(125.0 * (float(wave) /  5.0))
+	return roundi(100.0 * (sqrt(float(wave))))
 
 
 ## Returns {"spawns": [[time, type], ...], "boss": bool}
