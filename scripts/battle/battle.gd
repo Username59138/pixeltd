@@ -82,7 +82,6 @@ var under: Node2D
 var ents: Node2D
 var over_layer: Node2D
 
-
 func setup(p_map_id: String, p_diff: int, p_demo := false) -> void:
 	demo = p_demo
 	map_id = p_map_id
@@ -312,11 +311,11 @@ func _award_bonus() -> void:
 
 
 func can_start_wave() -> bool:
-	return ((not over and wave < total_waves) or continued) and not spawning and not demo
+	return not over and ((wave < total_waves) or continued) and not spawning and not demo
 
 
-func start_wave() -> void:
-	if not can_start_wave():
+func start_wave(skip_wave := false) -> void:
+	if not can_start_wave() and not skip_wave:
 		return
 	if bonus_pending:
 		_award_bonus()

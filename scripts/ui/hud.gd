@@ -3,10 +3,6 @@ extends Control
 ## In-battle interface: right sidebar (stats, shop, selected tower), enemy tooltips, banners, pause & end screens.
 
 const Tooltip = preload("res://scripts/ui/tooltip.gd")
-
-# preload instead of the global class name: works even if the editor class cache is stale
-const SettingsScreenScript := preload("res://scripts/ui/settings_screen.gd")
-
 signal quit_to_menu
 signal restart
 signal continue_after_win
@@ -36,10 +32,12 @@ var banner: Label
 var banner_t := 0.0
 var pause_layer: Control
 var end_layer: Control
+var cheat_layer: Control
 var hint_l: Label
 var shop_order: Array = []   # unlocked towers only, in shop order (keys 1..N)
 var boss_bar: Control
 var settings_layer: Control
+var cheats := false
 
 
 func setup(b: Node2D) -> void:
@@ -360,7 +358,7 @@ func _on_auto() -> void:
 func toggle_pause() -> void:
 	if battle.over:
 		return
-	if settings_layer:
+	if settings_layer or cheat_layer:
 		return
 	battle.paused = not battle.paused
 	if battle.paused:
@@ -596,7 +594,7 @@ func _center_panel(root: Control, w: float) -> VBoxContainer:
 
 func _open_settings() -> void:
 	pause_layer.visible = false
-	settings_layer = SettingsScreenScript.new()
+	settings_layer = SettingsScreen.new()
 	add_child(settings_layer)
 	settings_layer.closed.connect(func():
 		settings_layer.queue_free()
@@ -605,6 +603,28 @@ func _open_settings() -> void:
 			pause_layer.visible = true
 		_refresh())
 
+func _open_cheats() -> void:
+	pause_layer.visible = false
+	cheat_layer = _overlay()
+	var v := _center_panel(cheat_layer, 180)
+	v.add_child(UI.title("Cheats", 16))
+	var sk := UI.button("Skip wave", "green", Vector2(0, 20))
+	sk.pressed.connect(func(): battle.start_wave(true))
+	v.add_child(sk)
+	var gm := UI.button("Give money", "green", Vector2(0, 20))
+	gm.pressed.connect(func(): battle.cash += 9999)
+	v.add_child(gm)
+	var q := UI.button("Back", "red", Vector2(0, 20))
+	q.pressed.connect(toggle_cheats)
+	v.add_child(q)
+	
+func toggle_cheats() -> void:
+	if cheat_layer:
+		cheat_layer.queue_free()
+		cheat_layer = null
+		pause_layer.visible = true
+	else:
+		_open_cheats()
 
 func _show_pause() -> void:
 	pause_layer = _overlay()
@@ -624,6 +644,10 @@ func _show_pause() -> void:
 	var q := UI.button("Quit to menu", "red", Vector2(0, 20))
 	q.pressed.connect(func(): quit_to_menu.emit())
 	v.add_child(q)
+	if cheats:
+		var c := UI.button("Cheats", "purple", Vector2(0, 20))
+		c.pressed.connect(_open_cheats)
+		v.add_child(c)
 
 
 func _on_ended(win: bool, newly: Array) -> void:
@@ -633,7 +657,7 @@ func _on_ended(win: bool, newly: Array) -> void:
 	var v := _center_panel(end_layer, 240)
 	if win:
 		v.add_child(UI.title("VICTORY!", 16, Color("fee761")))
-		var cnt := UI.button("Continue", "green", Vector2(0, 20))
+		var cnt := UI.button("Continue", "green", Vector2(90, 20))
 		cnt.pressed.connect(func(): continue_after_win.emit())
 		v.add_child(cnt)
 	else:
