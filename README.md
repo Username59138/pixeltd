@@ -43,6 +43,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
   - Garage: Gas Station on Difficult
   - Flamethrower: Volcano on Medium
   - Sniper: Green Meadow on Difficult
+- **Halloween event (Oct 10 - Nov 7):** Green Meadow gets an autumn look with jack-o'-lanterns. Only the looks change, the layout stays the same.
 - **Volcano:** two short roads, lava on the best spots and an eruption every second wave. Tiles next to the lava flash orange, then towers on them stop shooting for 6 seconds.
 - **Murky Swamp:** the boardwalk crosses itself, so towers near the crossing hit enemies twice. The bog eats the best spots.
 - **Old Graveyard:** a second road starts at the crypt in the middle of the map. Grave plots take some of the space.
@@ -74,6 +75,7 @@ Open **Towers** in the main menu and click a portrait to see every tower's full 
 - `scripts/battle/`: the battlefield (`battle.gd`), towers (`tower.gd`) and enemies (`enemy.gd`).
 - `scripts/ui/`: menus, the in-battle HUD and tooltips.
 - `tools/gen_art.py`, `tools/sprites.py`, `tools/units.py`: generate all the pixel art and maps (Python + Pillow). Run `python3 tools/gen_art.py` after editing them. `scripts/data/maps_data.gd` is generated too, so don't edit it by hand.
+- `scripts/data/changelog.gd`: the Changelog shown in the main menu, newest version first.
 - `tools/gen_sfx.py`: generates the 8-bit sound effects.
 - Building: open the project in Godot 4.7.2 → Project → Export → Linux.
 
@@ -83,6 +85,7 @@ Developer flags (passed after `--`):
 - `--unlock-all`: unlock every map and tower.
 - `--cheats`: adds a Cheats button to the pause menu (skip wave, give money). Wins after using a cheat are not saved.
 - `--save-fake`: write progress from `--unlock-all` and cheated wins to the save file anyway.
+- `--halloween` / `--no-halloween`: force the Halloween event on or off.
 - `--reset-data`: start with no progress and default settings, without touching the save file (nothing is saved that session). With `--save-fake` the save file is deleted for real.
 - `--mechtest`: headless checks of the invisible / flying / skeleton / berserker / sniper rules.
 - `--battle <map> <0-3> --bot`: watch the bot play.

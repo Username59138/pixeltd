@@ -30,6 +30,13 @@ var map_keys: Array = []        # tier index of every unused key
 var all_maps_open := false      # dev flag --unlock-all
 var last_key_tier := -1         # key earned by the last recorded win, -1 if none
 
+# ---------------------------------------------------------------- seasonal events
+# Halloween: maps with a "halloween" variant (Green Meadow) get their autumn look. Gameplay is unchanged.
+# Dev flags --halloween / --no-halloween force it on or off.
+const HALLOWEEN_FROM := 1010   # month * 100 + day, inclusive: Oct 10 - Nov 7
+const HALLOWEEN_TO := 1107
+var halloween := false
+
 var _tex_cache := {}
 
 
@@ -43,6 +50,13 @@ func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	save_fake = args.has("--save-fake")
 	load_progress()
+	var today := Time.get_date_dict_from_system()
+	var md := int(today["month"]) * 100 + int(today["day"])
+	halloween = md >= HALLOWEEN_FROM and md <= HALLOWEEN_TO
+	if args.has("--halloween"):
+		halloween = true
+	elif args.has("--no-halloween"):
+		halloween = false
 	if args.has("--reset-data"):
 		_reset_data()
 	if DisplayServer.get_name() != "headless":
@@ -131,6 +145,23 @@ func unlock_text(tower_id: String) -> String:
 
 func tier_of(map_id: String) -> int:
 	return TIERS.find(MapsData.MAPS[map_id]["tier"])
+
+
+## Current season of a map: "halloween" or "" (normal look).
+func map_variant(map_id: String) -> String:
+	if halloween and (MapsData.MAPS[map_id]["variants"] as Dictionary).has("halloween"):
+		return "halloween"
+	return ""
+
+
+func map_bg(map_id: String) -> String:
+	var v := map_variant(map_id)
+	return MapsData.MAPS[map_id]["variants"][v]["bg"] if v != "" else MapsData.MAPS[map_id]["bg"]
+
+
+func map_thumb(map_id: String) -> String:
+	var v := map_variant(map_id)
+	return MapsData.MAPS[map_id]["variants"][v]["thumb"] if v != "" else MapsData.MAPS[map_id]["thumb"]
 
 
 func is_map_unlocked(map_id: String) -> bool:

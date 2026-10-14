@@ -97,6 +97,10 @@ func _ready() -> void:
 		for c in ui_root.get_children():
 			if c.has_method("_show_page"):
 				c._show_page(1)
+	if args.has("--changelog"):
+		for c in ui_root.get_children():
+			if c.has_method("_open_changelog"):
+				c._open_changelog()
 	if args.has("--bestiary"):
 		for c in ui_root.get_children():
 			if c.has_method("_build_enemies"):

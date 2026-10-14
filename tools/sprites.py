@@ -512,10 +512,11 @@ PUMPKIN = [
 ]
 PUMPKIN_C = {'g': 'olv', 'o': 'org_d', 'O': 'org', 'k': 'black', 'y': 'yellow'}
 
+AUTUMN_TREE_C = {'g': 'red_l', 'G': 'red_m', 'l': 'gld', 'd': 'red_d', 'T': 'xdbrown'}
 SWAMP_TREE_C = {'g': 'olv_l', 'G': 'olv', 'l': 'olv_l', 'd': 'olv_d', 'T': 'xdbrown'}
 
 DECOR_SPRITES = {
-    'swamp_tree': (TREE, SWAMP_TREE_C),
+    'swamp_tree': (TREE, SWAMP_TREE_C), 'autumn_tree': (TREE, AUTUMN_TREE_C),
     'lamp': (LAMP, LAMP_C), 'hydrant': (HYDRANT, HYDRANT_C), 'trash': (TRASH, TRASH_C),
     'dumpster': (DUMPSTER, DUMPSTER_C), 'reeds': (REEDS, REEDS_C), 'mushroom': (MUSHROOM, MUSHROOM_C),
     'log': (LOG, LOG_C), 'tomb': (TOMB, TOMB_C), 'tomb_cross': (TOMB_CROSS, TOMB_CROSS_C),

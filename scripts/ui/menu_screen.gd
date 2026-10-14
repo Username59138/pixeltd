@@ -5,10 +5,12 @@ extends Control
 
 # preload instead of the global class name: works even if the editor class cache is stale
 const SettingsScreenScript := preload("res://scripts/ui/settings_screen.gd")
+const Changelog := preload("res://scripts/data/changelog.gd")
 
 var main: Node
 var logo: TextureRect
 var t := 0.0
+var changelog: Control
 
 
 func _ready() -> void:
@@ -67,8 +69,12 @@ func _ready() -> void:
 	quit.position = Vector2(594, 338)
 	quit.pressed.connect(func(): get_tree().quit())
 	add_child(quit)
-	var ver := UI.label("v0.1  -  F11 fullscreen", 10, Color("8b9bb4"))
-	ver.position = Vector2(6, 342)
+	var news := UI.button("Changelog", "gray", Vector2(76, 16))
+	news.position = Vector2(6, 338)
+	news.pressed.connect(_open_changelog)
+	add_child(news)
+	var ver := UI.label("v%s  -  F11 fullscreen" % Changelog.ENTRIES[0]["version"], 10, Color("8b9bb4"))
+	ver.position = Vector2(88, 342)
 	add_child(ver)
 	# progress summary
 	var stars := 0
@@ -86,6 +92,55 @@ func _open_settings() -> void:
 	var st := SettingsScreenScript.new()
 	add_child(st)
 	st.closed.connect(st.queue_free)
+
+
+func _open_changelog() -> void:
+	Sfx.play("click")
+	changelog = Control.new()
+	changelog.set_anchors_preset(Control.PRESET_FULL_RECT)
+	changelog.mouse_filter = Control.MOUSE_FILTER_STOP
+	changelog.add_child(UI.dim_rect(0.7))
+	add_child(changelog)
+	var p := UI.panel("panel", 8)
+	p.position = Vector2(110, 24)
+	p.size = Vector2(420, 312)
+	changelog.add_child(p)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 6)
+	p.add_child(v)
+	v.add_child(UI.title("CHANGELOG", 16))
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(404, 242)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	v.add_child(scroll)
+	var list := VBoxContainer.new()
+	list.add_theme_constant_override("separation", 3)
+	scroll.add_child(list)
+	for e in Changelog.ENTRIES:
+		list.add_child(UI.label("v%s  -  %s" % [e["version"], e["title"]], 10, Color("fee761")))
+		list.add_child(UI.label(e["date"], 10, Color("8b9bb4")))
+		for item in e["items"]:
+			var l := UI.label("- " + item, 10, Color("f77622") if item.begins_with("HALLOWEEN") else Color("c0cbdc"))
+			l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			l.custom_minimum_size = Vector2(392, 0)
+			list.add_child(l)
+		list.add_child(Control.new())
+	var close := UI.button("Close", "red", Vector2(90, 20))
+	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	close.pressed.connect(_close_changelog)
+	v.add_child(close)
+
+
+func _close_changelog() -> void:
+	if is_instance_valid(changelog):
+		changelog.queue_free()
+	changelog = null
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if changelog and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		_close_changelog()
+		get_viewport().set_input_as_handled()
 
 
 func _process(delta: float) -> void:

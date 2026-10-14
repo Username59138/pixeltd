@@ -109,8 +109,14 @@ func _map_card(id: String) -> Button:
 	frame.add_theme_stylebox_override("panel", UI.box("panel_dark", 4, Vector4(2, 2, 2, 2)))
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	v.add_child(frame)
-	var th := UI.sprite_rect(m["thumb"])
+	var th := UI.sprite_rect(Game.map_thumb(id))
 	frame.add_child(th)
+	if Game.map_variant(id) == "halloween" and open:
+		var badge := UI.panel("panel_dark", 2)
+		badge.position = Vector2(2, 2)
+		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		badge.add_child(UI.label("HALLOWEEN!", 10, Color("f77622")))
+		th.add_child(badge)
 	if not open:
 		th.self_modulate = Color(0.3, 0.3, 0.38)
 		var lk := UI.icon("lock")
@@ -178,7 +184,7 @@ func _open_difficulty(id: String) -> void:
 	var frame := PanelContainer.new()
 	frame.add_theme_stylebox_override("panel", UI.box("panel_dark", 4, Vector4(2, 2, 2, 2)))
 	left.add_child(frame)
-	frame.add_child(UI.sprite_rect(m["thumb"], 2))
+	frame.add_child(UI.sprite_rect(Game.map_thumb(id), 2))
 	left.add_child(UI.label("Tier: " + m["tier"], 10, TIER_COLORS.get(m["tier"], Color.WHITE)))
 	var desc := UI.label(m["desc"], 10, Color("c0cbdc"))
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

@@ -120,7 +120,7 @@ func setup(p_map_id: String, p_diff: int, p_demo := false) -> void:
 	if headless:
 		return
 	bg = Sprite2D.new()
-	bg.texture = Game.tex(map["bg"])
+	bg.texture = Game.tex(Game.map_bg(map_id))
 	bg.centered = false
 	add_child(bg)
 	under = DrawNode.new()

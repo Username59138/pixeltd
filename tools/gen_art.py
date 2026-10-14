@@ -256,6 +256,14 @@ THEMES = {
     'grave': dict(ground=[(46, 62, 62), (56, 74, 70), (66, 86, 76)], path=[(90, 92, 110), (104, 106, 124), (120, 122, 140)],
                   path_edge=C['black'], ground_edge=(34, 44, 48), speck=[(84, 100, 92), (36, 48, 52)],
                   pebble=[(70, 72, 90)], details='grave', path_style='cobble'),
+    # Halloween look of the meadow: same layout, autumn colours, pumpkins instead of bushes
+    'meadow_halloween': dict(ground=[(150, 76, 44), (170, 94, 50), (190, 116, 60)],
+                             path=[(112, 82, 70), (98, 70, 62), (86, 60, 54)],
+                             path_edge=C['xdbrown'], ground_edge=(132, 60, 36), speck=[(240, 170, 90), (126, 54, 32)],
+                             pebble=[(70, 50, 46), (150, 120, 100)], details='flowers',
+                             tuft=((230, 160, 80), (116, 52, 34)),
+                             flowers=[C['red_m'], C['yellow'], C['dbrown'], C['org_d']], flower_mid=C['org_d'],
+                             decor_swap={'tree': 'autumn_tree', 'bush': 'pumpkin'}),
     'snow': dict(ground=[(232, 240, 250), C['white'], C['lgray']], path=[C['gray'], (160, 176, 200), C['lgray']],
                  path_edge=C['dgray'], ground_edge=(180, 196, 220), speck=[C['lgray'], C['white']],
                  pebble=[C['dgray'], C['white']], details='snow'),
@@ -327,7 +335,7 @@ GRAVE_PLOTS = [
 MAPS = [
     dict(id='meadow', name='Green Meadow', theme='meadow', tier='Beginner', hp_mult=1.0, seed=11, seed_idx=0,
          paths=[[(-1, 4), (8, 4), (8, 15), (16, 15), (16, 6), (24, 6), (24, 17), (33, 17)]],
-         decor=['tree', 'tree', 'bush', 'bush', 'rock'], density=0.07,
+         decor=['tree', 'tree', 'bush', 'bush', 'rock'], density=0.07, variants=['halloween'],
          desc='A calm field. Perfect for learning the ropes.'),
     dict(id='canyon', name='Dusty Canyon', theme='desert', tier='Beginner', hp_mult=1.05, seed=23, seed_idx=1,
          paths=[[(-1, 17), (5, 17), (5, 4), (12, 4), (12, 13), (19, 13), (19, 3), (27, 3), (27, 18), (14, 18),
@@ -397,9 +405,10 @@ def path_style_px(style, x, y, d, horiz, pal, idx):
     return pal[idx]
 
 
-def bake_map(m, cols=32, rows=23):
+def bake_map(m, cols=32, rows=23, variant=None):
+    """variant: seasonal look ('halloween'). It consumes the same random numbers, so the layout stays identical."""
     rnd = random.Random(m['seed'])
-    th = THEMES[m['theme']]
+    th = THEMES[m['theme'] + ('_' + variant if variant else '')]
     W, H = cols * T, rows * T
     img = Image.new('RGBA', (W, H))
     px = img.load()
@@ -572,13 +581,14 @@ def bake_map(m, cols=32, rows=23):
         if det == 'flowers' or (det == 'gas' and gas_zone(tx, ty) == 'grass'):
             if rnd.random() < 0.6:  # grass tuft
                 for (dx, dy) in ((0, 0), (-1, -1), (1, -1), (0, -2)):
-                    px[x + dx, y + dy] = (C['lgreen'] if dy < -1 else C['dgreen']) + (255,)
+                    tl, td = th.get('tuft', (C['lgreen'], C['dgreen']))
+                    px[x + dx, y + dy] = (tl if dy < -1 else td) + (255,)
             else:
-                c = rnd.choice([C['yellow'], C['white'], C['pink'], C['red']])
+                c = rnd.choice(th.get('flowers', [C['yellow'], C['white'], C['pink'], C['red']]))
                 px[x, y] = c + (255,)
                 px[x + 1, y] = c + (255,)
                 px[x, y - 1] = c + (255,)
-                px[x + 1, y - 1] = C['gold'] + (255,)
+                px[x + 1, y - 1] = th.get('flower_mid', C['gold']) + (255,)
         elif det == 'desert':
             for (dx, dy) in ((0, 0), (1, 0), (2, 0)):
                 px[x + dx, y + dy] = C['tan'] + (255,)
@@ -696,6 +706,9 @@ def bake_map(m, cols=32, rows=23):
         place(rnd.choice(decor), x, y)
     # draw decor sorted by y
     for name, tx, ty, fw, fh in sorted(decor_list, key=lambda d: d[2]):
+        if name in th.get('decor_swap', {}):
+            # every third tree is a dead one, picked by position so no random numbers are used
+            name = 'dead_tree' if name == 'tree' and (tx * 7 + ty * 3) % 3 == 0 else th['decor_swap'][name]
         rows_, cm = DECOR_SPRITES[name]
         spr = make(rows_, cm)
         x = tx * T + (fw * T - spr.width) // 2
@@ -1081,6 +1094,14 @@ def gen_maps():
         if m['id'] != 'menu':
             th = img.crop((0, 0, 512, 352)).resize((128, 88), Image.BOX)
             th.save(out(f'maps/{m["id"]}_thumb.png'))
+        variants_txt = []
+        for v in m.get('variants', []):
+            vimg, vblocked, _, _ = bake_map(m, cols=cols, variant=v)
+            assert vblocked == blocked, 'a seasonal variant must keep the layout'
+            vimg.save(out(f'maps/{m["id"]}_{v}.png'))
+            vimg.crop((0, 0, 512, 352)).resize((128, 88), Image.BOX).save(out(f'maps/{m["id"]}_{v}_thumb.png'))
+            variants_txt.append('"%s": {"bg": "res://assets/maps/%s_%s.png", "thumb": "res://assets/maps/%s_%s_thumb.png"}'
+                                % (v, m['id'], v, m['id'], v))
         rows_txt = []
         for y in range(23):
             rows_txt.append('"' + ''.join('1' if (x, y) in blocked else '0' for x in range(cols)) + '"')
@@ -1093,6 +1114,7 @@ def gen_maps():
         lines.append('\t\t"desc": "%s",' % m['desc'])
         lines.append('\t\t"bg": "res://assets/maps/%s.png", "thumb": "res://assets/maps/%s_thumb.png",' % (
             m['id'], m['id']))
+        lines.append('\t\t"variants": {%s},' % ', '.join(variants_txt))
         lines.append('\t\t"paths": [%s],' % ', '.join(paths_txt))
         lines.append('\t\t"blocked": [%s],' % ', '.join(rows_txt))
         lava = sorted(t for t, k in special.items() if k == 'lava' and 0 <= t[0] < cols and 0 <= t[1] < 22)
