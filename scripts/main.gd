@@ -402,7 +402,9 @@ func _mech_test() -> void:
 		for j in 60:
 			nc.update(Battle.STEP, b.enemies)
 			b._tick_bullets(Battle.STEP)
-	check.call("Dark Pact raises class II, capped at 3", undead_of.call().size() == 3)
+	check.call("Dark Pact raises class II, no cap", undead_of.call().size() == 6)
+	check.call("undead rise on the road in range",
+		undead_of.call().all(func(x): return x.position.distance_to(nc.position) <= nc.range_px() + 0.5))
 	var ug = undead_of.call()[0]
 	var ogre = b.spawn_enemy("ogre", 0, ug.dist)
 	ogre.position = ug.position

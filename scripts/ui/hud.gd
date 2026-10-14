@@ -312,8 +312,8 @@ static func _stats_core(t: String, s: Dictionary) -> String:
 		"necro":
 			var txt := "Dmg %s  Rate %s/s\nRange %d  Armor pierce %d%%" % [UI.fmt_num(s["damage"]),
 				UI.fmt_num(s["rate"]), s["range"], int(s["armor_pierce"] * 100)]
-			txt += "\nRaises class I-%s with %d%% HP\nUp to %d undead" % [Defs.CLASS_ROMAN[int(s["raise_class"])],
-				int(s["raise_hp"] * 100), s["max_undead"]]
+			txt += "\nRaises class I-%s with %d%% HP" % [Defs.CLASS_ROMAN[int(s["raise_class"])],
+				int(s["raise_hp"] * 100)]
 			return txt
 	return ""
 

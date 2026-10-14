@@ -61,7 +61,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 - **Soldier:** long range rifle bursts. AP Rounds (armor piercing) → Grenades → Machine Gun.
 - **Garage:** must be built next to a road. Sends friendly cars (`is_friendly` enemies) that drive along the road towards the enemies. On a crash both sides lose `min(car HP, enemy HP)`. Pickup → Truck → Armored Car (with a turret).
 - **Flamethrower:** fire cone and burning, ignores armor, but the Fire Imp is immune. Bigger Tank → Napalm → Blue Flame.
-- **Necromancer:** dark bolts that ignore 60% of armor. An enemy his bolt kills rises as a friendly undead (Garage-style crash) with part of its max HP: 20% → 35% → 50% → 70%. No flyers, no bosses, a limited number at once, and undead never raise more undead. Dark Pact → Bone Army (sees invisible) → Lich.
+- **Necromancer:** dark bolts that ignore 60% of armor. An enemy his bolt kills rises as a friendly undead (Garage-style crash) with part of its max HP: 20% → 35% → 50% → 70%. They rise at a random spot of road inside his range. No flyers, no bosses, and undead never raise more undead. Dark Pact → Bone Army (sees invisible) → Lich.
 - **Sniper:** slow, heavy shots from almost across the map, sees invisible and hits flying enemies. Optics → Full Metal Jacket (ignores all armor) → Headshot (15% chance to kill any non-boss outright).
 
 Open **Towers** in the main menu and click a portrait to see every tower's full stats and upgrade path.

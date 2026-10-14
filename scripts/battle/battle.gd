@@ -734,27 +734,37 @@ func spawn_friendly(src: Node) -> Node2D:
 	return e
 
 
-## Necromancer: an enemy its bolt just killed rises as a friendly undead with part of its max HP.
-## Undead walk back down the road and crash like garage cars. No flyers, no bosses, limited count.
+## Necromancer: an enemy its bolt just killed rises as a friendly undead with part of its max HP,
+## at a random spot of road inside the necromancer's range. Undead walk back down the road and crash
+## like garage cars. No flyers, no bosses.
 func raise_dead(src: Node, e: Node2D) -> void:
 	var st: Dictionary = src.stats
 	if e.is_friendly or e.flying or Defs.BOSS_TYPES.has(e.type) or e.cls > int(st["raise_class"]):
 		return
-	var n := 0
-	for f in enemies:
-		if f.alive and f.is_friendly and f.owner_tower == src:
-			n += 1
-	if n >= int(st["max_undead"]):
-		return
-	var u := spawn_enemy(e.type, e.path_i, e.dist, 1.0, true,
+	var spots := road_in_range(src.position, src.range_px())
+	var at: Array = spots[rng.randi() % spots.size()] if not spots.is_empty() else [e.path_i, e.dist]
+	var u := spawn_enemy(e.type, at[0], at[1], 1.0, true,
 		{"undead": true, "car_hp": roundf(e.max_hp * float(st["raise_hp"])), "car_speed": float(e.def["speed"])})
 	u.owner_tower = src
 	if not headless:
 		Sfx.play("rattle", 0.1)
-		add_text(e.position + Vector2(0, -12), "RISE!", Color("63c74d"))
+		add_text(u.position + Vector2(0, -12), "RISE!", Color("63c74d"))
 		for i in 10:
-			_spawn_particle(e.position + Vector2(randf_range(-5, 5), 2), Vector2(0, -randf_range(15, 40)), 0.5,
+			_spawn_particle(u.position + Vector2(randf_range(-5, 5), 2), Vector2(0, -randf_range(15, 40)), 0.5,
 				Color("63c74d") if i % 2 else Color("b25aff"), 1)
+
+
+## Every point of road (sampled each 4 px) within r of p: [[path index, distance], ...].
+func road_in_range(p: Vector2, r: float) -> Array:
+	var res: Array = []
+	for pi in paths.size():
+		var d := 0.0
+		while d < paths[pi]["len"]:
+			var q: Vector2 = path_point(pi, d)[0]
+			if q.distance_to(p) <= r and q.x >= 0.0 and q.y >= 0.0 and q.x < COLS * TILE and q.y < ROWS * TILE:
+				res.append([pi, d])
+			d += 4.0
+	return res
 
 
 func has_hostiles() -> bool:

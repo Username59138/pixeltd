@@ -141,20 +141,20 @@ const TOWERS := {
 	# Halloween event character (can be unlocked any time of the year)
 	"necro": {
 		"name": "Necromancer", "role": "Magic - raises the dead", "cost": 450, "sprite": "necro",
-		"desc": "Dark bolts that ignore most armor. Enemies it finishes off rise as FRIENDLY undead that walk back and crash into enemies. Never raises flyers or bosses.",
+		"desc": "Dark bolts that ignore most armor. Enemies it finishes off rise as FRIENDLY undead somewhere on the road in its range, walk back and crash into enemies. Never raises flyers or bosses.",
 		"unlock": {"map": "graveyard", "difficulty": 2},
 		"base": {"damage": 12, "rate": 1.0, "range": 80, "armor_pierce": 0.6, "raise_hp": 0.2, "raise_class": 1,
-			"max_undead": 3, "kind": "physical", "camo": false, "air": true},
+			"kind": "physical", "camo": false, "air": true},
 		"upgrades": [
 			{"name": "Dark Pact", "icon": "dark_pact", "cost": 260,
 				"desc": "Undead keep 35% HP. Raises class II too. Damage 12 > 18.",
 				"set": {"raise_hp": 0.35, "raise_class": 2, "damage": 18}},
 			{"name": "Bone Army", "icon": "bone_army", "cost": 620,
-				"desc": "Up to 6 undead at once with 50% HP. Damage 30, faster bolts. Spots INVISIBLE enemies.",
-				"set": {"raise_hp": 0.5, "max_undead": 6, "damage": 30, "rate": 1.2, "camo": true}},
+				"desc": "Undead keep 50% HP. Damage 30, faster bolts. Spots INVISIBLE enemies.",
+				"set": {"raise_hp": 0.5, "damage": 30, "rate": 1.2, "camo": true}},
 			{"name": "Lich", "icon": "lich", "cost": 1500,
 				"desc": "Undead keep 70% HP. Raises class III. Damage 55.",
-				"set": {"raise_hp": 0.7, "raise_class": 3, "max_undead": 8, "damage": 55, "rate": 1.3}},
+				"set": {"raise_hp": 0.7, "raise_class": 3, "damage": 55, "rate": 1.3}},
 		],
 	},
 }
@@ -222,7 +222,7 @@ const STAT_LABELS := {"damage": "Damage", "rate": "Attacks/s", "range": "Range",
 	"car_speed": "Car speed", "vehicle": "Vehicle", "gun_dmg": "Turret dmg", "gun_rate": "Turret shots/s",
 	"cone": "Cone angle", "burn": "Burn dps", "burn_time": "Burn time", "fire_pierce": "Fire res. pierce",
 	"headshot": "Headshot chance", "camo": "Sees invisible", "air": "Hits flying",
-	"raise_hp": "Undead HP", "raise_class": "Raises up to class", "max_undead": "Max undead"}
+	"raise_hp": "Undead HP", "raise_class": "Raises up to class"}
 const PERCENT_STATS := ["slow", "armor_pierce", "fire_pierce", "headshot", "raise_hp"]
 const RAINBOW := [Color("e43b44"), Color("fee761"), Color("63c74d"), Color("2c9aceff"), Color(0.473, 0.411, 0.962, 1.0)]
 
