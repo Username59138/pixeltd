@@ -74,7 +74,7 @@ func _ready() -> void:
 	news.pressed.connect(_open_changelog)
 	add_child(news)
 	var ver := UI.label("v%s  -  F11 fullscreen" % Changelog.ENTRIES[0]["version"], 10, Color("8b9bb4"))
-	ver.position = Vector2(88, 342)
+	ver.position = Vector2(6, 324)
 	add_child(ver)
 	# progress summary
 	var stars := 0
