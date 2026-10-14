@@ -15,8 +15,8 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(UI.dim_rect(0.7))
 	var p := UI.panel("panel", 10)
-	p.position = Vector2(40, 18)
-	p.size = Vector2(560, 324)
+	p.position = Vector2(40, 40)
+	p.size = Vector2(560, 0)
 	add_child(p)
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 8)
@@ -29,7 +29,7 @@ func _ready() -> void:
 
 	# ---- left: sound & display
 	var left := VBoxContainer.new()
-	left.custom_minimum_size = Vector2(220, 0)
+	left.custom_minimum_size = Vector2(180, 0)
 	left.add_theme_constant_override("separation", 6)
 	cols.add_child(left)
 	left.add_child(UI.label("SOUND", 10, Color("8b9bb4")))
@@ -66,40 +66,54 @@ func _ready() -> void:
 	_update_fs()
 
 	left.add_child(UI.label("CAMERA", 10, Color("8b9bb4")))
-	var cam := UI.label("Mouse wheel: zoom in / out\nHold wheel and drag: move the map", 10, Color("c0cbdc"))
+	var cam := UI.label("Mouse wheel: zoom in / out. Hold the wheel and drag to move the map.", 10, Color("c0cbdc"))
+	cam.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	cam.custom_minimum_size = Vector2(180, 0)
 	left.add_child(cam)
 
 	# ---- right: key bindings
 	var right := VBoxContainer.new()
-	right.add_theme_constant_override("separation", 2)
+	right.add_theme_constant_override("separation", 4)
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cols.add_child(right)
 	right.add_child(UI.label("CONTROLS  (click a key, then press a new one)", 10, Color("8b9bb4")))
-	for a in Game.ACTIONS:
-		var row := HBoxContainer.new()
-		right.add_child(row)
-		var nl := UI.label(Game.ACTION_NAMES[a], 10, Color.WHITE)
-		nl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(nl)
-		var b := UI.button("", "blue", Vector2(90, 15))
-		b.pressed.connect(func(): _start_rebind(a))
-		row.add_child(b)
-		key_buttons[a] = b
+	# two columns of name + key so all 12 actions fit on the screen
+	var grid := GridContainer.new()
+	grid.columns = 4
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 3)
+	right.add_child(grid)
+	var half := ceili(Game.ACTIONS.size() / 2.0)
+	for i in half:
+		for a in [Game.ACTIONS[i], Game.ACTIONS[i + half] if i + half < Game.ACTIONS.size() else ""]:
+			if a == "":
+				continue
+			var nl := UI.label(Game.ACTION_NAMES[a], 10, Color.WHITE)
+			nl.custom_minimum_size = Vector2(80, 0)
+			grid.add_child(nl)
+			var b := UI.button("", "blue", Vector2(64, 15))
+			b.pressed.connect(func(): _start_rebind(a))
+			grid.add_child(b)
+			key_buttons[a] = b
+	var bottom := HBoxContainer.new()
+	right.add_child(bottom)
 	var fixed := UI.label("Esc / right click: cancel, back", 10, Color("5a6988"))
-	right.add_child(fixed)
-	var reset := UI.button("Reset keys", "red", Vector2(90, 16))
-	reset.size_flags_horizontal = Control.SIZE_SHRINK_END
+	fixed.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom.add_child(fixed)
+	var reset := UI.button("Reset keys", "red", Vector2(80, 16))
 	reset.pressed.connect(func():
 		Game.reset_keys()
 		waiting = ""
 		_update_keys())
-	right.add_child(reset)
+	bottom.add_child(reset)
 	_update_keys()
 
 	var back := UI.button("Back", "green", Vector2(100, 20))
 	back.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	back.pressed.connect(func(): closed.emit())
 	root.add_child(back)
+	# center vertically once the panel knows its height
+	p.resized.connect(func(): p.position.y = roundf((360.0 - p.size.y) / 2.0))
 
 
 func _on_volume(v: float, play := true) -> void:
