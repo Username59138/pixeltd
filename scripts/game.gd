@@ -21,6 +21,15 @@ var keys := DEFAULT_KEYS.duplicate()
 var selected_map := "meadow"
 var selected_difficulty := 1
 
+# ---------------------------------------------------------------- map unlocks
+# The first win on a map of tier X gives a key of tier X. A key of tier X opens any locked map of tier X or X+1.
+const TIERS := ["Beginner", "Intermediate", "Advanced", "Expert"]
+const START_MAPS := ["meadow"]
+var unlocked_maps: Array = START_MAPS.duplicate()
+var map_keys: Array = []        # tier index of every unused key
+var all_maps_open := false      # dev flag --unlock-all
+var last_key_tier := -1         # key earned by the last recorded win, -1 if none
+
 var _tex_cache := {}
 
 
@@ -46,7 +55,9 @@ func _ready() -> void:
 			_real_beaten = beaten.duplicate(true)   # dev flag: never written to the save file
 		for m in MapsData.ORDER:
 			beaten[m] = [0, 1, 2, 3]
+		all_maps_open = true
 		if save_fake:
+			unlocked_maps = MapsData.ORDER.duplicate()
 			save_progress()
 
 
@@ -57,6 +68,8 @@ func _reset_data() -> void:
 	sfx_volume = 0.8
 	fullscreen = false
 	keys = DEFAULT_KEYS.duplicate()
+	unlocked_maps = START_MAPS.duplicate()
+	map_keys = []
 	if save_fake:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
 	else:
@@ -116,11 +129,54 @@ func unlock_text(tower_id: String) -> String:
 	return "Beat %s on %s" % [MapsData.MAPS[u["map"]]["name"], Defs.DIFFICULTIES[u["difficulty"]]["name"]]
 
 
-## Records a victory and returns the list of tower ids that just became unlocked.
+func tier_of(map_id: String) -> int:
+	return TIERS.find(MapsData.MAPS[map_id]["tier"])
+
+
+func is_map_unlocked(map_id: String) -> bool:
+	return all_maps_open or unlocked_maps.has(map_id) or beaten.has(map_id)
+
+
+## Index in map_keys of the key that would open this map, -1 if none fits.
+## Spends the lowest fitting key: a higher one opens more maps.
+func key_for(map_id: String) -> int:
+	var t := tier_of(map_id)
+	var best := -1
+	for i in map_keys.size():
+		var k: int = map_keys[i]
+		if (k == t or k == t - 1) and (best < 0 or k < int(map_keys[best])):
+			best = i
+	return best
+
+
+func unlock_map(map_id: String) -> bool:
+	var i := key_for(map_id)
+	if i < 0 or is_map_unlocked(map_id):
+		return false
+	map_keys.remove_at(i)
+	unlocked_maps.append(map_id)
+	save_progress()
+	return true
+
+
+## "Beginner or Intermediate": the tiers a key of this tier opens.
+func key_reach_text(tier: int) -> String:
+	if tier + 1 < TIERS.size():
+		return "%s or %s" % [TIERS[tier], TIERS[tier + 1]]
+	return TIERS[tier]
+
+
+## Records a victory and returns the list of tower ids that just became unlocked (see last_key_tier for map keys).
 func record_win(map_id: String, diff: int) -> Array:
 	var before := {}
 	for t in Defs.TOWER_ORDER:
 		before[t] = is_tower_unlocked(t)
+	last_key_tier = -1
+	if not beaten.has(map_id) or (beaten[map_id] as Array).is_empty():
+		last_key_tier = tier_of(map_id)
+		map_keys.append(last_key_tier)
+		if not unlocked_maps.has(map_id):
+			unlocked_maps.append(map_id)
 	if not beaten.has(map_id):
 		beaten[map_id] = []
 	if not (beaten[map_id] as Array).has(diff):
@@ -139,7 +195,7 @@ func save_progress() -> void:
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f:
 		f.store_string(JSON.stringify({"beaten": beaten if _real_beaten == null else _real_beaten, "sfx_volume": sfx_volume, "fullscreen": fullscreen,
-			"keys": keys}))
+			"keys": keys, "unlocked_maps": unlocked_maps, "map_keys": map_keys}))
 
 
 func load_progress() -> void:
@@ -158,6 +214,19 @@ func load_progress() -> void:
 			for d in b[k]:
 				arr.append(int(d))
 			beaten[k] = arr
+	if data.has("unlocked_maps"):
+		for m in data.get("unlocked_maps", []):
+			if MapsData.MAPS.has(m) and not unlocked_maps.has(m):
+				unlocked_maps.append(m)
+		for k in data.get("map_keys", []):
+			map_keys.append(int(k))
+	else:
+		# save from before map unlocks: every beaten map stays open and pays out its key
+		for m in beaten:
+			if MapsData.MAPS.has(m) and not (beaten[m] as Array).is_empty():
+				if not unlocked_maps.has(m):
+					unlocked_maps.append(m)
+				map_keys.append(tier_of(m))
 	sfx_volume = float(data.get("sfx_volume", 0.8))
 	fullscreen = bool(data.get("fullscreen", false))
 	var k = data.get("keys", {})

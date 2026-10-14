@@ -37,12 +37,15 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 
 - **Enemy classes I–IV** only weaken control effects (stun, slow): 100% / 70% / 40% / 20%. Damage, including burning, always applies in full.
 - **Difficulties:** Light (20 waves), Medium (30), Difficult (40), Hardcore (40 waves, 1 life, no selling).
+- **Maps are unlocked with keys.** Only Green Meadow is open at the start. The first win on a map (any difficulty) gives a key of that map's tier (Beginner → Intermediate → Advanced → Expert). A key of tier X opens any locked map of tier X or X+1, you choose which one in Select Map. Keys you don't use are kept.
 - **Towers are unlocked by beating maps** (a higher difficulty counts too):
   - Soldier: Green Meadow on Medium
   - Garage: Gas Station on Difficult
   - Flamethrower: Volcano on Medium
   - Sniper: Green Meadow on Difficult
 - **Volcano:** two short roads, lava on the best spots and an eruption every second wave. Tiles next to the lava flash orange, then towers on them stop shooting for 6 seconds.
+- **Murky Swamp:** the boardwalk crosses itself, so towers near the crossing hit enemies twice. The bog eats the best spots.
+- **Old Graveyard:** a second road starts at the crypt in the middle of the map. Grave plots take some of the space.
 - **Invisible enemies** (Ghost) are drawn see-through and can only be aimed at by towers that spot them: Gunslinger from Hollow Points, Soldier from AP Rounds, and the Sniper always. The Flamethrower can't aim at them, but its flames still burn any that walk through the cone. Garage cars run them over.
 - **Flying enemies** (Bat, Harpy) follow the road in the air. Gunslinger, Soldier and Sniper can shoot them. Knight, Flamethrower, grenades and cars can't reach them.
 - **Skeletons** fall apart when killed and get back up once with half HP. **Orc Berserkers** run twice as fast below half HP.
@@ -77,7 +80,7 @@ Open **Towers** in the main menu and click a portrait to see every tower's full 
 Developer flags (passed after `--`):
 
 - `--sim`: run the balance bot on every map and difficulty (works with `--headless`).
-- `--unlock-all`: unlock everything.
+- `--unlock-all`: unlock every map and tower.
 - `--cheats`: adds a Cheats button to the pause menu (skip wave, give money). Wins after using a cheat are not saved.
 - `--save-fake`: write progress from `--unlock-all` and cheated wins to the save file anyway.
 - `--reset-data`: start with no progress and default settings, without touching the save file (nothing is saved that session). With `--save-fake` the save file is deleted for real.

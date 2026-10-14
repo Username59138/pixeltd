@@ -379,7 +379,147 @@ DEAD_TREE = [
 ]
 DEAD_TREE_C = {'b': 'xdbrown'}
 
+# gas station props
+LAMP = [
+    "hhhhh",
+    "hyyyh",
+    ".hhh.",
+    "..p..",
+    "..p..",
+    "..p..",
+    "..p..",
+    "..p..",
+    "..p..",
+    "..p..",
+    "..p..",
+    "..p..",
+    "..p..",
+    "..p..",
+    "..p..",
+    ".ppp.",
+    "ppppp",
+]
+LAMP_C = {'h': 'dgray', 'y': 'yellow', 'p': 'xdgray'}
+
+HYDRANT = [
+    "..rr..",
+    ".rllr.",
+    "rrrrrr",
+    ".rlrr.",
+    "rrlrrr",
+    ".rlrr.",
+    ".rrrr.",
+    "dddddd",
+]
+HYDRANT_C = {'r': 'red_m', 'l': 'red_l', 'd': 'red_d'}
+
+TRASH = [
+    ".gggggg.",
+    "gGGGGGGg",
+    ".dddddd.",
+    ".gGlGGg.",
+    ".gGlGGg.",
+    ".gGlGGg.",
+    ".gGGGGg.",
+    ".dddddd.",
+]
+TRASH_C = {'g': 'green', 'G': 'dgreen', 'l': 'lgreen', 'd': 'xdgreen'}
+
+DUMPSTER = [
+    "..bbbbbbbbbbbbbbbbbb..",
+    ".bBBBBBBBBBBBBBBBBBBb.",
+    "gggggggggggggggggggggg",
+    "gGGGGGGGGGGGGGGGGGGGGg",
+    "gGGlGGGGlGGGGlGGGGlGGg",
+    "gGGlGGGGlGGGGlGGGGlGGg",
+    "gGGGGGGGGGGGGGGGGGGGGg",
+    "dddddddddddddddddddddd",
+    ".kk................kk.",
+]
+DUMPSTER_C = {'b': 'xdgreen', 'B': 'dgreen', 'g': 'green', 'G': 'dgreen', 'l': 'green', 'd': 'xdgreen', 'k': 'black'}
+
+# swamp props
+REEDS = [
+    ".b....b..",
+    ".b..b.b..",
+    ".b..b.b.b",
+    ".g..b.g.b",
+    "g.g.g.g.g",
+    "g.g.gg.g.",
+    ".gg.g.gg.",
+    "..ggggg..",
+    "..ddddd..",
+]
+REEDS_C = {'b': 'wd_d', 'g': 'olv_l', 'd': 'olv_d'}
+
+MUSHROOM = [
+    "..rrrr..",
+    ".rwrrwr.",
+    "rrrrrrwr",
+    "rwrrrrrr",
+    "..ssss..",
+    "...ss...",
+    "...ss...",
+]
+MUSHROOM_C = {'r': 'red_m', 'w': 'white', 's': 'sand'}
+
+LOG = [
+    "..bbbbbbbbbb..",
+    ".bBBBbBBBBBBtt",
+    "bBBBBBBBbBBtTt",
+    "bBbBBBBBBBBtTt",
+    ".dddddddddddtt",
+    "..g.....g.....",
+]
+LOG_C = {'b': 'wd', 'B': 'brown', 't': 'tan', 'T': 'wd', 'd': 'wd_d', 'g': 'olv_l'}
+
+# graveyard props
+TOMB = [
+    "..ssss..",
+    ".sSSSSs.",
+    "sSSSSSSs",
+    "sSkkkkSs",
+    "sSSSSSSs",
+    "sSkkkSSs",
+    "sSSSSSSs",
+    "sSSSSSSs",
+    "dddddddd",
+]
+TOMB_C = {'s': 'gray', 'S': 'lgray', 'k': 'dgray', 'd': 'dgray'}
+
+TOMB_CROSS = [
+    "..sS..",
+    "..sS..",
+    "ssSSss",
+    "sSSSSs",
+    "..sS..",
+    "..sS..",
+    "..sS..",
+    "..sS..",
+    ".dddd.",
+]
+TOMB_CROSS_C = {'s': 'gray', 'S': 'lgray', 'd': 'dgray'}
+
+PUMPKIN = [
+    "...g....",
+    "...gg...",
+    ".ooOooo.",
+    "oOoOoOoo",
+    "oykOOkyo",
+    "oOOkkOOo",
+    "oOkOkOko",
+    ".ooOooo.",
+]
+PUMPKIN_C = {'g': 'olv', 'o': 'org_d', 'O': 'org', 'k': 'black', 'y': 'yellow'}
+
+SWAMP_TREE_C = {'g': 'olv_l', 'G': 'olv', 'l': 'olv_l', 'd': 'olv_d', 'T': 'xdbrown'}
+
 DECOR_SPRITES = {
+    'swamp_tree': (TREE, SWAMP_TREE_C),
+    'lamp': (LAMP, LAMP_C), 'hydrant': (HYDRANT, HYDRANT_C), 'trash': (TRASH, TRASH_C),
+    'dumpster': (DUMPSTER, DUMPSTER_C), 'reeds': (REEDS, REEDS_C), 'mushroom': (MUSHROOM, MUSHROOM_C),
+    'log': (LOG, LOG_C), 'tomb': (TOMB, TOMB_C), 'tomb_cross': (TOMB_CROSS, TOMB_CROSS_C),
+    'pumpkin': (PUMPKIN, PUMPKIN_C),
     'tree': (TREE, TREE_C), 'bush': (BUSH, BUSH_C), 'rock': (ROCK, ROCK_C), 'pine': (PINE, PINE_C),
     'snow_pine': (PINE, SNOW_PINE_C), 'cactus': (CACTUS, CACTUS_C), 'skull': (SKULL, SKULL_C),
     'snowman': (SNOWMAN, SNOWMAN_C), 'ice_block': (ICE_BLOCK, ICE_BLOCK_C), 'pump': (PUMP, PUMP_C),

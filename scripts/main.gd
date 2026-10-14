@@ -93,6 +93,10 @@ func _ready() -> void:
 			battle.place_tower(["gunner", "soldier", "knight", "flamer", "gunner"][t.x % 5], t)
 		battle.start_wave()
 		battle.eruption_t = 0.3
+	if args.has("--maps-page2"):
+		for c in ui_root.get_children():
+			if c.has_method("_show_page"):
+				c._show_page(1)
 	if args.has("--bestiary"):
 		for c in ui_root.get_children():
 			if c.has_method("_build_enemies"):

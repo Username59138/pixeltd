@@ -5,8 +5,17 @@ extends Control
 const TIER_COLORS := {"Beginner": Color("63c74d"), "Intermediate": Color("feae34"), "Advanced": Color("f77622"),
 	"Expert": Color("e43b44")}
 
+const PER_PAGE := 6   # two rows of three, more maps go to the next pages
+
+static var page := 0   # remembered while the game runs
+
 var main: Node
 var popup: Control
+var cards: Control
+var page_label: Label
+var prev_btn: Button
+var next_btn: Button
+var keys_label: Label
 
 
 func _ready() -> void:
@@ -17,22 +26,68 @@ func _ready() -> void:
 	title.size = Vector2(640, 20)
 	add_child(title)
 
-	var ids: Array = MapsData.ORDER
-	for i in ids.size():
-		var row := 0 if i < 3 else 1
-		var col := i if i < 3 else i - 3
-		var count := 3 if row == 0 else ids.size() - 3
-		var cw := 150
-		var gap := 10
-		var x0 := (640 - (count * cw + (count - 1) * gap)) / 2
-		var card := _map_card(ids[i])
-		card.position = Vector2(x0 + col * (cw + gap), 34 + row * 148)
-		add_child(card)
+	cards = Control.new()
+	cards.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(cards)
+	prev_btn = UI.button("<", "blue", Vector2(24, 40))
+	prev_btn.position = Vector2(40, 162)
+	prev_btn.pressed.connect(func(): _show_page(page - 1))
+	add_child(prev_btn)
+	next_btn = UI.button(">", "blue", Vector2(24, 40))
+	next_btn.position = Vector2(576, 162)
+	next_btn.pressed.connect(func(): _show_page(page + 1))
+	add_child(next_btn)
+	page_label = UI.label("", 10, Color("c0cbdc"), HORIZONTAL_ALIGNMENT_CENTER)
+	page_label.position = Vector2(270, 338)
+	page_label.size = Vector2(100, 14)
+	add_child(page_label)
+	keys_label = UI.label("", 10, Color("fee761"), HORIZONTAL_ALIGNMENT_RIGHT)
+	keys_label.position = Vector2(380, 338)
+	keys_label.size = Vector2(252, 14)
+	add_child(keys_label)
+	_show_page(page)
 
 	var back := UI.button("Back", "red", Vector2(70, 18))
 	back.position = Vector2(8, 336)
 	back.pressed.connect(func(): main.show_menu())
 	add_child(back)
+
+
+func _page_count() -> int:
+	return maxi(1, ceili(MapsData.ORDER.size() / float(PER_PAGE)))
+
+
+func _show_page(p: int) -> void:
+	page = clampi(p, 0, _page_count() - 1)
+	for c in cards.get_children():
+		c.queue_free()
+	var ids: Array = MapsData.ORDER.slice(page * PER_PAGE, (page + 1) * PER_PAGE)
+	var first_row := mini(ids.size(), 3)
+	for i in ids.size():
+		var row := 0 if i < first_row else 1
+		var col := i if i < first_row else i - first_row
+		var count := first_row if row == 0 else ids.size() - first_row
+		var cw := 150
+		var gap := 10
+		var x0 := (640 - (count * cw + (count - 1) * gap)) / 2
+		var card := _map_card(ids[i])
+		card.position = Vector2(x0 + col * (cw + gap), 34 + row * 148)
+		cards.add_child(card)
+	var many := _page_count() > 1
+	prev_btn.visible = many
+	next_btn.visible = many
+	prev_btn.disabled = page == 0
+	next_btn.disabled = page == _page_count() - 1
+	page_label.visible = many
+	page_label.text = "Page %d/%d" % [page + 1, _page_count()]
+	var counts := {}
+	for k in Game.map_keys:
+		counts[k] = counts.get(k, 0) + 1
+	var parts: Array = []
+	for t in Game.TIERS.size():
+		if counts.has(t):
+			parts.append("%s x%d" % [Game.TIERS[t], counts[t]])
+	keys_label.text = "" if parts.is_empty() else "Keys: " + ", ".join(parts)
 
 
 func _map_card(id: String) -> Button:
@@ -42,7 +97,8 @@ func _map_card(id: String) -> Button:
 	b.add_theme_stylebox_override("normal", UI.box("card", 4, Vector4(5, 5, 5, 5)))
 	b.add_theme_stylebox_override("hover", UI.box("card_hover", 4, Vector4(5, 5, 5, 5)))
 	b.add_theme_stylebox_override("pressed", UI.box("card_selected", 4, Vector4(5, 5, 5, 5)))
-	b.pressed.connect(func(): _open_difficulty(id))
+	var open := Game.is_map_unlocked(id)
+	b.pressed.connect(func(): _open_difficulty(id) if open else _open_unlock(id))
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 1)
 	v.position = Vector2(5, 5)
@@ -55,6 +111,13 @@ func _map_card(id: String) -> Button:
 	v.add_child(frame)
 	var th := UI.sprite_rect(m["thumb"])
 	frame.add_child(th)
+	if not open:
+		th.self_modulate = Color(0.3, 0.3, 0.38)
+		var lk := UI.icon("lock")
+		lk.size = Vector2(10, 10)
+		lk.scale = Vector2(3, 3)
+		lk.position = Vector2(64 - 15, 44 - 15)
+		th.add_child(lk)
 	var name_row := HBoxContainer.new()
 	v.add_child(name_row)
 	var nl := UI.label(m["name"], 10, Color.WHITE)
@@ -69,6 +132,16 @@ func _map_card(id: String) -> Button:
 			ic.modulate = Defs.DIFFICULTIES[d]["color"].lightened(0.35)
 		stars.add_child(ic)
 	v.add_child(UI.label(m["tier"], 10, TIER_COLORS.get(m["tier"], Color.WHITE)))
+	if not open:
+		var lh := HBoxContainer.new()
+		lh.add_theme_constant_override("separation", 2)
+		v.add_child(lh)
+		lh.add_child(UI.icon("lock"))
+		if Game.key_for(id) >= 0:
+			lh.add_child(UI.label("Click to unlock!", 10, Color("fee761")))
+		else:
+			lh.add_child(UI.label("Locked", 10, Color("8b9bb4")))
+		return b
 	# tower unlock reward hint
 	for t in Defs.TOWER_ORDER:
 		var u: Dictionary = Defs.TOWERS[t]["unlock"]
@@ -152,6 +225,52 @@ func _open_difficulty(id: String) -> void:
 	right.add_child(back)
 
 
+## Popup for a locked map: spend a key on it, or explain how to get one.
+func _open_unlock(id: String) -> void:
+	var m: Dictionary = MapsData.MAPS[id]
+	popup = Control.new()
+	popup.set_anchors_preset(Control.PRESET_FULL_RECT)
+	popup.mouse_filter = Control.MOUSE_FILTER_STOP
+	popup.add_child(UI.dim_rect(0.6))
+	add_child(popup)
+	var p := UI.panel("panel", 8)
+	p.position = Vector2(170, 70)
+	p.size = Vector2(300, 0)
+	popup.add_child(p)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 6)
+	p.add_child(v)
+	v.add_child(UI.title(m["name"].to_upper(), 8, Color("fee761")))
+	v.add_child(UI.label("Tier: " + m["tier"], 10, TIER_COLORS.get(m["tier"], Color.WHITE)))
+	var t := Game.tier_of(id)
+	var ki := Game.key_for(id)
+	var txt := ""
+	if ki >= 0:
+		txt = "Use a %s key to unlock this map?" % Game.TIERS[Game.map_keys[ki]]
+	else:
+		var from: String = Game.TIERS[t] if t == 0 else "%s or %s" % [Game.TIERS[t - 1], Game.TIERS[t]]
+		txt = "Locked. Win on a new %s map to earn a key that opens it." % from
+	var l := UI.label(txt, 10, Color("c0cbdc"))
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size = Vector2(284, 0)
+	v.add_child(l)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 8)
+	v.add_child(row)
+	if ki >= 0:
+		var ub := UI.button("Unlock", "green", Vector2(90, 20))
+		ub.pressed.connect(func():
+			if Game.unlock_map(id):
+				Sfx.play("unlock")
+			popup.queue_free()
+			_show_page(page))
+		row.add_child(ub)
+	var cb := UI.button("Cancel" if ki >= 0 else "OK", "gray", Vector2(90, 20))
+	cb.pressed.connect(func(): popup.queue_free())
+	row.add_child(cb)
+
+
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		if popup and is_instance_valid(popup):
@@ -159,3 +278,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		else:
 			main.show_menu()
 		get_viewport().set_input_as_handled()
+	elif event is InputEventKey and event.pressed and not event.echo and not is_instance_valid(popup):
+		if event.keycode in [KEY_LEFT, KEY_A]:
+			_show_page(page - 1)
+			get_viewport().set_input_as_handled()
+		elif event.keycode in [KEY_RIGHT, KEY_D]:
+			_show_page(page + 1)
+			get_viewport().set_input_as_handled()

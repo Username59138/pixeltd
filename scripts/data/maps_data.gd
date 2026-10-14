@@ -2,11 +2,11 @@
 class_name MapsData
 extends RefCounted
 
-const ORDER = ["meadow", "canyon", "gas_station", "frozen_lake", "volcano"]
+const ORDER = ["meadow", "canyon", "gas_station", "swamp", "frozen_lake", "graveyard", "volcano"]
 
 const MAPS = {
 	"meadow": {
-		"name": "Green Meadow", "tier": "Beginner", "hp_mult": 1.0, "theme": "meadow",
+		"name": "Green Meadow", "tier": "Beginner", "hp_mult": 1.0, "theme": "meadow", "seed_idx": 0,
 		"desc": "A calm field. Perfect for learning the ropes.",
 		"bg": "res://assets/maps/meadow.png", "thumb": "res://assets/maps/meadow_thumb.png",
 		"paths": [[Vector2(-8, 72), Vector2(136, 72), Vector2(136, 248), Vector2(264, 248), Vector2(264, 104), Vector2(392, 104), Vector2(392, 280), Vector2(536, 280)]],
@@ -14,7 +14,7 @@ const MAPS = {
 		"lava": [],
 	},
 	"canyon": {
-		"name": "Dusty Canyon", "tier": "Beginner", "hp_mult": 1.05, "theme": "desert",
+		"name": "Dusty Canyon", "tier": "Beginner", "hp_mult": 1.05, "theme": "desert", "seed_idx": 1,
 		"desc": "Long dusty road through the badlands.",
 		"bg": "res://assets/maps/canyon.png", "thumb": "res://assets/maps/canyon_thumb.png",
 		"paths": [[Vector2(-8, 280), Vector2(88, 280), Vector2(88, 72), Vector2(200, 72), Vector2(200, 216), Vector2(312, 216), Vector2(312, 56), Vector2(440, 56), Vector2(440, 296), Vector2(232, 296), Vector2(232, 376)]],
@@ -22,23 +22,39 @@ const MAPS = {
 		"lava": [],
 	},
 	"gas_station": {
-		"name": "Gas Station", "tier": "Intermediate", "hp_mult": 1.1, "theme": "gas",
+		"name": "Gas Station", "tier": "Intermediate", "hp_mult": 1.1, "theme": "gas", "seed_idx": 2,
 		"desc": "Something is leaking. Fuel for a new recruit?",
 		"bg": "res://assets/maps/gas_station.png", "thumb": "res://assets/maps/gas_station_thumb.png",
 		"paths": [[Vector2(-8, 40), Vector2(72, 40), Vector2(72, 296), Vector2(200, 296), Vector2(200, 136), Vector2(328, 136), Vector2(328, 296), Vector2(456, 296), Vector2(456, 72), Vector2(536, 72)]],
-		"blocked": ["00000000011111111111111000000000", "00000000011111111111111000000000", "11111000011111111111111101000000", "00001000011111111111111000000000", "00001000011111111111111000001111", "00001000000000000000001000001000", "00101011000000000000000000001000", "10001000000000000000000001001000", "00001000010011111111100000011000", "00001001000010000000100000001000", "00001000000010000000100110001000", "10001000000010111110100000001000", "00001000000010111110100000001000", "00001000000010111110100000001110", "00001000000010111110101000001000", "00001000000010000000100000001000", "00001100000010000010100000001000", "00001000000010000100100000001000", "00001111111110000000111111111000", "00000000000000000000000000000000", "00001000000001110000000000000100", "10000000000000000000000000000000", "00000000000000000000000000000000"],
+		"blocked": ["00000000011111111111111000100000", "00000001011111111111111001100010", "11111000011111111111111001100000", "00001000011111111111111110000000", "00001000011111111111111000001111", "00001000001000010100010000001000", "00001000000000000000000000001000", "00001100000000000000000000011000", "00001000000011111111100000001000", "00101000000010000000100000001000", "00001000000010111110100000001000", "00001011000010111110100000001000", "00001000001110111110100111001000", "01001000000010111110100111001000", "00001011000010000000100111001000", "00001100000010000000100000001000", "00001000001110000000100000001000", "00001000000010000000101000001000", "00001111111110000000111111111000", "00010000000000000000000010000000", "00001010000000000000000000000000", "00000000000100000000000011000000", "00000000000000000000000000000000"],
+		"lava": [],
+	},
+	"swamp": {
+		"name": "Murky Swamp", "tier": "Intermediate", "hp_mult": 1.35, "theme": "swamp", "seed_idx": 5,
+		"desc": "The boardwalk crosses itself. Guard the crossing!",
+		"bg": "res://assets/maps/swamp.png", "thumb": "res://assets/maps/swamp_thumb.png",
+		"paths": [[Vector2(232, -8), Vector2(232, 248), Vector2(408, 248), Vector2(408, 152), Vector2(136, 152), Vector2(136, 376)]],
+		"blocked": ["11111111100000100000000000000000", "11111111000000101000100001111100", "01111111000000100001010000111111", "00000011001010100011010000111110", "00000000011111101111110001111111", "00000000111110101111111000111111", "00000001111111111111111000111110", "00000000011100100111110000000000", "10000010001100100000000000000000", "00100000111111111111111111000000", "00000010100000101111111001000000", "11111000100000111111111101000001", "01111110100000111111111101000000", "01111100100001111111111001000000", "01111100100000100100100001000000", "01111100100000111111111111000000", "01111110101000000010000000000000", "00111100101000000000000000000000", "00110000100000100000000000000000", "00000000100011100000000000000000", "10000000111111111100000000001000", "00001000111111111100000000000000", "00000000100111110000000000000000"],
 		"lava": [],
 	},
 	"frozen_lake": {
-		"name": "Frozen Lake", "tier": "Advanced", "hp_mult": 1.15, "theme": "snow",
+		"name": "Frozen Lake", "tier": "Advanced", "hp_mult": 1.15, "theme": "snow", "seed_idx": 3,
 		"desc": "Two trails meet on the ice. Watch both flanks.",
 		"bg": "res://assets/maps/frozen_lake.png", "thumb": "res://assets/maps/frozen_lake_thumb.png",
 		"paths": [[Vector2(56, -8), Vector2(56, 120), Vector2(232, 120), Vector2(232, 184), Vector2(328, 184), Vector2(328, 56), Vector2(440, 56), Vector2(440, 296), Vector2(536, 296)], [Vector2(56, 376), Vector2(56, 248), Vector2(232, 248), Vector2(232, 184), Vector2(328, 184), Vector2(328, 56), Vector2(440, 56), Vector2(440, 296), Vector2(536, 296)]],
 		"blocked": ["10010000000000100000000000000000", "10010000000000100000000000000000", "00010100000000000000100000001000", "00010000000010000000111111110000", "00010000000000000000100000010000", "00010000000010000000100000010000", "01110000000000000000101000010000", "00111111111111100000100000010000", "00000000000000100000100000011000", "00000111111110100000100000110000", "00001111111111100000100100010000", "00001111111111111111110000010000", "00001111111111100000000000010010", "00000111111110100000001110010100", "00010000000000100000011111010000", "00011111111111100001011111010100", "00110000000000000000011111010100", "00010001000000000000011110110000", "00010000010000000010000000011111", "00010000000000000000000000000000", "00010000001010000000000000100000", "00010000000000000000000001000000", "00010000000000000000000000000000"],
 		"lava": [],
 	},
+	"graveyard": {
+		"name": "Old Graveyard", "tier": "Advanced", "hp_mult": 1.15, "theme": "grave", "seed_idx": 6,
+		"desc": "The dead crawl out of the crypt. Short roads, no rest.",
+		"bg": "res://assets/maps/graveyard.png", "thumb": "res://assets/maps/graveyard_thumb.png",
+		"paths": [[Vector2(-8, 56), Vector2(152, 56), Vector2(152, 200), Vector2(264, 200), Vector2(264, 296), Vector2(440, 296), Vector2(440, 168), Vector2(536, 168)], [Vector2(360, 56), Vector2(360, 120), Vector2(264, 120), Vector2(264, 200), Vector2(264, 296), Vector2(440, 296), Vector2(440, 168), Vector2(536, 168)]],
+		"blocked": ["01000000000000000000111110000000", "00000000000010100000111110000010", "00000001000000000000111110000000", "11111111110010101000001000000000", "01000000010000000000001001000100", "00000000010100000000001001010000", "00101010010000000000001000000000", "00000000010000001111111001010100", "00101010010000001000000000000000", "00000000010000001001000000010000", "00000000010000001010000000011111", "00000000010000001000100010010000", "00000000011111111000000000010000", "00000000000010001000100000010000", "00000000000000001000000000010000", "00010000000100101001000000010000", "00000000000000001000000000011000", "00000101010100001000000000010010", "00000000000000001111111111110000", "00000000000000000000000010000000", "00000000100000000000000000000000", "00000000000000000000010000000000", "00000000000000000000000000000000"],
+		"lava": [],
+	},
 	"volcano": {
-		"name": "Volcano", "tier": "Expert", "hp_mult": 1.45, "theme": "volcano",
+		"name": "Volcano", "tier": "Expert", "hp_mult": 1.45, "theme": "volcano", "seed_idx": 4,
 		"desc": "Two short roads, lava eats the best spots. It erupts!",
 		"bg": "res://assets/maps/volcano.png", "thumb": "res://assets/maps/volcano_thumb.png",
 		"paths": [[Vector2(88, -8), Vector2(88, 104), Vector2(440, 104), Vector2(440, 376)], [Vector2(-8, 280), Vector2(232, 280), Vector2(232, 200), Vector2(440, 200), Vector2(440, 376)]],
@@ -46,7 +62,7 @@ const MAPS = {
 		"lava": [Vector2i(0, 2), Vector2i(0, 3), Vector2i(1, 1), Vector2i(1, 2), Vector2i(1, 3), Vector2i(1, 4), Vector2i(2, 0), Vector2i(2, 1), Vector2i(2, 2), Vector2i(2, 3), Vector2i(2, 4), Vector2i(2, 5), Vector2i(3, 1), Vector2i(3, 2), Vector2i(3, 3), Vector2i(3, 4), Vector2i(4, 2), Vector2i(4, 3), Vector2i(5, 10), Vector2i(5, 19), Vector2i(5, 20), Vector2i(5, 21), Vector2i(6, 9), Vector2i(6, 10), Vector2i(6, 11), Vector2i(6, 19), Vector2i(6, 20), Vector2i(6, 21), Vector2i(7, 8), Vector2i(7, 9), Vector2i(7, 10), Vector2i(7, 11), Vector2i(7, 12), Vector2i(7, 19), Vector2i(7, 20), Vector2i(7, 21), Vector2i(8, 8), Vector2i(8, 9), Vector2i(8, 10), Vector2i(8, 11), Vector2i(8, 12), Vector2i(8, 19), Vector2i(8, 20), Vector2i(8, 21), Vector2i(9, 8), Vector2i(9, 9), Vector2i(9, 10), Vector2i(9, 11), Vector2i(9, 12), Vector2i(9, 19), Vector2i(9, 20), Vector2i(9, 21), Vector2i(10, 8), Vector2i(10, 9), Vector2i(10, 10), Vector2i(10, 11), Vector2i(10, 12), Vector2i(10, 19), Vector2i(10, 20), Vector2i(10, 21), Vector2i(11, 9), Vector2i(11, 10), Vector2i(11, 11), Vector2i(11, 19), Vector2i(11, 20), Vector2i(11, 21), Vector2i(12, 10), Vector2i(16, 8), Vector2i(16, 9), Vector2i(16, 15), Vector2i(16, 16), Vector2i(16, 17), Vector2i(16, 18), Vector2i(17, 8), Vector2i(17, 9), Vector2i(17, 15), Vector2i(17, 16), Vector2i(17, 17), Vector2i(17, 18), Vector2i(18, 7), Vector2i(18, 8), Vector2i(18, 9), Vector2i(18, 10), Vector2i(18, 14), Vector2i(18, 15), Vector2i(18, 16), Vector2i(18, 17), Vector2i(18, 18), Vector2i(18, 19), Vector2i(19, 7), Vector2i(19, 8), Vector2i(19, 9), Vector2i(19, 10), Vector2i(19, 14), Vector2i(19, 15), Vector2i(19, 16), Vector2i(19, 17), Vector2i(19, 18), Vector2i(19, 19), Vector2i(20, 7), Vector2i(20, 8), Vector2i(20, 9), Vector2i(20, 10), Vector2i(20, 14), Vector2i(20, 15), Vector2i(20, 16), Vector2i(20, 17), Vector2i(20, 18), Vector2i(20, 19), Vector2i(21, 7), Vector2i(21, 8), Vector2i(21, 9), Vector2i(21, 10), Vector2i(21, 14), Vector2i(21, 15), Vector2i(21, 16), Vector2i(21, 17), Vector2i(21, 18), Vector2i(21, 19), Vector2i(22, 7), Vector2i(22, 8), Vector2i(22, 9), Vector2i(22, 10), Vector2i(22, 15), Vector2i(22, 16), Vector2i(22, 17), Vector2i(22, 18), Vector2i(23, 8), Vector2i(23, 9), Vector2i(23, 15), Vector2i(23, 16), Vector2i(23, 17), Vector2i(23, 18), Vector2i(24, 8), Vector2i(24, 9), Vector2i(29, 7), Vector2i(29, 8), Vector2i(29, 9), Vector2i(29, 10), Vector2i(30, 6), Vector2i(30, 7), Vector2i(30, 8), Vector2i(30, 9), Vector2i(30, 10), Vector2i(30, 11), Vector2i(31, 6), Vector2i(31, 7), Vector2i(31, 8), Vector2i(31, 9), Vector2i(31, 10), Vector2i(31, 11)],
 	},
 	"menu": {
-		"name": "Menu", "tier": "", "hp_mult": 1.0, "theme": "meadow",
+		"name": "Menu", "tier": "", "hp_mult": 1.0, "theme": "meadow", "seed_idx": -1,
 		"desc": "",
 		"bg": "res://assets/maps/menu.png", "thumb": "res://assets/maps/menu_thumb.png",
 		"paths": [[Vector2(-8, 152), Vector2(120, 152), Vector2(120, 296), Vector2(248, 296), Vector2(248, 216), Vector2(408, 216), Vector2(408, 296), Vector2(536, 296), Vector2(536, 136), Vector2(664, 136)]],

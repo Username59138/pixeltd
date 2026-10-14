@@ -92,7 +92,7 @@ func setup(p_map_id: String, p_diff: int, p_demo := false) -> void:
 	cash = int(diff["cash"])
 	lives = int(diff["lives"])
 	total_waves = int(diff["waves"])
-	wave_seed = MapsData.ORDER.find(map_id) * 10 + diff_idx + 3
+	wave_seed = int(map["seed_idx"]) * 10 + diff_idx + 3   # fixed per map, so adding maps never changes waves
 	rng.seed = wave_seed
 	for pts in map["paths"]:
 		var cum := PackedFloat32Array([0.0])
@@ -446,6 +446,7 @@ func _finish(win: bool) -> void:
 	over = true
 	placing = ""
 	var newly: Array = []
+	Game.last_key_tier = -1
 	if win and not headless:
 		if not cheated or Game.save_fake:
 			newly = Game.record_win(map_id, diff_idx)
