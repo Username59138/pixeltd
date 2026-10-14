@@ -218,6 +218,31 @@ func nearest_road(p: Vector2) -> Array:
 	return best
 
 
+## Every road passing as close to p as the nearest one (roads that merge share their tail):
+## [[path index, distance], ...]. Garages send each car down one of them at random.
+func nearest_roads(p: Vector2) -> Array:
+	var best: Array = nearest_road(p)
+	if best.is_empty():
+		return []
+	var bd: float = path_point(best[0], best[1])[0].distance_to(p)
+	var res: Array = [best]
+	for pi in paths.size():
+		if pi == best[0]:
+			continue
+		var bq := []
+		var bqd := 1e9
+		var d := 0.0
+		while d < paths[pi]["len"]:
+			var dd: float = path_point(pi, d)[0].distance_to(p)
+			if dd < bqd:
+				bqd = dd
+				bq = [pi, d]
+			d += 4.0
+		if bqd <= bd + 2.0:
+			res.append(bq)
+	return res
+
+
 func enemy_at(p: Vector2) -> Node2D:
 	var best: Node2D = null
 	var bd := 1e9
@@ -699,7 +724,8 @@ func _tick_grenades(dt: float) -> void:
 ## drive back towards the start and crash into enemies: both sides lose min(car hp, enemy hp).
 func spawn_friendly(src: Node) -> Node2D:
 	var st: Dictionary = src.stats
-	var e := spawn_enemy(st["vehicle"], src.road[0], src.road[1], 1.0, true, st)
+	var r: Array = src.roads[rng.randi() % src.roads.size()] if src.roads.size() > 1 else src.road
+	var e := spawn_enemy(st["vehicle"], r[0], r[1], 1.0, true, st)
 	e.owner_tower = src
 	if not headless:
 		Sfx.play("honk", 0.1)

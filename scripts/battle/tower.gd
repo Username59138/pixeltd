@@ -31,6 +31,7 @@ var burst_t := 0.0
 var burst_count := 0
 # garage
 var road: Array = []   # [path index, distance] where cars enter the road
+var roads: Array = []  # every road next to the garage, a car picks one at random
 
 
 func setup(t: String, b: Node, cost_paid: int) -> void:
@@ -44,6 +45,7 @@ func setup(t: String, b: Node, cost_paid: int) -> void:
 	cooldown = 0.2
 	if type == "garage":
 		road = battle.nearest_road(position)
+		roads = battle.nearest_roads(position)
 		cooldown = 1.0
 
 
