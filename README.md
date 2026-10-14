@@ -78,6 +78,9 @@ Developer flags (passed after `--`):
 
 - `--sim`: run the balance bot on every map and difficulty (works with `--headless`).
 - `--unlock-all`: unlock everything.
+- `--cheats`: adds a Cheats button to the pause menu (skip wave, give money). Wins after using a cheat are not saved.
+- `--save-fake`: write progress from `--unlock-all` and cheated wins to the save file anyway.
+- `--reset-data`: start with no progress and default settings, without touching the save file (nothing is saved that session). With `--save-fake` the save file is deleted for real.
 - `--mechtest`: headless checks of the invisible / flying / skeleton / berserker / sniper rules.
 - `--battle <map> <0-3> --bot`: watch the bot play.
 

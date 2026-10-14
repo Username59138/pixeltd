@@ -26,19 +26,41 @@ var _tex_cache := {}
 
 var _cursor_scale := 0
 var _real_beaten = null
+var save_fake := false   # dev flag --save-fake: progress from cheats / --unlock-all is written to the save
+var _no_save := false     # dev flag --reset-data without --save-fake: play with a clean slate, never touch the save
 
 
 func _ready() -> void:
+	var args := OS.get_cmdline_user_args()
+	save_fake = args.has("--save-fake")
 	load_progress()
+	if args.has("--reset-data"):
+		_reset_data()
 	if DisplayServer.get_name() != "headless":
 		get_window().size_changed.connect(_update_cursor)
 		_update_cursor()
 		if fullscreen:
 			set_fullscreen(true)
-	if OS.get_cmdline_user_args().has("--unlock-all"):
-		_real_beaten = beaten.duplicate(true)   # dev flag: never written to the save file
+	if args.has("--unlock-all"):
+		if not save_fake:
+			_real_beaten = beaten.duplicate(true)   # dev flag: never written to the save file
 		for m in MapsData.ORDER:
 			beaten[m] = [0, 1, 2, 3]
+		if save_fake:
+			save_progress()
+
+
+## Dev flag --reset-data: start from default progress and settings. With --save-fake the save file is
+## deleted, otherwise the real save is left alone and nothing is written this session.
+func _reset_data() -> void:
+	beaten = {}
+	sfx_volume = 0.8
+	fullscreen = false
+	keys = DEFAULT_KEYS.duplicate()
+	if save_fake:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
+	else:
+		_no_save = true
 
 
 ## Pixel cursors, scaled with the window so they keep the same size as the game's pixels.
@@ -112,6 +134,8 @@ func record_win(map_id: String, diff: int) -> Array:
 
 
 func save_progress() -> void:
+	if _no_save:
+		return
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f:
 		f.store_string(JSON.stringify({"beaten": beaten if _real_beaten == null else _real_beaten, "sfx_volume": sfx_volume, "fullscreen": fullscreen,

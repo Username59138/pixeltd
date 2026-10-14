@@ -612,7 +612,10 @@ func _open_cheats() -> void:
 	sk.pressed.connect(func(): battle.start_wave(true))
 	v.add_child(sk)
 	var gm := UI.button("Give money", "green", Vector2(0, 20))
-	gm.pressed.connect(func(): battle.cash += 9999)
+	gm.pressed.connect(func():
+		battle.cash += 9999
+		battle.cheated = true
+		battle.stats_changed.emit())
 	v.add_child(gm)
 	var q := UI.button("Back", "red", Vector2(0, 20))
 	q.pressed.connect(toggle_cheats)

@@ -25,6 +25,7 @@ const FX_COLORS := {"slime": Color("63c74d"), "rat": Color("8b9bb4"), "goblin": 
 	"berserker": Color("647d3c")}
 
 var continued := false
+var cheated := false   # a cheat was used: a win is not written to the save (unless --save-fake)
 var demo := false
 var headless := false
 var map_id := ""
@@ -315,14 +316,22 @@ func can_start_wave() -> bool:
 
 
 func start_wave(skip_wave := false) -> void:
-	if not can_start_wave() and not skip_wave:
+	if over or demo or (not skip_wave and not can_start_wave()):
 		return
+	if skip_wave:
+		cheated = true
 	if bonus_pending:
 		_award_bonus()
 	wave += 1
 	var w := Defs.build_wave(wave, total_waves, wave_seed)
-	spawn_queue = w["spawns"]
-	wave_t = 0.0
+	if spawning:
+		# skipped mid-wave: the rest of the current wave still comes, the new one starts now
+		for sp in w["spawns"]:
+			spawn_queue.append([sp[0] + wave_t, sp[1]])
+		spawn_queue.sort_custom(func(a, b): return a[0] < b[0])
+	else:
+		spawn_queue = w["spawns"]
+		wave_t = 0.0
 	spawning = true
 	bonus_pending = true
 	auto_t = -1.0
@@ -438,7 +447,8 @@ func _finish(win: bool) -> void:
 	placing = ""
 	var newly: Array = []
 	if win and not headless:
-		newly = Game.record_win(map_id, diff_idx)
+		if not cheated or Game.save_fake:
+			newly = Game.record_win(map_id, diff_idx)
 		Sfx.play("win")
 	elif not headless:
 		Sfx.play("lose")
