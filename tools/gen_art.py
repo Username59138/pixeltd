@@ -370,7 +370,7 @@ MAPS = [
 MENU_MAP = dict(id='menu', name='Menu', theme='meadow', tier='', hp_mult=1.0, seed=99, seed_idx=-1,
                 paths=[[(-1, 9), (7, 9), (7, 18), (15, 18), (15, 13), (25, 13), (25, 18), (33, 18), (33, 8),
                         (41, 8)]],
-                decor=['tree', 'tree', 'bush', 'rock', 'bush'], density=0.08, desc='')
+                decor=['tree', 'tree', 'bush', 'rock', 'bush'], density=0.08, variants=['halloween'], desc='')
 
 
 def path_style_px(style, x, y, d, horiz, pal, idx):
@@ -1099,7 +1099,8 @@ def gen_maps():
             vimg, vblocked, _, _ = bake_map(m, cols=cols, variant=v)
             assert vblocked == blocked, 'a seasonal variant must keep the layout'
             vimg.save(out(f'maps/{m["id"]}_{v}.png'))
-            vimg.crop((0, 0, 512, 352)).resize((128, 88), Image.BOX).save(out(f'maps/{m["id"]}_{v}_thumb.png'))
+            if m['id'] != 'menu':
+                vimg.crop((0, 0, 512, 352)).resize((128, 88), Image.BOX).save(out(f'maps/{m["id"]}_{v}_thumb.png'))
             variants_txt.append('"%s": {"bg": "res://assets/maps/%s_%s.png", "thumb": "res://assets/maps/%s_%s_thumb.png"}'
                                 % (v, m['id'], v, m['id'], v))
         rows_txt = []
