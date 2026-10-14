@@ -79,7 +79,7 @@ Open **Towers** in the main menu and click a portrait to see every tower's full 
 - `tools/gen_art.py`, `tools/sprites.py`, `tools/units.py`: generate all the pixel art and maps (Python + Pillow). Run `python3 tools/gen_art.py` after editing them. `scripts/data/maps_data.gd` is generated too, so don't edit it by hand.
 - `scripts/data/changelog.gd`: the Changelog shown in the main menu, newest version first.
 - `tools/gen_sfx.py`: generates the 8-bit sound effects.
-- Building: open the project in Godot 4.7.2 → Project → Export → Linux.
+- Building: install the Godot 4.7.2 export templates, then `godot --headless --export-release "Web" build/web/index.html` (same for "Windows" → `build/windows/PixelTD.exe` and "Linux" → `build/linux/PixelTD.x86_64`). `build/.gdignore` keeps Godot from importing the builds into the project.
 
 Developer flags (passed after `--`):
 
