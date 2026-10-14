@@ -2,6 +2,8 @@
 
 A pixel art tower defense game made with Godot 4.7.2 (GL Compatibility renderer, runs on pretty much any Linux machine with OpenGL 3.3).
 
+**Play it in your browser or download it on itch.io: https://username59138.itch.io/pixel-td**
+
 ## Running
 
 ```
