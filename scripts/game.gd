@@ -22,13 +22,18 @@ var selected_map := "meadow"
 var selected_difficulty := 1
 
 # ---------------------------------------------------------------- map unlocks
-# The first win on a map of tier X gives a key of tier X. A key of tier X opens any locked map of tier X or X+1.
+# Battles pay out paper maps, the currency locked maps are bought with. Harder maps and difficulties pay
+# more, so they can be farmed; a lost battle still pays a share for the waves survived.
 const TIERS := ["Beginner", "Intermediate", "Advanced", "Expert"]
 const START_MAPS := ["meadow"]
+const TIER_REWARD := [10, 20, 35, 60]          # paper maps for a win, by map tier
+const DIFF_REWARD_MULT := [1.0, 1.5, 2.5, 4.0]  # Light, Medium, Difficult, Hardcore
+const LOSS_SHARE := 0.4                        # a loss pays this share of a win, scaled by waves survived
+const MAP_PRICE := [30, 60, 150, 300]          # by map tier
 var unlocked_maps: Array = START_MAPS.duplicate()
-var map_keys: Array = []        # tier index of every unused key
+var paper_maps := 0
 var all_maps_open := false      # dev flag --unlock-all
-var last_key_tier := -1         # key earned by the last recorded win, -1 if none
+var last_reward := 0            # paper maps paid by the last finished battle
 
 # ---------------------------------------------------------------- seasonal events
 # Halloween: maps with a "halloween" variant (Green Meadow) get their autumn look. Gameplay is unchanged.
@@ -83,7 +88,7 @@ func _reset_data() -> void:
 	fullscreen = false
 	keys = DEFAULT_KEYS.duplicate()
 	unlocked_maps = START_MAPS.duplicate()
-	map_keys = []
+	paper_maps = 0
 	if save_fake:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
 	else:
@@ -168,46 +173,43 @@ func is_map_unlocked(map_id: String) -> bool:
 	return all_maps_open or unlocked_maps.has(map_id) or beaten.has(map_id)
 
 
-## Index in map_keys of the key that would open this map, -1 if none fits.
-## Spends the lowest fitting key: a higher one opens more maps.
-func key_for(map_id: String) -> int:
-	var t := tier_of(map_id)
-	var best := -1
-	for i in map_keys.size():
-		var k: int = map_keys[i]
-		if (k == t or k == t - 1) and (best < 0 or k < int(map_keys[best])):
-			best = i
-	return best
+func map_price(map_id: String) -> int:
+	return MAP_PRICE[tier_of(map_id)]
 
 
-func unlock_map(map_id: String) -> bool:
-	var i := key_for(map_id)
-	if i < 0 or is_map_unlocked(map_id):
+func win_reward(map_id: String, diff: int) -> int:
+	return roundi(TIER_REWARD[tier_of(map_id)] * DIFF_REWARD_MULT[diff])
+
+
+func loss_reward(map_id: String, diff: int, waves_survived: int, total_waves: int) -> int:
+	return floori(win_reward(map_id, diff) * LOSS_SHARE * clampf(float(waves_survived) / total_waves, 0.0, 1.0))
+
+
+func buy_map(map_id: String) -> bool:
+	if is_map_unlocked(map_id) or paper_maps < map_price(map_id):
 		return false
-	map_keys.remove_at(i)
+	paper_maps -= map_price(map_id)
 	unlocked_maps.append(map_id)
 	save_progress()
 	return true
 
 
-## "Beginner or Intermediate": the tiers a key of this tier opens.
-func key_reach_text(tier: int) -> String:
-	if tier + 1 < TIERS.size():
-		return "%s or %s" % [TIERS[tier], TIERS[tier + 1]]
-	return TIERS[tier]
+## Pays the paper maps for a lost battle (see last_reward).
+func record_loss(map_id: String, diff: int, waves_survived: int, total_waves: int) -> void:
+	last_reward = loss_reward(map_id, diff, waves_survived, total_waves)
+	paper_maps += last_reward
+	save_progress()
 
 
-## Records a victory and returns the list of tower ids that just became unlocked (see last_key_tier for map keys).
+## Records a victory, pays its paper maps (see last_reward) and returns the tower ids that just became unlocked.
 func record_win(map_id: String, diff: int) -> Array:
 	var before := {}
 	for t in Defs.TOWER_ORDER:
 		before[t] = is_tower_unlocked(t)
-	last_key_tier = -1
-	if not beaten.has(map_id) or (beaten[map_id] as Array).is_empty():
-		last_key_tier = tier_of(map_id)
-		map_keys.append(last_key_tier)
-		if not unlocked_maps.has(map_id):
-			unlocked_maps.append(map_id)
+	last_reward = win_reward(map_id, diff)
+	paper_maps += last_reward
+	if not unlocked_maps.has(map_id):
+		unlocked_maps.append(map_id)
 	if not beaten.has(map_id):
 		beaten[map_id] = []
 	if not (beaten[map_id] as Array).has(diff):
@@ -221,12 +223,14 @@ func record_win(map_id: String, diff: int) -> Array:
 
 
 func save_progress() -> void:
-	if _no_save:
+	# checks the flags directly too: a `godot -s` test script can call this before _ready() has run
+	var args := OS.get_cmdline_user_args()
+	if _no_save or (args.has("--reset-data") and not args.has("--save-fake")):
 		return
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f:
 		f.store_string(JSON.stringify({"beaten": beaten if _real_beaten == null else _real_beaten, "sfx_volume": sfx_volume, "fullscreen": fullscreen,
-			"keys": keys, "unlocked_maps": unlocked_maps, "map_keys": map_keys}))
+			"keys": keys, "unlocked_maps": unlocked_maps, "paper_maps": paper_maps}))
 
 
 func load_progress() -> void:
@@ -249,15 +253,18 @@ func load_progress() -> void:
 		for m in data.get("unlocked_maps", []):
 			if MapsData.MAPS.has(m) and not unlocked_maps.has(m):
 				unlocked_maps.append(m)
+		paper_maps = int(data.get("paper_maps", 0))
 		for k in data.get("map_keys", []):
-			map_keys.append(int(k))
+			# save from the map key days: an unused key is worth the price of a map one tier up
+			paper_maps += MAP_PRICE[mini(int(k) + 1, MAP_PRICE.size() - 1)]
 	else:
-		# save from before map unlocks: every beaten map stays open and pays out its key
+		# save from before map unlocks: every beaten map stays open, past wins are paid out
 		for m in beaten:
 			if MapsData.MAPS.has(m) and not (beaten[m] as Array).is_empty():
 				if not unlocked_maps.has(m):
 					unlocked_maps.append(m)
-				map_keys.append(tier_of(m))
+				for d in beaten[m]:
+					paper_maps += win_reward(m, int(d))
 	sfx_volume = float(data.get("sfx_volume", 0.8))
 	fullscreen = bool(data.get("fullscreen", false))
 	var k = data.get("keys", {})

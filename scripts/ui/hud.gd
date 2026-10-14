@@ -690,17 +690,14 @@ func _on_ended(win: bool, newly: Array) -> void:
 			if Game.is_beaten(battle.map_id, d):
 				ic.modulate = Defs.DIFFICULTIES[d]["color"].lightened(0.3)
 			medals.add_child(ic)
-	if win and Game.last_key_tier >= 0:
-		var kb := UI.panel("card_selected", 6)
-		v.add_child(kb)
-		var kv := VBoxContainer.new()
-		kb.add_child(kv)
-		kv.add_child(UI.label("%s MAP KEY EARNED!" % Game.TIERS[Game.last_key_tier].to_upper(), 10, Color("fee761")))
-		var kl := UI.label("Open any %s map in Select Map." % Game.key_reach_text(Game.last_key_tier), 10,
-			Color("c0cbdc"))
-		kl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		kl.custom_minimum_size = Vector2(216, 0)
-		kv.add_child(kl)
+	if Game.last_reward > 0:
+		var rh := HBoxContainer.new()
+		rh.alignment = BoxContainer.ALIGNMENT_CENTER
+		rh.add_theme_constant_override("separation", 3)
+		v.add_child(rh)
+		rh.add_child(UI.label("+%d" % Game.last_reward, 10, Color("fee761")))
+		rh.add_child(UI.icon("map"))
+		rh.add_child(UI.label("paper maps (%d total)" % Game.paper_maps, 10, Color("c0cbdc")))
 	for t in newly:
 		Sfx.play("unlock")
 		var box := UI.panel("card_selected", 6)

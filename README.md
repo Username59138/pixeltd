@@ -37,7 +37,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 
 - **Enemy classes I–IV** only weaken control effects (stun, slow): 100% / 70% / 40% / 20%. Damage, including burning, always applies in full.
 - **Difficulties:** Light (20 waves), Medium (30), Difficult (40), Hardcore (40 waves, 1 life, no selling).
-- **Maps are unlocked with keys.** Only Green Meadow is open at the start. The first win on a map (any difficulty) gives a key of that map's tier (Beginner → Intermediate → Advanced → Expert). A key of tier X opens any locked map of tier X or X+1, you choose which one in Select Map. Keys you don't use are kept.
+- **Maps are bought with paper maps.** Only Green Meadow is open at the start. Every battle pays paper maps: a win pays by map tier (Beginner 10, Intermediate 20, Advanced 35, Expert 60) times the difficulty (Light x1, Medium x1.5, Difficult x2.5, Hardcore x4); a loss pays 40% of that, scaled by the waves survived. A map costs 30 / 60 / 150 / 300 by tier. Repeat wins pay the same, so you can farm.
 - **Towers are unlocked by beating maps** (a higher difficulty counts too):
   - Soldier: Green Meadow on Medium
   - Garage: Gas Station on Difficult

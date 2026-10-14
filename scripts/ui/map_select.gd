@@ -15,7 +15,7 @@ var cards: Control
 var page_label: Label
 var prev_btn: Button
 var next_btn: Button
-var keys_label: Label
+var wallet_label: Label
 
 
 func _ready() -> void:
@@ -41,10 +41,16 @@ func _ready() -> void:
 	page_label.position = Vector2(270, 338)
 	page_label.size = Vector2(100, 14)
 	add_child(page_label)
-	keys_label = UI.label("", 10, Color("fee761"), HORIZONTAL_ALIGNMENT_RIGHT)
-	keys_label.position = Vector2(380, 338)
-	keys_label.size = Vector2(252, 14)
-	add_child(keys_label)
+	var wallet := HBoxContainer.new()
+	wallet.alignment = BoxContainer.ALIGNMENT_END
+	wallet.add_theme_constant_override("separation", 3)
+	wallet.position = Vector2(432, 338)
+	wallet.size = Vector2(200, 14)
+	wallet.tooltip_text = "Paper maps: win battles to earn them, spend them on new maps"
+	add_child(wallet)
+	wallet.add_child(UI.icon("map"))
+	wallet_label = UI.label("", 10, Color("fee761"))
+	wallet.add_child(wallet_label)
 	_show_page(page)
 
 	var back := UI.button("Back", "red", Vector2(70, 18))
@@ -80,14 +86,7 @@ func _show_page(p: int) -> void:
 	next_btn.disabled = page == _page_count() - 1
 	page_label.visible = many
 	page_label.text = "Page %d/%d" % [page + 1, _page_count()]
-	var counts := {}
-	for k in Game.map_keys:
-		counts[k] = counts.get(k, 0) + 1
-	var parts: Array = []
-	for t in Game.TIERS.size():
-		if counts.has(t):
-			parts.append("%s x%d" % [Game.TIERS[t], counts[t]])
-	keys_label.text = "" if parts.is_empty() else "Keys: " + ", ".join(parts)
+	wallet_label.text = "%d paper maps" % Game.paper_maps
 
 
 func _map_card(id: String) -> Button:
@@ -143,10 +142,9 @@ func _map_card(id: String) -> Button:
 		lh.add_theme_constant_override("separation", 2)
 		v.add_child(lh)
 		lh.add_child(UI.icon("lock"))
-		if Game.key_for(id) >= 0:
-			lh.add_child(UI.label("Click to unlock!", 10, Color("fee761")))
-		else:
-			lh.add_child(UI.label("Locked", 10, Color("8b9bb4")))
+		var afford := Game.paper_maps >= Game.map_price(id)
+		lh.add_child(UI.label("Unlock: %d" % Game.map_price(id), 10, Color("fee761") if afford else Color("8b9bb4")))
+		lh.add_child(UI.icon("map"))
 		return b
 	# tower unlock reward hint
 	for t in Defs.TOWER_ORDER:
@@ -219,6 +217,8 @@ func _open_difficulty(id: String) -> void:
 		if Game.is_beaten(id, d):
 			top.add_child(UI.icon("star"))
 			top.add_child(UI.label("Beaten", 10, Color("fee761")))
+		top.add_child(UI.label("  +%d" % Game.win_reward(id, d), 10, Color("fee761")))
+		top.add_child(UI.icon("map"))
 		var dl := UI.label(dd["desc"], 10, Color("ead4aa"))
 		bv.add_child(dl)
 		# reward note
@@ -231,7 +231,7 @@ func _open_difficulty(id: String) -> void:
 	right.add_child(back)
 
 
-## Popup for a locked map: spend a key on it, or explain how to get one.
+## Popup for a locked map: buy it with paper maps, or explain how to earn them.
 func _open_unlock(id: String) -> void:
 	var m: Dictionary = MapsData.MAPS[id]
 	popup = Control.new()
@@ -248,14 +248,13 @@ func _open_unlock(id: String) -> void:
 	p.add_child(v)
 	v.add_child(UI.title(m["name"].to_upper(), 8, Color("fee761")))
 	v.add_child(UI.label("Tier: " + m["tier"], 10, TIER_COLORS.get(m["tier"], Color.WHITE)))
-	var t := Game.tier_of(id)
-	var ki := Game.key_for(id)
+	var price := Game.map_price(id)
+	var afford := Game.paper_maps >= price
 	var txt := ""
-	if ki >= 0:
-		txt = "Use a %s key to unlock this map?" % Game.TIERS[Game.map_keys[ki]]
+	if afford:
+		txt = "Unlock this map for %d paper maps? You have %d." % [price, Game.paper_maps]
 	else:
-		var from: String = Game.TIERS[t] if t == 0 else "%s or %s" % [Game.TIERS[t - 1], Game.TIERS[t]]
-		txt = "Locked. Win on a new %s map to earn a key that opens it." % from
+		txt = "Unlocking costs %d paper maps, you have %d. Win battles to earn more: harder maps and difficulties pay more, and even a loss pays a little." % [price, Game.paper_maps]
 	var l := UI.label(txt, 10, Color("c0cbdc"))
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.custom_minimum_size = Vector2(284, 0)
@@ -264,15 +263,15 @@ func _open_unlock(id: String) -> void:
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 8)
 	v.add_child(row)
-	if ki >= 0:
+	if afford:
 		var ub := UI.button("Unlock", "green", Vector2(90, 20))
 		ub.pressed.connect(func():
-			if Game.unlock_map(id):
+			if Game.buy_map(id):
 				Sfx.play("unlock")
 			popup.queue_free()
 			_show_page(page))
 		row.add_child(ub)
-	var cb := UI.button("Cancel" if ki >= 0 else "OK", "gray", Vector2(90, 20))
+	var cb := UI.button("Cancel" if afford else "OK", "gray", Vector2(90, 20))
 	cb.pressed.connect(func(): popup.queue_free())
 	row.add_child(cb)
 

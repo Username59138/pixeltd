@@ -471,12 +471,16 @@ func _finish(win: bool) -> void:
 	over = true
 	placing = ""
 	var newly: Array = []
-	Game.last_key_tier = -1
+	Game.last_reward = 0
+	var record := not headless and (not cheated or Game.save_fake)
 	if win and not headless:
-		if not cheated or Game.save_fake:
+		if record:
 			newly = Game.record_win(map_id, diff_idx)
 		Sfx.play("win")
 	elif not headless:
+		# a loss after Continue was already paid as a win
+		if record and not continued:
+			Game.record_loss(map_id, diff_idx, maxi(0, wave - 1), total_waves)
 		Sfx.play("lose")
 	ended.emit(win, newly)
 

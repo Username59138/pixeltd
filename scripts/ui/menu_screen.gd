@@ -81,10 +81,15 @@ func _ready() -> void:
 	for m in Game.beaten:
 		stars += (Game.beaten[m] as Array).size()
 	var prog := HBoxContainer.new()
-	prog.position = Vector2(560, 6)
+	prog.alignment = BoxContainer.ALIGNMENT_END
+	prog.position = Vector2(480, 6)
+	prog.size = Vector2(154, 12)
 	add_child(prog)
 	prog.add_child(UI.icon("star"))
 	prog.add_child(UI.label("%d/%d" % [stars, Game.MapsData.ORDER.size() * 4], 10, Color("fee761")))
+	prog.add_child(UI.label("  ", 10))
+	prog.add_child(UI.icon("map"))
+	prog.add_child(UI.label(str(Game.paper_maps), 10, Color("fee761")))
 
 
 func _open_settings() -> void:

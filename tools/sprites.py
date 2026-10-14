@@ -531,6 +531,14 @@ DECOR_SPRITES = {
 
 # ---------------------------------------------------------------- ICONS (8x8, outlined -> 10x10)
 ICONS = {
+    'map': ([
+        "tsTsstTs",
+        "sgTssTrs",
+        "ssTrrTss",
+        "srTssTsx",
+        "sggssTxs",
+        "tsTsstTs",
+    ], {'s': 'sand', 't': 'tan_l', 'T': 'tan', 'g': 'lgreen', 'r': 'red', 'x': 'red_d'}),
     'heart': ([
         ".RR.RR.",
         "RwRRRRR",

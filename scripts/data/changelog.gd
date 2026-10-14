@@ -4,7 +4,7 @@ extends RefCounted
 const ENTRIES := [
 	{"version": "0.1", "title": "First version + Halloween event", "date": "October 2026", "items": [
 		"7 maps in 4 tiers: Green Meadow, Dusty Canyon, Gas Station, Murky Swamp, Frozen Lake, Old Graveyard, Volcano.",
-		"Maps are unlocked with keys: the first win on a map gives a key of its tier. A key opens a map of the same tier or one tier higher.",
+		"Maps are unlocked with paper maps: every battle pays some (harder maps and difficulties pay more, a loss pays a little), so you can farm them and buy the maps you want.",
 		"7 towers with their own upgrade paths: Gunslinger, Knight, Soldier, Garage, Flamethrower, Sniper, Necromancer. New towers are unlocked by beating maps.",
 		"16 enemies with flying, invisible, reviving, raging, healing and splitting tricks, plus two bosses.",
 		"4 difficulties: Light, Medium, Difficult and Hardcore (one life, no selling).",
