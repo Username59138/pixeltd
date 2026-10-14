@@ -763,6 +763,38 @@ SNIPER_C = {'g': 'olv_l', 'h': 'olv_l', 'H': 'olv_d', 'd': 'olv_dd', 'k': 'olv_d
 SNIPER_ELITE = dict(SNIPER_C, g='xdgray', h='xdgray', H='navy', d='black', k="black", P="black", C="gun",
                     c='gun_d', o='red_l', S='gld_d', w='gld', b='gld', L='gld_l', W='black')
 
+NECRO = [
+    "....................",
+    "...............ggg..",
+    "......hhh.....gGWGg.",
+    ".....hHHHh....gGGGg.",
+    "....hHHHHHh....ggg..",
+    "....HHHHHHHd....s...",
+    "....HHkkkkHd....s...",
+    "....HHkekekd....s...",
+    "....HHkkkkkd....s...",
+    "....dHHkkkHd....s...",
+    "...rRRHHHHHRr...s...",
+    "..rRRRRRRRRRRfffs...",
+    "..rRRRRrRRRRR..fs...",
+    "..rRRRRrRRRRr...s...",
+    "..rRRRbbbRRRr...s...",
+    "..rRRRRrRRRRr...s...",
+    "..rRRRRrRRRRRr..s...",
+    ".rRRRRRrRRRRRr..s...",
+    ".rRRRRRrRRRRRRr.s...",
+    "rRRRRRRrRRRRRRRrs...",
+    "rRRRRRRrRRRRRRRRs...",
+    "rrrrrrrrrrrrrrrrS...",
+    "....................",
+    "....................",
+]
+NECRO_C = {'h': 'magenta', 'H': 'purple', 'd': (62, 30, 70), 'k': 'black', 'e': 'lgreen', 'r': (62, 30, 70),
+           'R': 'purple', 'b': 'gld', 'f': 'lgray', 's': 'wd', 'S': 'wd_d', 'g': 'green', 'G': 'lgreen',
+           'W': 'white'}
+NECRO_ELITE = dict(NECRO_C, h='xdgray', H='navy', d='black', r='black', R='navy', b='gld_l', e='cyan', g='blu',
+                   G='cyan', s='gld_d', S='gld_d')
+
 GARAGE = [
     "..RRRRRRRRRRRR..",
     ".RRRRRRRRRRRRRR.",
@@ -782,6 +814,28 @@ GARAGE_C = {'R': 'red', 'r': 'dred', 'W': 'lgray', 'y': 'gold', 'D': 'gray', 'd'
 GARAGE_ELITE = dict(GARAGE_C, R='dblue', r='navy', W='sand', y='cyan', D='gold', d='lorange')
 
 UP_ICONS = {
+    'dark_pact': ([
+        "..p..",
+        ".pPp.",
+        "pPPPp",
+        "pPgPp",
+        ".pPp.",
+        "..p..",
+    ], {'p': 'purple', 'P': 'magenta', 'g': 'lgreen'}),
+    'bone_army': ([
+        "w....w",
+        ".w..w.",
+        "..ww..",
+        "..ww..",
+        ".w..w.",
+        "w....w",
+    ], {'w': 'sand'}),
+    'lich': ([
+        "y.y.y",
+        "yyyyy",
+        "ycyCy",
+        "yyyyy",
+    ], {'y': 'gold', 'c': 'cyan', 'C': 'lgreen'}),
     'quick_draw': ([
         "....yy",
         "...yy.",

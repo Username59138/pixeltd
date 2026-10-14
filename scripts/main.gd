@@ -55,8 +55,11 @@ func _ready() -> void:
 		if args.has("--newfx"):
 			battle.cash = 99999
 			for t in [[Vector2i(7, 6), "sniper", 3], [Vector2i(9, 5), "knight", 1], [Vector2i(9, 3), "gunner", 2],
-					[Vector2i(6, 3), "sniper", 0], [Vector2i(9, 8), "flamer", 1], [Vector2i(9, 13), "garage", 1]]:
+					[Vector2i(6, 3), "sniper", 0], [Vector2i(9, 8), "flamer", 1], [Vector2i(9, 13), "garage", 1],
+					[Vector2i(11, 13), "necro", 2]]:
 				var tw = battle.place_tower(t[1], t[0])
+				if tw == null:
+					continue
 				for k in t[2]:
 					battle.upgrade_tower(tw)
 			for k in 12:
@@ -68,6 +71,12 @@ func _ready() -> void:
 				var e = battle.spawn_enemy(kinds[k], 0, 40.0 + k * 14.0)
 				if kinds[k] == "berserker":
 					e.hp *= 0.4
+			for tw in battle.towers.values():   # show a few raised undead next to the necromancer
+				if tw.type == "necro":
+					for k in 3:
+						var dead = battle.spawn_enemy(["goblin", "ironclad", "wolf"][k], 0, 260.0 + k * 14.0)
+						dead.alive = false
+						battle.raise_dead(tw, dead)
 	elif args.has("--maps"):
 		show_map_select()
 	elif args.has("--towers"):
@@ -355,6 +364,51 @@ func _mech_test() -> void:
 	for k in 400:
 		sn.update(Battle.STEP, b.enemies)
 	check.call("sniper hurts boss, no headshot", gol.alive and gol.hp < gol.max_hp)
+	# necromancer: raises what its bolts kill, as friendly undead with part of the max HP
+	for tw in b.towers.values():
+		b.sell_tower(tw)
+	for e in b.enemies:
+		e.alive = false
+	b.enemies.clear()
+	b.bullets.clear()
+	var nc = b.place_tower("necro", spot)
+	var undead_of := func() -> Array:
+		return b.enemies.filter(func(x): return x.alive and x.is_friendly and x.owner_tower == nc)
+	var gob2 = b.spawn_enemy("goblin", 0, 120.0)
+	gob2.position = nc.position + Vector2(20, 0)
+	gob2.hp = 1.0
+	for k in 60:
+		nc.update(Battle.STEP, b.enemies)
+		b._tick_bullets(Battle.STEP)
+	var raised: Array = undead_of.call()
+	check.call("necro raises the goblin it killed", not gob2.alive and raised.size() == 1)
+	check.call("undead keeps 20% max HP", raised.size() == 1 and absf(raised[0].max_hp - roundf(gob2.max_hp * 0.2)) < 0.01)
+	var wolf = b.spawn_enemy("wolf", 0, 120.0)
+	wolf.position = nc.position + Vector2(20, 0)
+	wolf.hp = 1.0
+	var bat2 = b.spawn_enemy("bat", 0, 120.0)
+	bat2.position = nc.position + Vector2(20, 0)
+	bat2.hp = 1.0
+	for k in 120:
+		nc.update(Battle.STEP, b.enemies)
+		b._tick_bullets(Battle.STEP)
+	check.call("lv0 doesn't raise class II or flyers", not wolf.alive and not bat2.alive and undead_of.call().size() == 1)
+	nc.level = 1
+	nc.recompute()
+	for k in 5:
+		var g = b.spawn_enemy("wolf", 0, 120.0)
+		g.position = nc.position + Vector2(20, 0)
+		g.hp = 1.0
+		for j in 60:
+			nc.update(Battle.STEP, b.enemies)
+			b._tick_bullets(Battle.STEP)
+	check.call("Dark Pact raises class II, capped at 3", undead_of.call().size() == 3)
+	var ug = undead_of.call()[0]
+	var ogre = b.spawn_enemy("ogre", 0, ug.dist)
+	ogre.position = ug.position
+	var oh: float = ogre.hp
+	b._tick_friendly(ug, Battle.STEP)
+	check.call("undead crashes into enemies", not ug.alive and ogre.hp < oh)
 	print("MECH RESULT ", "PASS" if ok else "FAIL")
 	get_tree().quit()
 
@@ -378,7 +432,8 @@ func _run_sims(args: Array) -> void:
 		only_map = args[k + 1]
 	var sets := [["gunner", "knight"], ["gunner", "knight", "soldier"], ["gunner", "knight", "soldier", "garage"],
 		["gunner", "knight", "soldier", "garage", "flamer"], ["flamer", "gunner", "knight"], ["gunner", "flamer", "knight"], ["flamer"], ["gunner"],
-		["gunner", "knight", "sniper"], ["gunner", "knight", "soldier", "garage", "flamer", "sniper"]]
+		["gunner", "knight", "sniper"], ["gunner", "knight", "soldier", "garage", "flamer", "sniper"],
+		["gunner", "knight", "necro"]]
 	var si := args.find("--sets")
 	if si >= 0:
 		var chosen: Array = []

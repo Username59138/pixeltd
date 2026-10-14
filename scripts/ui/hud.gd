@@ -108,8 +108,9 @@ func _build_sidebar() -> void:
 	for t in Defs.TOWER_ORDER:
 		if Game.is_tower_unlocked(t):
 			shop_order.append(t)
+	var bh := 32 if shop_order.size() <= 6 else 28   # 7 towers still fit above the wave buttons
 	for t in shop_order:
-		var b := UI.button("", "blue", Vector2(118, 32))
+		var b := UI.button("", "blue", Vector2(118, bh))
 		b.icon = Game.tex("res://assets/sprites/towers/%s.png" % Defs.TOWERS[t]["sprite"])
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.add_theme_constant_override("icon_max_width", 22)
@@ -307,6 +308,12 @@ static func _stats_core(t: String, s: Dictionary) -> String:
 				UI.fmt_num(s["rate"]), s["range"], int(s["armor_pierce"] * 100)]
 			if s["headshot"] > 0.0:
 				txt += "\nHeadshot %d%% (non-boss)" % int(s["headshot"] * 100)
+			return txt
+		"necro":
+			var txt := "Dmg %s  Rate %s/s\nRange %d  Armor pierce %d%%" % [UI.fmt_num(s["damage"]),
+				UI.fmt_num(s["rate"]), s["range"], int(s["armor_pierce"] * 100)]
+			txt += "\nRaises class I-%s with %d%% HP\nUp to %d undead" % [Defs.CLASS_ROMAN[int(s["raise_class"])],
+				int(s["raise_hp"] * 100), s["max_undead"]]
 			return txt
 	return ""
 
@@ -506,7 +513,8 @@ static func enemy_lines(e) -> Array:
 
 static func _friendly_lines(e) -> Array:
 	var f: float = clampf(e.hp / e.max_hp, 0, 1)
-	var lines: Array = [{"t": e.def["name"], "c": Color.WHITE, "r": "FRIENDLY", "rc": Color("63c74d")}]
+	var nm: String = ("Undead " + e.def["name"]) if e.undead else e.def["name"]
+	var lines: Array = [{"t": nm, "c": Color.WHITE, "r": "FRIENDLY", "rc": Color("63c74d")}]
 	lines.append({"t": "HP", "c": Color("8b9bb4"), "r": "%d / %d" % [ceili(e.hp), int(e.max_hp)],
 		"rc": Color("63c74d")})
 	lines.append({"bar": f, "bc": Color("0099db")})
@@ -514,6 +522,9 @@ static func _friendly_lines(e) -> Array:
 	if float(e.stats.get("gun_dmg", 0)) > 0:
 		lines.append({"t": "Turret", "c": Color("8b9bb4"), "r": "%d dmg" % int(e.stats["gun_dmg"]), "rc": Color.WHITE})
 	lines.append({"t": ""})
+	if e.undead:
+		lines.append({"t": "Raised by a Necromancer. Walks back and crashes into enemies.", "c": Color("63c74d"),
+			"wrap": true})
 	lines.append({"t": "Crash: both lose the HP of the weaker one.", "c": Color("5a6988"), "wrap": true})
 	return lines
 

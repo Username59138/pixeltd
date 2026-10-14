@@ -144,6 +144,8 @@ func update(dt: float, enemies: Array) -> void:
 			_update_garage(enemies)
 		"sniper":
 			_update_sniper(enemies)
+		"necro":
+			_update_necro(enemies)
 	_update_visual()
 
 
@@ -281,6 +283,21 @@ func _update_sniper(enemies: Array) -> void:
 	Sfx.play("snipe", 0.05)
 
 
+## Dark bolt; an enemy killed by it is raised by Battle as friendly undead.
+func _update_necro(enemies: Array) -> void:
+	if cooldown > 0.0:
+		return
+	var ts := pick_targets(enemies, 1, true)
+	if ts.is_empty():
+		return
+	cooldown = 1.0 / float(stats["rate"])
+	_face(ts[0].position)
+	battle.spawn_bullet(self, position + Vector2(6 * (1.0 if aim.x >= 0 else -1.0), -12), ts[0],
+		float(stats["damage"]), 0.0, 0.0, float(stats["armor_pierce"]), Color("b25aff"))
+	attack_anim = 0.12
+	Sfx.play("shot", 0.1)
+
+
 func _update_garage(enemies: Array) -> void:
 	if cooldown > 0.0 or road.is_empty():
 		return
@@ -303,6 +320,8 @@ func _update_visual() -> void:
 				off.x -= signf(aim.x) * 1.0
 			"sniper":
 				off.x -= signf(aim.x) * 2.0
+			"necro":
+				off.y -= 1.0
 			"knight":
 				off += (aim * 2.0).round()
 			"garage":

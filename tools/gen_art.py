@@ -42,7 +42,8 @@ def gen_sprites():
                            ('flamer', FLAMER, FLAMER_C), ('flamer_elite', FLAMER, FLAMER_ELITE),
                            ('soldier', SOLDIER, SOLDIER_C), ('soldier_elite', SOLDIER, SOLDIER_ELITE),
                            ('garage', GARAGE, GARAGE_C), ('garage_elite', GARAGE, GARAGE_ELITE),
-                           ('sniper', SNIPER, SNIPER_C), ('sniper_elite', SNIPER, SNIPER_ELITE)]:
+                           ('sniper', SNIPER, SNIPER_C), ('sniper_elite', SNIPER, SNIPER_ELITE),
+                           ('necro', NECRO, NECRO_C), ('necro_elite', NECRO, NECRO_ELITE)]:
         make(rows, cm).save(out(f'sprites/towers/{name}.png'))
     # enemies and friendly vehicles: side view (name.png), front (name_down.png), back (name_up.png)
     for name, u in U.UNITS.items():

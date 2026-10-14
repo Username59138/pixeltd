@@ -62,8 +62,8 @@ func _show(towers: bool) -> void:
 # ---------------------------------------------------------------- portrait grid
 func _build_towers() -> void:
 	var n := Defs.TOWER_ORDER.size()
-	var cw := 96
 	var gap := 6
+	var cw := mini(96, (624 - (n - 1) * gap) / n)
 	var x0 := (640 - (n * cw + (n - 1) * gap)) / 2
 	for i in n:
 		var t: String = Defs.TOWER_ORDER[i]

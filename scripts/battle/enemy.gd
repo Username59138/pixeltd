@@ -19,6 +19,7 @@ var is_friendly := false   # friendly units (garage cars) drive backwards and cr
 var stats := {}             # for friendly units: the stats of the garage that sent them
 var owner_tower: Node = null
 var gun_cd := 0.0
+var undead := false        # friendly unit raised by a Necromancer (an enemy body, no abilities)
 
 # statuses
 var stun_t := 0.0
@@ -82,7 +83,8 @@ func setup(t: String, hp_mult: float, p_i: int, p_len: float) -> void:
 
 func _setup_friendly(t: String, p_i: int, p_len: float) -> void:
 	type = t
-	def = Defs.VEHICLES[t]
+	undead = bool(stats.get("undead", false))
+	def = Defs.ENEMIES[t] if undead else Defs.VEHICLES[t]
 	cls = 1
 	effect_mult = 0.0   # friendly units ignore control effects
 	max_hp = float(stats.get("car_hp", 24))
@@ -93,7 +95,7 @@ func _setup_friendly(t: String, p_i: int, p_len: float) -> void:
 	path_i = p_i
 	path_len = p_len
 	anim_t = randf() * 10.0
-	_make_sprite("res://assets/sprites/vehicles/%s" % t)
+	_make_sprite("res://assets/sprites/%s/%s" % ["enemies" if undead else "vehicles", t])
 
 
 func _make_sprite(base: String) -> void:
@@ -231,6 +233,8 @@ func update_visual(dir: Vector2) -> void:
 		m = Color(1.0, 0.6 + 0.2 * sin(anim_t * 12.0), 0.6)
 	if downed_t > 0.0:
 		m = Color(0.7, 0.7, 0.75)
+	if undead:
+		m = Color(0.55, 1.0, 0.6, 0.85)   # ghostly green
 	if invisible:
 		# shimmering, see-through
 		m.a = 0.32 + 0.12 * sin(anim_t * 5.0)

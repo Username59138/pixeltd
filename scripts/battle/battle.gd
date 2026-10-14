@@ -638,11 +638,11 @@ func begin_place(t: String) -> void:
 
 # ---------------------------------------------------------------- projectiles
 func spawn_bullet(src: Node, from: Vector2, target: Node2D, dmg: float, slow: float, slow_t: float,
-		pierce := 0.0) -> void:
+		pierce := 0.0, col := Color("fee761")) -> void:
 	var expected := maxf(dmg - target.armor * (1.0 - pierce), maxf(1.0, dmg * 0.15))
 	target.incoming += expected
 	bullets.append({"pos": from, "target": target, "dmg": dmg, "slow": slow, "slow_t": slow_t, "src": src,
-		"dir": (target.position - from).normalized(), "life": 0.6, "exp": expected, "pierce": pierce})
+		"dir": (target.position - from).normalized(), "life": 0.6, "exp": expected, "pierce": pierce, "col": col})
 
 
 func _tick_bullets(dt: float) -> void:
@@ -681,10 +681,12 @@ func _tick_bullets(dt: float) -> void:
 			if src == null:
 				b["src"] = null
 			damage_enemy(hit, b["dmg"], "physical", src, b["pierce"])
+			if not hit.alive and src and src.type == "necro":
+				raise_dead(src, hit)
 			if hit.alive and b["slow"] > 0.0:
 				hit.apply_slow(b["slow"], b["slow_t"])
 			if not headless:
-				_spawn_particle(b["pos"], -b["dir"] * 30.0, 0.12, Color("fee761"), 1)
+				_spawn_particle(b["pos"], -b["dir"] * 30.0, 0.12, b["col"], 1)
 			continue
 		b["pos"] += b["dir"] * BULLET_SPEED * dt
 		b["life"] -= dt
@@ -730,6 +732,29 @@ func spawn_friendly(src: Node) -> Node2D:
 	if not headless:
 		Sfx.play("honk", 0.1)
 	return e
+
+
+## Necromancer: an enemy its bolt just killed rises as a friendly undead with part of its max HP.
+## Undead walk back down the road and crash like garage cars. No flyers, no bosses, limited count.
+func raise_dead(src: Node, e: Node2D) -> void:
+	var st: Dictionary = src.stats
+	if e.is_friendly or e.flying or Defs.BOSS_TYPES.has(e.type) or e.cls > int(st["raise_class"]):
+		return
+	var n := 0
+	for f in enemies:
+		if f.alive and f.is_friendly and f.owner_tower == src:
+			n += 1
+	if n >= int(st["max_undead"]):
+		return
+	var u := spawn_enemy(e.type, e.path_i, e.dist, 1.0, true,
+		{"undead": true, "car_hp": roundf(e.max_hp * float(st["raise_hp"])), "car_speed": float(e.def["speed"])})
+	u.owner_tower = src
+	if not headless:
+		Sfx.play("rattle", 0.1)
+		add_text(e.position + Vector2(0, -12), "RISE!", Color("63c74d"))
+		for i in 10:
+			_spawn_particle(e.position + Vector2(randf_range(-5, 5), 2), Vector2(0, -randf_range(15, 40)), 0.5,
+				Color("63c74d") if i % 2 else Color("b25aff"), 1)
 
 
 func has_hostiles() -> bool:
@@ -1075,7 +1100,7 @@ func _draw_over(n: Node2D) -> void:
 	for b in bullets:
 		var p: Vector2 = (b["pos"] as Vector2).round()
 		var d: Vector2 = b["dir"]
-		n.draw_line(p, (p - d * 3.0).round(), Color("fee761"), 1.0)
+		n.draw_line(p, (p - d * 3.0).round(), b["col"], 1.0)
 		n.draw_rect(Rect2(p, Vector2(1, 1)), Color.WHITE)
 	for p in particles:
 		var t: float = p["life"] / p["max"]
