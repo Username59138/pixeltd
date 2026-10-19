@@ -808,10 +808,10 @@ FREEZER = [
     "....................",
     ".......wwwww........",
     "......wHHHHHw.......",
-    ".....wHffffffw......",
-    ".....wGgGfGgGw......",
-    ".....wHffffffw......",
-    ".ii...wHfzzfHw......",
+    ".....wHMMMMMMw......",
+    ".....wMggMggMw......",
+    ".....wHMMMMMMw......",
+    ".ii...wHMCCMHw......",
     "tTTt..wwwwwww.......",
     "tLTt.JJJJJJJJJ......",
     "tLTtJjJJJJJJJJJ.....",
@@ -829,7 +829,7 @@ FREEZER = [
     "....................",
     "....................",
 ]
-FREEZER_C = {'w': 'white', 'H': 'blu', 'f': 'skin', 'z': 'skin_d', 'G': 'gun_d', 'g': 'glass', 'i': 'gun',
+FREEZER_C = {'w': 'white', 'H': 'blu', 'M': 'gun_d', 'C': 'gun', 'g': 'glass', 'i': 'gun',
              't': 'blu_d', 'T': 'glass_d', 'L': 'glass', 'J': 'blu_l', 'j': 'blu', 'k': 'black', 'y': 'gld',
              'A': 'navy', 'n': 'gun', 'N': 'gun_d', 'q': 'cyan', 'Q': 'blu_l', 'P': 'den', 'p': 'den_d',
              'B': 'xdbrown', 'b': 'black'}
