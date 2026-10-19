@@ -64,6 +64,7 @@ def mix(*tracks):
 save('shot', mix(noise(0.08, 3, 0.9, 2), tone([900, 500], 0.06, 'square', 0.25, -0.5, 3)), 0.25)
 save('slash', [s for s in noise(0.14, 1.2, 0.35)], 0.45)
 save('flame', noise(0.18, 0.8, 0.12, 3), 0.35)
+save('spray', noise(0.16, 1.2, 0.45, 1), 0.22)
 save('hit', tone([220], 0.04, 'square', 0.5, -0.6, 2), 0.15)
 save('pop', mix(tone([520, 780], 0.08, 'square', 0.5, 0.3, 2), noise(0.05, 3, 0.6)), 0.25)
 save('boss_die', mix(noise(0.9, 1.2, 0.15, 4), tone([110, 82, 65], 0.8, 'square', 0.5, -0.3, 1.2)), 0.45)

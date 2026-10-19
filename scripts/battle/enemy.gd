@@ -31,6 +31,11 @@ var burn_t := 0.0
 var burn_pierce := 0.0
 var burn_src: Node = null
 var burn_acc := 0.0
+var chill := 0.0          # 0..1, built up by the Freezer's water; at 1 the enemy freezes solid
+var chill_slow := 0.0     # slow at full chill (from the strongest Freezer that hit it)
+var chill_hold := 0.0     # chill only starts melting once nobody sprays it for a moment
+var frozen_t := 0.0       # > 0 while stuck in a block of ice
+var freeze_immune_t := 0.0
 var heal_cd := 0.0
 var flash_t := 0.0
 var heal_flash_t := 0.0
@@ -50,6 +55,7 @@ var tex_flash: Texture2D
 var views := {}             # "side" / "down" / "up" -> [texture, hit flash texture]
 var view := "side"
 var effect_mult := 1.0
+var fx_layer: Node2D        # drawn over the sprite: flames, ice block
 
 const FLY_HEIGHT := 9.0
 
@@ -105,6 +111,9 @@ func _make_sprite(base: String) -> void:
 	sprite = Sprite2D.new()
 	sprite.centered = true
 	add_child(sprite)
+	fx_layer = preload("res://scripts/battle/draw_node.gd").new()
+	fx_layer.draw_fn = _draw_fx
+	add_child(fx_layer)
 	_set_view("side")
 
 
@@ -140,13 +149,15 @@ func is_enraged() -> bool:
 
 
 func current_speed() -> float:
-	if stun_t > 0.0 or downed_t > 0.0:
+	if stun_t > 0.0 or downed_t > 0.0 or frozen_t > 0.0:
 		return 0.0
 	var s := speed
 	if is_enraged():
 		s *= rage
 	if slow_t > 0.0:
 		s *= (1.0 - slow_f)
+	if chill > 0.0:
+		s *= (1.0 - chill * chill_slow)
 	return s
 
 
@@ -167,6 +178,30 @@ func apply_slow(amount: float, duration: float) -> void:
 	if a >= slow_f or slow_t <= 0.0:
 		slow_f = a
 	slow_t = maxf(slow_t, d)
+
+
+## Freezer water. Chill is a control effect: it builds slower on higher classes, and the ice holds shorter.
+## Returns true when this spray froze the enemy solid.
+func apply_chill(rate: float, dt: float, max_slow: float, freeze_time: float) -> bool:
+	chill_hold = 0.3
+	chill_slow = maxf(chill_slow, max_slow)
+	if frozen_t > 0.0 or freeze_immune_t > 0.0:
+		return false
+	chill = minf(1.0, chill + rate * dt * effect_mult)
+	if chill < 1.0:
+		return false
+	chill = 0.0
+	frozen_t = freeze_time * effect_mult
+	freeze_immune_t = frozen_t + 1.0
+	return true
+
+
+## Fire melts the ice and the chill.
+func thaw() -> bool:
+	var was := chill > 0.0 or frozen_t > 0.0
+	chill = 0.0
+	frozen_t = 0.0
+	return was
 
 
 ## Burn is damage, so it is NOT reduced by class.
@@ -196,6 +231,16 @@ func tick_status(dt: float) -> void:
 		heal_lock -= dt
 	if downed_t > 0.0:
 		downed_t -= dt
+	if frozen_t > 0.0:
+		frozen_t -= dt
+	if freeze_immune_t > 0.0:
+		freeze_immune_t -= dt
+	if chill_hold > 0.0:
+		chill_hold -= dt
+	elif chill > 0.0:
+		chill = maxf(0.0, chill - 0.3 * dt)
+		if chill <= 0.0:
+			chill_slow = 0.0
 
 
 func update_visual(dir: Vector2) -> void:
@@ -223,9 +268,7 @@ func update_visual(dir: Vector2) -> void:
 	if downed_t > 0.0:
 		sprite.position = Vector2(-sprite.offset.y, -2.0)
 	var m := Color.WHITE
-	if burn_t > 0.0:
-		m = Color(1.0, 0.75, 0.6)
-	elif slow_t > 0.0:
+	if slow_t > 0.0:
 		m = Color(0.7, 0.85, 1.0)
 	elif heal_flash_t > 0.0:
 		m = Color(0.7, 1.0, 0.7)
@@ -239,7 +282,9 @@ func update_visual(dir: Vector2) -> void:
 		# shimmering, see-through
 		m.a = 0.32 + 0.12 * sin(anim_t * 5.0)
 	sprite.modulate = m
+	fx_layer.modulate.a = 0.4 if invisible else 1.0
 	queue_redraw()
+	fx_layer.queue_redraw()
 
 
 func _draw() -> void:
@@ -258,8 +303,28 @@ func _draw() -> void:
 			var ang := a + i * TAU / 3.0
 			var p := Vector2(cos(ang) * 6.0, top + sin(ang) * 2.0 - 2.0).round()
 			draw_rect(Rect2(p, Vector2(1, 1)), Color("fee761"))
+
+
+## Over the sprite: flames licking a burning enemy and the ice block around a frozen one.
+func _draw_fx(n: Node2D) -> void:
+	var w := float(tex_normal.get_width())
+	var h := float(tex_normal.get_height())
+	var y0 := sprite.position.y
+	if frozen_t > 0.0:
+		var r := Rect2(Vector2(-ceilf(w / 2.0) - 1.0, y0 - h + 3.0), Vector2(ceilf(w / 2.0) * 2.0 + 2.0, h + 2.0))
+		var a := 1.0 if frozen_t > 0.4 or int(anim_t * 10.0) % 2 == 0 else 0.5   # blinks just before it breaks
+		n.draw_rect(r, Color(0.55, 0.85, 0.97, 0.5 * a))
+		var edge := Color(0.17, 0.6, 0.86, a)   # dark enough to read on snow too
+		n.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), edge)
+		n.draw_rect(Rect2(r.position, Vector2(1, r.size.y)), edge)
+		n.draw_rect(Rect2(r.position + Vector2(r.size.x - 1, 0), Vector2(1, r.size.y)), edge)
+		n.draw_rect(Rect2(r.position + Vector2(0, r.size.y - 1), Vector2(r.size.x, 1)), Color(0.17, 0.6, 0.8, a))
+		for i in 3:   # shine
+			n.draw_rect(Rect2(r.position + Vector2(2 + i, 2 + i * 2), Vector2(1, 2)), Color(1, 1, 1, 0.85 * a))
 	if burn_t > 0.0:
-		for i in 2:
-			var fy := -fmod(anim_t * 20.0 + i * 5.0, 10.0)
-			var fx := sin(anim_t * 9.0 + i * 2.0) * 3.0
-			draw_rect(Rect2(Vector2(fx, fy - 2 + (sprite.position.y if flying else 0.0)).round(), Vector2(1, 2)), Color("f77622"))
+		var cols := [Color("fee761"), Color("feae34"), Color("f77622"), Color("e43b44")]
+		for i in 4:
+			var k := fmod(anim_t * 2.2 + i * 0.25, 1.0)   # 0 = just lit at the feet, 1 = burnt out at the head
+			var fx := sin(anim_t * 7.0 + i * 1.7) * (w * 0.3)
+			var fy := y0 + 2.0 - k * h * 0.8
+			n.draw_rect(Rect2(Vector2(fx, fy).round(), Vector2(1, 2 if k < 0.5 else 1)), cols[mini(3, int(k * 4.0))])

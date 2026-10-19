@@ -138,6 +138,8 @@ func update(dt: float, enemies: Array) -> void:
 			_update_knight(enemies)
 		"flamer":
 			_update_flamer(dt, enemies)
+		"freezer":
+			_update_freezer(dt, enemies)
 		"soldier":
 			_update_soldier(dt, enemies)
 		"garage":
@@ -256,9 +258,50 @@ func _update_flamer(dt: float, enemies: Array) -> void:
 		battle.damage_enemy(e, float(stats["damage"]), "fire", self, float(stats["fire_pierce"]))
 		if e.alive:
 			e.apply_burn(float(stats["burn"]), float(stats["burn_time"]), float(stats["fire_pierce"]), self)
+			if e.thaw():
+				battle.fx_steam(e, "MELT")
 	battle.fx_flame(position + Vector2(6 * (1.0 if aim.x >= 0 else -1.0), -3), aim, r, half_cone,
 		level >= max_level())
 	Sfx.play("flame", 0.1)
+
+
+## Water cone like the flamethrower's: chills (and later hurts) everything in it, puts out burning enemies.
+func _update_freezer(dt: float, enemies: Array) -> void:
+	flame_tick -= dt
+	if flame_tick > 0.0:
+		return
+	var ts := pick_targets(enemies, 1)
+	if ts.is_empty():
+		return
+	flame_tick = 0.1
+	_face(ts[0].position)
+	flame_on = 0.15
+	var half_cone := deg_to_rad(float(stats["cone"]) * 0.5)
+	var r := range_px()
+	var origin := position + Vector2(0, -2)
+	var dmg := float(stats["damage"])
+	for e in enemies:
+		# water can't reach flyers, but it does soak invisible enemies standing in it
+		if not e.targetable() or e.flying:
+			continue
+		var d: Vector2 = e.position - origin
+		if d.length() > r + e.radius:
+			continue
+		if d.length() > 6.0 and absf(aim.angle_to(d)) > half_cone:
+			continue
+		if e.burn_t > 0.0:
+			e.burn_t = 0.0
+			e.burn_dps = 0.0
+			battle.fx_steam(e, "FSSS")
+		if dmg > 0.0:
+			battle.damage_enemy(e, dmg, "cold", self)
+			if not e.alive:
+				continue
+		if e.apply_chill(float(stats["chill"]), 0.1, float(stats["chill_slow"]), float(stats["freeze"])):
+			battle.fx_freeze(e)
+	battle.fx_spray(position + Vector2(6 * (1.0 if aim.x >= 0 else -1.0), -3), aim, r, half_cone,
+		level >= max_level())
+	Sfx.play("spray", 0.1)
 
 
 func _update_sniper(enemies: Array) -> void:
@@ -326,7 +369,7 @@ func _update_visual() -> void:
 				off += (aim * 2.0).round()
 			"garage":
 				off.y += float(int(anim_t * 20.0) % 2)
-	if type == "flamer" and flame_on > 0.0:
+	if type in ["flamer", "freezer"] and flame_on > 0.0:
 		off.y += float(int(anim_t * 30.0) % 2)
 	sprite.offset = off
 	sprite.modulate = Color(0.55, 0.35, 0.35) if disabled_t > 0.0 else Color.WHITE

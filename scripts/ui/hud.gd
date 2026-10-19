@@ -108,12 +108,13 @@ func _build_sidebar() -> void:
 	for t in Defs.TOWER_ORDER:
 		if Game.is_tower_unlocked(t):
 			shop_order.append(t)
-	var bh := 32 if shop_order.size() <= 6 else 28   # 7 towers still fit above the wave buttons
+	# all still fit above the wave buttons; 8 towers only fit with name and price on one line
+	var bh := 32 if shop_order.size() <= 6 else (28 if shop_order.size() == 7 else 20)
 	for t in shop_order:
 		var b := UI.button("", "blue", Vector2(118, bh))
 		b.icon = Game.tex("res://assets/sprites/towers/%s.png" % Defs.TOWERS[t]["sprite"])
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.add_theme_constant_override("icon_max_width", 22)
+		b.add_theme_constant_override("icon_max_width", 22 if shop_order.size() <= 7 else 16)
 		b.pressed.connect(func(): _on_shop(t))
 		b.mouse_entered.connect(func(): _shop_tip(t, b))
 		b.mouse_exited.connect(func(): tip.hide_tip())
@@ -208,7 +209,7 @@ func _refresh() -> void:
 	for t in shop_buttons:
 		var b: Button = shop_buttons[t]
 		var cost: int = battle.tower_cost(t)
-		b.text = "%s\n$%d" % [Defs.TOWERS[t]["name"], cost]
+		b.text = ("%s\n$%d" if shop_order.size() <= 7 else "%s $%d") % [Defs.TOWERS[t]["name"], cost]
 		b.disabled = battle.cash < cost
 	_refresh_selection()
 
@@ -260,6 +261,8 @@ static func _stats_text(t: String, s: Dictionary) -> String:
 		sees.append("Flying")
 	if t == "flamer":
 		txt += "\nGround only. Can't aim at invisible\nbut the flames still burn them"
+	elif t == "freezer":
+		txt += "\nGround only. Can't aim at invisible\nbut the water still soaks them"
 	elif t == "garage":
 		txt += "\nRuns over invisible, not flying"
 	elif t != "garage":
@@ -302,6 +305,13 @@ static func _stats_core(t: String, s: Dictionary) -> String:
 				UI.fmt_num(s["burn"]), UI.fmt_num(s["burn_time"])]
 			if s["fire_pierce"] > 0.0:
 				txt += "\nIgnores %d%% fire resist" % int(s["fire_pierce"] * 100)
+			return txt
+		"freezer":
+			var txt := "Chill %d%%/s  Range %d\nSlow up to %d%%, frozen %ss" % [int(s["chill"] * 100), s["range"],
+				int(s["chill_slow"] * 100), UI.fmt_num(s["freeze"])]
+			if s["damage"] > 0.0:
+				txt += "\nCold %s dps, ignores armor" % UI.fmt_num(s["damage"] * 10.0)
+			txt += "\nPuts out fire, fire melts ice"
 			return txt
 		"sniper":
 			var txt := "Dmg %s  Rate %s/s\nRange %d  Armor pierce %d%%" % [UI.fmt_num(s["damage"]),
@@ -500,6 +510,11 @@ static func enemy_lines(e) -> Array:
 		st.append({"t": "STUNNED %.1fs" % e.stun_t, "c": Color("fee761")})
 	if e.slow_t > 0:
 		st.append({"t": "SLOWED %d%%" % int(e.slow_f * 100), "c": Color("2ce8f5")})
+	if e.frozen_t > 0:
+		st.append({"t": "FROZEN %.1fs" % e.frozen_t, "c": Color("8bd8f0")})
+	elif e.chill > 0:
+		st.append({"t": "CHILLED %d%% (slow %d%%)" % [int(e.chill * 100), int(e.chill * e.chill_slow * 100)],
+			"c": Color("8bd8f0")})
 	if e.burn_t > 0:
 		st.append({"t": "BURNING %s/s" % UI.fmt_num(e.burn_dps * (1.0 - e.fire_res * (1.0 - e.burn_pierce))),
 			"c": Color("f77622")})

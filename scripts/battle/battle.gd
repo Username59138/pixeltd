@@ -414,9 +414,13 @@ func _tick_enemies(dt: float) -> void:
 				continue
 			if e.burn_t <= 0.0:
 				e.burn_dps = 0.0
-			elif not headless and randf() < dt * 6.0:
-				_spawn_particle(e.position + Vector2(randf_range(-3, 3), -randf_range(2, 8)), Vector2(0, -12),
-					0.4, Color("f77622"), 1)
+			elif not headless and randf() < dt * 10.0:
+				_spawn_particle(e.position + Vector2(randf_range(-4, 4), -randf_range(2, 10)), Vector2(0, -14),
+					0.45, Color("f77622") if randf() < 0.6 else Color("fee761"), 1)
+		# frost drifting off chilled and frozen enemies
+		if not headless and (e.chill > 0.0 or e.frozen_t > 0.0) and randf() < dt * (3.0 + 12.0 * e.chill + (6.0 if e.frozen_t > 0.0 else 0.0)):
+			_spawn_particle(e.position + Vector2(randf_range(-5, 5), -randf_range(0, 12)),
+				Vector2(randf_range(-4, 4), 6), 0.6, Color("e8f8ff") if randf() < 0.5 else Color("8bd8f0"), 1)
 		if e.def.has("heal"):
 			e.heal_cd -= dt
 			if e.heal_cd <= 0.0:
@@ -521,6 +525,7 @@ func _fall_apart(e: Node2D) -> void:
 	e.burn_t = 0.0
 	e.burn_dps = 0.0
 	e.slow_t = 0.0
+	e.thaw()
 	e.incoming = 0.0
 	if not headless:
 		Sfx.play("rattle")
@@ -937,6 +942,38 @@ func fx_flame(p: Vector2, dir: Vector2, r: float, half_cone: float, blue: bool) 
 			"c": Color.WHITE, "s": 2, "g": -20.0, "flame": true, "blue": blue})
 
 
+## Freezer water. Liquid nitrogen (max level) is a white, cold mist instead of blue droplets.
+func fx_spray(p: Vector2, dir: Vector2, r: float, half_cone: float, nitrogen: bool) -> void:
+	if headless:
+		return
+	for i in 5:
+		var a := dir.angle() + randf_range(-half_cone, half_cone) * 0.85
+		var sp := r / 0.32 * randf_range(0.8, 1.05)
+		particles.append({"p": p, "v": Vector2(cos(a), sin(a)) * sp, "life": 0.32, "max": 0.32,
+			"c": Color.WHITE, "s": 2, "g": -10.0 if nitrogen else 60.0, "flame": true, "water": true,
+			"nitro": nitrogen})
+
+
+## Water met fire (or fire met ice): a puff of steam.
+func fx_steam(e: Node2D, txt: String) -> void:
+	if headless:
+		return
+	for i in 6:
+		_spawn_particle(e.position + Vector2(randf_range(-4, 4), -randf_range(2, 10)),
+			Vector2(randf_range(-8, 8), -randf_range(14, 26)), 0.5, Color("c0cbdc"), 2)
+	if randf() < 0.05:
+		add_text(e.position + Vector2(0, -12), txt, Color("c0cbdc"))
+
+
+func fx_freeze(e: Node2D) -> void:
+	if headless:
+		return
+	add_text(e.position + Vector2(0, -14), "FROZEN", Color("8bd8f0"))
+	for i in 8:
+		var a := randf() * TAU
+		_spawn_particle(e.position + Vector2(0, -6), Vector2(cos(a), sin(a)) * 30.0, 0.35, Color("e8f8ff"), 1)
+
+
 func _tick_fx(dt: float) -> void:
 	if headless:
 		return
@@ -1120,7 +1157,14 @@ func _draw_over(n: Node2D) -> void:
 		var t: float = p["life"] / p["max"]
 		var c: Color = p["c"]
 		var s: int = p["s"]
-		if p.has("flame"):
+		if p.has("water"):
+			if p["nitro"]:
+				c = Color("ffffff") if t > 0.6 else (Color("e8f8ff") if t > 0.3 else Color("c0cbdc"))
+				c.a = 1.0 if t > 0.3 else 0.6
+			else:
+				c = Color("e8f8ff") if t > 0.75 else (Color("8bd8f0") if t > 0.4 else Color("0099db"))
+			s = 2 if t > 0.5 else 1
+		elif p.has("flame"):
 			if p["blue"]:
 				c = Color("ffffff") if t > 0.75 else (Color("2ce8f5") if t > 0.5 else (Color("0099db") if t > 0.25 else Color("124e89")))
 			else:
@@ -1163,7 +1207,7 @@ func _draw_over(n: Node2D) -> void:
 # ---------------------------------------------------------------- demo (menu background)
 func _setup_demo() -> void:
 	# spread decorative towers evenly along the path, one or two tiles beside the road
-	var kinds := ["gunner", "knight", "soldier", "garage", "flamer", "gunner", "soldier", "knight", "garage", "flamer"]
+	var kinds := ["gunner", "knight", "soldier", "garage", "flamer", "gunner", "soldier", "knight", "garage", "freezer"]
 	var levels := [1, 0, 1, 2, 1, 0, 2, 3, 3, 1]
 	var p: Dictionary = paths[0]
 	var n := kinds.size()

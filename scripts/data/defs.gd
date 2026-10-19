@@ -29,7 +29,7 @@ const DIFFICULTIES := [
 
 # ---------------------------------------------------------------- towers
 # "base" holds level-0 stats; each upgrade overrides some of them ("set"). Upgrades are a single line.
-const TOWER_ORDER := ["gunner", "knight", "soldier", "garage", "flamer", "sniper", "necro"]
+const TOWER_ORDER := ["gunner", "knight", "soldier", "garage", "flamer", "sniper", "necro", "freezer"]
 const TOWERS := {
 	"gunner": {
 		"name": "Gunslinger", "role": "Ranged - single target", "cost": 200, "sprite": "gunner",
@@ -157,6 +157,27 @@ const TOWERS := {
 				"set": {"raise_hp": 0.7, "raise_class": 3, "damage": 55, "rate": 1.3}},
 		],
 	},
+	"freezer": {
+		"name": "Freezer", "role": "Close - chills and freezes", "cost": 350, "sprite": "freezer",
+		"desc": "Hoses enemies in a cone with ice water. Soaked enemies slow down more and more, then freeze solid in a block of ice. Higher classes chill slower and thaw faster. Water puts out burning enemies, and fire melts the ice.",
+		"unlock": {"map": "frozen_lake", "difficulty": 2},
+		"base": {"damage": 0.0, "range": 44, "cone": 60.0, "chill": 0.45, "chill_slow": 0.35, "freeze": 1.0,
+			"kind": "cold", "camo": false, "air": false},
+		"upgrades": [
+			{"name": "Cold Water", "icon": "cold_water", "cost": 220,
+				"desc": "Colder water: chills faster (45% > 65% a second), slows up to 45%.",
+				"set": {"chill": 0.65, "chill_slow": 0.45}},
+			{"name": "Pressure Hose", "icon": "pressure_hose", "cost": 380,
+				"desc": "Range 44 > 56, wider cone. Frozen for 1.5s.",
+				"set": {"range": 56, "cone": 72.0, "freeze": 1.5}},
+			{"name": "Ice Water", "icon": "ice_water", "cost": 750,
+				"desc": "Ice-cold water now hurts: 10 dps that ignores armor. Chills faster, frozen for 2s.",
+				"set": {"damage": 1.0, "chill": 0.9, "chill_slow": 0.55, "freeze": 2.0}},
+			{"name": "Liquid Nitrogen", "icon": "nitrogen", "cost": 1800,
+				"desc": "Swaps water for liquid nitrogen: 30 dps, freezes very fast, frozen for 2.5s.",
+				"set": {"damage": 3.0, "chill": 1.4, "chill_slow": 0.65, "freeze": 2.5}},
+		],
+	},
 }
 
 # ---------------------------------------------------------------- enemies
@@ -191,8 +212,8 @@ const ENEMIES := {
 		"split": 6, "desc": "Bursts into slimes when defeated."},
 	"ogre": {"name": "Ogre", "class": 3, "hp": 520, "speed": 22, "bounty": 25, "radius": 9, "armor": 2,
 		"desc": "Big, slow and stubborn."},
-	"golem": {"name": "Stone Golem", "class": 4, "hp": 4500, "speed": 15, "bounty": 150, "radius": 12,
-		"armor": 8, "desc": "BOSS. Living rock. Shrugs off weak hits."},
+	"golem": {"name": "Stone Golem", "class": 4, "hp": 3000, "speed": 15, "bounty": 150, "radius": 12,
+		"armor": 4, "desc": "BOSS. Living rock. Shrugs off weak hits."},
 	"demon": {"name": "Demon Lord", "class": 4, "hp": 16000, "speed": 17, "bounty": 300, "radius": 13,
 		"armor": 4, "fire_res": 0.5, "desc": "FINAL BOSS. Lord of the burning pit."},
 }
@@ -222,8 +243,9 @@ const STAT_LABELS := {"damage": "Damage", "rate": "Attacks/s", "range": "Range",
 	"car_speed": "Car speed", "vehicle": "Vehicle", "gun_dmg": "Turret dmg", "gun_rate": "Turret shots/s",
 	"cone": "Cone angle", "burn": "Burn dps", "burn_time": "Burn time", "fire_pierce": "Fire res. pierce",
 	"headshot": "Headshot chance", "camo": "Sees invisible", "air": "Hits flying",
-	"raise_hp": "Undead HP", "raise_class": "Raises up to class"}
-const PERCENT_STATS := ["slow", "armor_pierce", "fire_pierce", "headshot", "raise_hp"]
+	"raise_hp": "Undead HP", "raise_class": "Raises up to class",
+	"chill": "Chill /s", "chill_slow": "Max slow", "freeze": "Freeze time"}
+const PERCENT_STATS := ["slow", "armor_pierce", "fire_pierce", "headshot", "raise_hp", "chill", "chill_slow"]
 const RAINBOW := [Color("e43b44"), Color("fee761"), Color("63c74d"), Color("2c9aceff"), Color(0.473, 0.411, 0.962, 1.0)]
 
 # global knobs used for balancing

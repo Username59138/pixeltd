@@ -77,6 +77,22 @@ func _ready() -> void:
 						var dead = battle.spawn_enemy(["goblin", "ironclad", "wolf"][k], 0, 260.0 + k * 14.0)
 						dead.alive = false
 						battle.raise_dead(tw, dead)
+		if args.has("--freezetest"):
+			battle.cash = 99999
+			for t in [[Vector2i(7, 6), "freezer", 4], [Vector2i(9, 5), "freezer", 0], [Vector2i(9, 8), "flamer", 1],
+					[Vector2i(9, 3), "gunner", 1]]:
+				var tw = battle.place_tower(t[1], t[0])
+				if tw == null:
+					continue
+				for k in t[2]:
+					battle.upgrade_tower(tw)
+			for k in 12:
+				battle.start_wave()
+				battle.spawning = false
+			battle.spawn_queue = []
+			for k in 12:
+				battle.spawn_enemy(["goblin", "ironclad", "wolf", "ogre"][k % 4], 0, 30.0 + k * 12.0)
+			battle.spawn_enemy("golem", 0, 5.0)
 	elif args.has("--maps"):
 		show_map_select()
 	elif args.has("--towers"):
@@ -283,11 +299,11 @@ func _mech_test() -> void:
 			var t := Vector2i(x, y)
 			if b.can_place(t) and b.tile_center(t).distance_to(mid) < 28.0:
 				spot = t
-	var ok := true
+	var fails := []   # lambdas capture locals by value, so collect failures in an array
 	var check := func(name: String, cond: bool) -> void:
 		print("MECH %s %s" % ["ok  " if cond else "FAIL", name])
 		if not cond:
-			ok = false
+			fails.append(name)
 	var gun = b.place_tower("gunner", spot)
 	var ghost = b.spawn_enemy("ghost", 0, 120.0)
 	var bat = b.spawn_enemy("bat", 0, 120.0)
@@ -411,7 +427,45 @@ func _mech_test() -> void:
 	var oh: float = ogre.hp
 	b._tick_friendly(ug, Battle.STEP)
 	check.call("undead crashes into enemies", not ug.alive and ogre.hp < oh)
-	print("MECH RESULT ", "PASS" if ok else "FAIL")
+	# freezer: chill builds into a freeze, slower on higher classes; water and fire cancel out
+	for tw in b.towers.values():
+		b.sell_tower(tw)
+	for e in b.enemies:
+		e.alive = false
+	b.enemies.clear()
+	var fz = b.place_tower("freezer", spot)
+	var cold_gob = b.spawn_enemy("goblin", 0, 120.0)
+	cold_gob.position = fz.position + Vector2(20, 0)
+	var cold_gol = b.spawn_enemy("golem", 0, 120.0)
+	cold_gol.position = fz.position + Vector2(22, 0)
+	var gob_speed: float = cold_gob.current_speed()
+	for k in 60:
+		fz.update(Battle.STEP, b.enemies)
+	check.call("freezer chills and slows", cold_gob.chill > 0.0 and cold_gob.current_speed() < gob_speed)
+	check.call("lv0 freezer does no damage", cold_gob.hp == cold_gob.max_hp)
+	check.call("boss chills 5x slower", absf(cold_gol.chill - cold_gob.chill * 0.2) < 0.01)
+	for k in 120:
+		fz.update(Battle.STEP, b.enemies)
+	check.call("goblin freezes solid", cold_gob.frozen_t > 0.0 and cold_gob.current_speed() == 0.0)
+	var fl2 = TowerScript.new()
+	fl2.position = fz.position
+	fl2.setup("flamer", b, 0)
+	fl2.update(Battle.STEP, b.enemies)
+	check.call("fire melts the ice", cold_gob.frozen_t <= 0.0 and cold_gob.chill == 0.0 and cold_gob.burn_t > 0.0)
+	for k in 180:   # let the freeze immunity run out
+		cold_gob.tick_status(Battle.STEP)
+	fz.flame_tick = 0.0
+	fz.update(Battle.STEP, b.enemies)
+	check.call("water puts out the fire", cold_gob.burn_t <= 0.0 and cold_gob.chill > 0.0)
+	fz.level = 4
+	fz.recompute()
+	var iron = b.spawn_enemy("ironclad", 0, 120.0)
+	iron.position = fz.position + Vector2(20, 1)
+	var ih: float = iron.hp
+	fz.flame_tick = 0.0
+	fz.update(Battle.STEP, b.enemies)
+	check.call("liquid nitrogen ignores armor", absf(ih - iron.hp - 3.0) < 0.01)
+	print("MECH RESULT ", "PASS" if fails.is_empty() else "FAIL")
 	get_tree().quit()
 
 
@@ -435,7 +489,8 @@ func _run_sims(args: Array) -> void:
 	var sets := [["gunner", "knight"], ["gunner", "knight", "soldier"], ["gunner", "knight", "soldier", "garage"],
 		["gunner", "knight", "soldier", "garage", "flamer"], ["flamer", "gunner", "knight"], ["gunner", "flamer", "knight"], ["flamer"], ["gunner"],
 		["gunner", "knight", "sniper"], ["gunner", "knight", "soldier", "garage", "flamer", "sniper"],
-		["gunner", "knight", "necro"]]
+		["gunner", "knight", "necro"], ["gunner", "knight", "freezer"],
+		["gunner", "knight", "soldier", "garage", "flamer", "sniper", "freezer"]]
 	var si := args.find("--sets")
 	if si >= 0:
 		var chosen: Array = []

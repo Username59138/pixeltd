@@ -2,6 +2,14 @@ extends RefCounted
 ## What's new, shown from the main menu. Newest version first.
 
 const ENTRIES := [
+	{"version": "0.11", "title": "The Freezer", "date": "October 2026", "items": [
+		"NEW TOWER: the Freezer. Beat Frozen Lake on Difficult to unlock it. Hoses enemies with ice water: the more they get soaked the slower they walk, until they freeze solid in a block of ice. Higher classes chill slower and thaw faster, so bosses only freeze now and then.",
+		"Its upgrades make the water colder and colder: Cold Water, Pressure Hose, Ice Water (starts to hurt) and Liquid Nitrogen.",
+		"Water and fire cancel out: the Freezer puts out burning enemies and the Flamethrower melts the ice.",
+		"Burning enemies no longer turn red: flames dance on them instead. Hover an enemy to see how chilled or frozen it is.",
+		"Stone Golem is weaker: 3000 HP instead of 4500, armor 4 instead of 8. Medium could not be beaten with only the Gunslinger and the Knight.",
+		"Key 8 buys the 8th tower.",
+	]},
 	{"version": "0.1", "title": "First version + Halloween event", "date": "October 2026", "items": [
 		"7 maps in 4 tiers: Green Meadow, Dusty Canyon, Gas Station, Murky Swamp, Frozen Lake, Old Graveyard, Volcano.",
 		"Maps are unlocked with paper maps: every battle pays some (harder maps and difficulties pay more, a loss pays a little), so you can farm them and buy the maps you want.",

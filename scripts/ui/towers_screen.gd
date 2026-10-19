@@ -83,7 +83,7 @@ func _build_towers() -> void:
 		frame.size = Vector2(cw - 16, 92)
 		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(frame)
-		var spr := UI.sprite_rect("res://assets/sprites/towers/%s.png" % d["sprite"], 3)
+		var spr := UI.sprite_rect("res://assets/sprites/towers/%s.png" % d["sprite"], 3 if n <= 7 else 2)
 		if not unlocked:
 			spr.modulate = Color(0, 0, 0, 0.9)
 		frame.add_child(spr)
@@ -93,8 +93,10 @@ func _build_towers() -> void:
 			b.add_child(lock)
 		var nl := UI.label(d["name"] if unlocked else "???", 10, Color("fee761") if unlocked else Color("8b9bb4"),
 			HORIZONTAL_ALIGNMENT_CENTER)
-		nl.position = Vector2(0, 106)
-		nl.size = Vector2(cw, 12)
+		# a name wider than a narrow card spills evenly into the gaps instead of under the next card
+		var nw := maxf(float(cw), nl.get_minimum_size().x)
+		nl.position = Vector2((cw - nw) / 2.0, 106)
+		nl.size = Vector2(nw, 12)
 		b.add_child(nl)
 	var hint := UI.label("Click a tower to see everything about it", 10, Color("8b9bb4"), HORIZONTAL_ALIGNMENT_CENTER)
 	hint.position = Vector2(0, 180)

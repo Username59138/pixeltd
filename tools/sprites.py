@@ -803,6 +803,40 @@ NECRO_C = {'h': 'magenta', 'H': 'purple', 'd': (62, 30, 70), 'k': 'black', 'e': 
 NECRO_ELITE = dict(NECRO_C, h='xdgray', H='navy', d='black', r='black', R='navy', b='gld_l', e='cyan', g='blu',
                    G='cyan', s='gld_d', S='gld_d')
 
+FREEZER = [
+    "....................",
+    "....................",
+    ".......wwwww........",
+    "......wHHHHHw.......",
+    ".....wHffffffw......",
+    ".....wGgGfGgGw......",
+    ".....wHffffffw......",
+    ".ii...wHfzzfHw......",
+    "tTTt..wwwwwww.......",
+    "tLTt.JJJJJJJJJ......",
+    "tLTtJjJJJJJJJJJ.....",
+    "tLTtJjJJJJJJJAAnnnnq",
+    "tTTtJjJJJJJJJAAnNNNQ",
+    "tTTt.jkkkykkkJ......",
+    "tTTt.jJJJJJJJJ......",
+    ".tt..jJJJJJJJJ......",
+    ".....PPPPPPPPP......",
+    ".....PPP..PPP.......",
+    ".....PPp..PPp.......",
+    ".....PPp..PPp.......",
+    ".....BBB..BBB.......",
+    "....BBBBb.BBBBb.....",
+    "....................",
+    "....................",
+]
+FREEZER_C = {'w': 'white', 'H': 'blu', 'f': 'skin', 'z': 'skin_d', 'G': 'gun_d', 'g': 'glass', 'i': 'gun',
+             't': 'blu_d', 'T': 'glass_d', 'L': 'glass', 'J': 'blu_l', 'j': 'blu', 'k': 'black', 'y': 'gld',
+             'A': 'navy', 'n': 'gun', 'N': 'gun_d', 'q': 'cyan', 'Q': 'blu_l', 'P': 'den', 'p': 'den_d',
+             'B': 'xdbrown', 'b': 'black'}
+# liquid nitrogen: steel dewar, white suit
+FREEZER_ELITE = dict(FREEZER_C, H='stl', J='stl_l', j='stl', t='stl_dd', T='stl_d', L='white', g='cyan',
+                     q='white', Q='stl_l', P='navy', p='black', y='cyan')
+
 GARAGE = [
     "..RRRRRRRRRRRR..",
     ".RRRRRRRRRRRRRR.",
@@ -822,6 +856,40 @@ GARAGE_C = {'R': 'red', 'r': 'dred', 'W': 'lgray', 'y': 'gold', 'D': 'gray', 'd'
 GARAGE_ELITE = dict(GARAGE_C, R='dblue', r='navy', W='sand', y='cyan', D='gold', d='lorange')
 
 UP_ICONS = {
+    'cold_water': ([
+        "..b..",
+        "..b..",
+        ".bwb.",
+        ".bwb.",
+        "bccbb",
+        "bcbbb",
+        ".bbb.",
+    ], {'b': 'blue', 'c': 'cyan', 'w': 'white'}),
+    'pressure_hose': ([
+        ".....c.",
+        "ggg.c..",
+        "gGGnnc.",
+        "gGGnn.c",
+        "ggg.c..",
+        ".....c.",
+    ], {'g': 'gray', 'G': 'dgray', 'n': 'lgray', 'c': 'cyan'}),
+    'ice_water': ([
+        "wwwwww",
+        "wcccbb",
+        "wcwccb",
+        "wccccb",
+        "wcccbb",
+        "bbbbbb",
+    ], {'w': 'white', 'c': 'cyan', 'b': 'blue'}),
+    'nitrogen': ([
+        "w..w..w",
+        ".w.w.w.",
+        "..www..",
+        "wwwcwww",
+        "..www..",
+        ".w.w.w.",
+        "w..w..w",
+    ], {'w': 'white', 'c': 'cyan'}),
     'dark_pact': ([
         "..p..",
         ".pPp.",

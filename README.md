@@ -1,4 +1,4 @@
-# Pixel TD v0.1
+# Pixel TD v0.11
 
 A pixel art tower defense game made with Godot 4.7.2 (GL Compatibility renderer, runs on pretty much any Linux machine with OpenGL 3.3).
 
@@ -19,7 +19,7 @@ Every key below is a default and can be changed in **Settings** (gear button in 
 
 | Action | Default |
 |---|---|
-| Buy a tower | Button on the right or keys **1–7** (the shop only shows unlocked towers) |
+| Buy a tower | Button on the right or keys **1–8** (the shop only shows unlocked towers) |
 | Place it | Left click on a tile (hold **Shift** to place several) |
 | Select a tower | Left click on it |
 | Upgrade selected tower | **E** |
@@ -46,6 +46,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
   - Flamethrower: Volcano on Medium
   - Sniper: Green Meadow on Difficult
   - Necromancer (Halloween character): Old Graveyard on Difficult
+  - Freezer: Frozen Lake on Difficult
 - **Halloween event (Oct 10 - Nov 7):** Green Meadow gets an autumn look with jack-o'-lanterns. Only the looks change, the layout stays the same.
 - **Volcano:** two short roads, lava on the best spots and an eruption every second wave. Tiles next to the lava flash orange, then towers on them stop shooting for 6 seconds.
 - **Murky Swamp:** the boardwalk crosses itself, so towers near the crossing hit enemies twice. The bog eats the best spots.
@@ -64,6 +65,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 - **Garage:** must be built next to a road. Sends friendly cars (`is_friendly` enemies) that drive along the road towards the enemies. On a crash both sides lose `min(car HP, enemy HP)`. Pickup → Truck → Armored Car (with a turret).
 - **Flamethrower:** fire cone and burning, ignores armor, but the Fire Imp is immune. Bigger Tank → Napalm → Blue Flame.
 - **Necromancer:** dark bolts that ignore 60% of armor. An enemy his bolt kills rises as a friendly undead (Garage-style crash) with part of its max HP: 20% → 35% → 50% → 70%. They rise at a random spot of road inside his range. No flyers, no bosses, and undead never raise more undead. Dark Pact → Bone Army (sees invisible) → Lich.
+- **Freezer:** sprays a cone of ice water. Every enemy in it builds up chill (scaled by class like any control effect): the more chill, the slower it walks, and at 100% it freezes solid in a block of ice for a while (also scaled by class, so bosses freeze rarely and briefly). Water puts out burning enemies, and the Flamethrower's fire melts the chill and the ice. Ground only; it can't aim at invisible enemies but soaks them anyway. Cold Water → Pressure Hose → Ice Water (cold damage that ignores armor) → Liquid Nitrogen.
 - **Sniper:** slow, heavy shots from almost across the map, sees invisible and hits flying enemies. Optics → Full Metal Jacket (ignores all armor) → Headshot (15% chance to kill any non-boss outright).
 
 Open **Towers** in the main menu and click a portrait to see every tower's full stats and upgrade path.
