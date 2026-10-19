@@ -2,6 +2,10 @@ class_name TowersScreen
 extends Control
 ## Armory: tower portraits (click one for the full tower view with its upgrade path) and an enemy bestiary.
 
+const COLS := 5
+const PER_PAGE := 10   # two rows of five, more towers go to the next pages
+
+static var page := 0   # remembered while the game runs
 
 var main: Node
 var content: Control
@@ -19,6 +23,9 @@ var up_cost: Label
 var up_desc: Label
 var up_diff: Label
 var circles: Array = []
+var prev_btn: Button
+var next_btn: Button
+var page_label: Label
 
 
 func _ready() -> void:
@@ -40,6 +47,18 @@ func _ready() -> void:
 	back.position = Vector2(8, 336)
 	back.pressed.connect(func(): main.show_menu())
 	add_child(back)
+	prev_btn = UI.button("<", "blue", Vector2(24, 40))
+	prev_btn.position = Vector2(36, 166)
+	prev_btn.pressed.connect(func(): _show_page(page - 1))
+	add_child(prev_btn)
+	next_btn = UI.button(">", "blue", Vector2(24, 40))
+	next_btn.position = Vector2(580, 166)
+	next_btn.pressed.connect(func(): _show_page(page + 1))
+	add_child(next_btn)
+	page_label = UI.label("", 10, Color("c0cbdc"), HORIZONTAL_ALIGNMENT_CENTER)
+	page_label.position = Vector2(270, 338)
+	page_label.size = Vector2(100, 14)
+	add_child(page_label)
 	_show(true)
 
 
@@ -57,21 +76,49 @@ func _show(towers: bool) -> void:
 		_build_towers()
 	else:
 		_build_enemies()
+	_update_pager(towers)
+
+
+func _page_count() -> int:
+	return ceili(Defs.TOWER_ORDER.size() / float(PER_PAGE))
+
+
+func _show_page(p: int) -> void:
+	var np := clampi(p, 0, _page_count() - 1)
+	if np == page:
+		return
+	page = np
+	Sfx.play("click")
+	_show(true)
+
+
+## The page arrows only exist on the tower grid, and only when the towers don't fit on one page.
+func _update_pager(towers: bool) -> void:
+	var many := towers and _page_count() > 1
+	page = clampi(page, 0, _page_count() - 1)
+	prev_btn.visible = many
+	next_btn.visible = many
+	prev_btn.disabled = page == 0
+	next_btn.disabled = page == _page_count() - 1
+	page_label.visible = many
+	page_label.text = "Page %d/%d" % [page + 1, _page_count()]
 
 
 # ---------------------------------------------------------------- portrait grid
 func _build_towers() -> void:
-	var n := Defs.TOWER_ORDER.size()
+	page = clampi(page, 0, _page_count() - 1)
+	var ids: Array = Defs.TOWER_ORDER.slice(page * PER_PAGE, (page + 1) * PER_PAGE)
 	var gap := 6
-	var cw := mini(96, (624 - (n - 1) * gap) / n)
-	var x0 := (640 - (n * cw + (n - 1) * gap)) / 2
-	for i in n:
-		var t: String = Defs.TOWER_ORDER[i]
+	var cw := 96
+	var ch := 128
+	var x0 := (640 - (COLS * cw + (COLS - 1) * gap)) / 2
+	for i in ids.size():
+		var t: String = ids[i]
 		var d: Dictionary = Defs.TOWERS[t]
 		var unlocked := Game.is_tower_unlocked(t)
-		var b := UI.button("", "blue", Vector2(cw, 128))
-		b.position = Vector2(x0 + i * (cw + gap), 40)
-		b.size = Vector2(cw, 128)
+		var b := UI.button("", "blue", Vector2(cw, ch))
+		b.position = Vector2(x0 + (i % COLS) * (cw + gap), 2 + (i / COLS) * (ch + gap))
+		b.size = Vector2(cw, ch)
 		b.add_theme_stylebox_override("normal", UI.box("card", 4, Vector4(4, 4, 4, 4)))
 		b.add_theme_stylebox_override("hover", UI.box("card_hover", 4, Vector4(4, 4, 4, 4)))
 		b.add_theme_stylebox_override("pressed", UI.box("card_selected", 4, Vector4(4, 4, 4, 4)))
@@ -83,7 +130,7 @@ func _build_towers() -> void:
 		frame.size = Vector2(cw - 16, 92)
 		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(frame)
-		var spr := UI.sprite_rect("res://assets/sprites/towers/%s.png" % d["sprite"], 3 if n <= 7 else 2)
+		var spr := UI.sprite_rect("res://assets/sprites/towers/%s.png" % d["sprite"], 3)
 		if not unlocked:
 			spr.modulate = Color(0, 0, 0, 0.9)
 		frame.add_child(spr)
@@ -93,13 +140,11 @@ func _build_towers() -> void:
 			b.add_child(lock)
 		var nl := UI.label(d["name"] if unlocked else "???", 10, Color("fee761") if unlocked else Color("8b9bb4"),
 			HORIZONTAL_ALIGNMENT_CENTER)
-		# a name wider than a narrow card spills evenly into the gaps instead of under the next card
-		var nw := maxf(float(cw), nl.get_minimum_size().x)
-		nl.position = Vector2((cw - nw) / 2.0, 106)
-		nl.size = Vector2(nw, 12)
+		nl.position = Vector2(0, 106)
+		nl.size = Vector2(cw, 12)
 		b.add_child(nl)
 	var hint := UI.label("Click a tower to see everything about it", 10, Color("8b9bb4"), HORIZONTAL_ALIGNMENT_CENTER)
-	hint.position = Vector2(0, 180)
+	hint.position = Vector2(0, 2 * ch + gap + 8)
 	hint.size = Vector2(640, 12)
 	content.add_child(hint)
 
@@ -380,3 +425,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		else:
 			main.show_menu()
 		get_viewport().set_input_as_handled()
+	elif event is InputEventKey and event.pressed and not event.echo and not detail and prev_btn.visible:
+		if event.keycode in [KEY_LEFT, KEY_A]:
+			_show_page(page - 1)
+			get_viewport().set_input_as_handled()
+		elif event.keycode in [KEY_RIGHT, KEY_D]:
+			_show_page(page + 1)
+			get_viewport().set_input_as_handled()

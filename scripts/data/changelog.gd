@@ -8,7 +8,7 @@ const ENTRIES := [
 		"Water and fire cancel out: the Freezer puts out burning enemies and the Flamethrower melts the ice.",
 		"Burning enemies no longer turn red: flames dance on them instead. Hover an enemy to see how chilled or frozen it is.",
 		"Stone Golem is weaker: 3000 HP instead of 4500, armor 4 instead of 8. Medium could not be beaten with only the Gunslinger and the Knight.",
-		"Key 8 buys the 8th tower.",
+		"Key 8 buys the 8th tower. The tower list in battle scrolls when it doesn't fit, and the Armory shows towers in pages of 2 rows of 5.",
 	]},
 	{"version": "0.1", "title": "First version + Halloween event", "date": "October 2026", "items": [
 		"7 maps in 4 tiers: Green Meadow, Dusty Canyon, Gas Station, Murky Swamp, Frozen Lake, Old Graveyard, Volcano.",

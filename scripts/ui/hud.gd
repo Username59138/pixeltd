@@ -103,22 +103,33 @@ func _build_sidebar() -> void:
 	# shop
 	shop_box = VBoxContainer.new()
 	shop_box.add_theme_constant_override("separation", 3)
+	shop_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	shop_box.size_flags_stretch_ratio = 1000.0   # takes the room of the spacer below while it is shown
 	v.add_child(shop_box)
 	shop_box.add_child(UI.label("TOWERS", 10, Color("8b9bb4")))
 	for t in Defs.TOWER_ORDER:
 		if Game.is_tower_unlocked(t):
 			shop_order.append(t)
-	# all still fit above the wave buttons; 8 towers only fit with name and price on one line
-	var bh := 32 if shop_order.size() <= 6 else (28 if shop_order.size() == 7 else 20)
+	# up to 7 towers fit above the wave buttons; with more the list scrolls (mouse wheel or the bar)
+	var scrolls := shop_order.size() > 7
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_style_scrollbar(scroll.get_v_scroll_bar())
+	shop_box.add_child(scroll)
+	var list := VBoxContainer.new()
+	list.add_theme_constant_override("separation", 3)
+	scroll.add_child(list)
+	var bh := 32 if shop_order.size() <= 6 else 28
 	for t in shop_order:
-		var b := UI.button("", "blue", Vector2(118, bh))
+		var b := UI.button("", "blue", Vector2(112 if scrolls else 118, bh))
 		b.icon = Game.tex("res://assets/sprites/towers/%s.png" % Defs.TOWERS[t]["sprite"])
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.add_theme_constant_override("icon_max_width", 22 if shop_order.size() <= 7 else 16)
+		b.add_theme_constant_override("icon_max_width", 22)
 		b.pressed.connect(func(): _on_shop(t))
 		b.mouse_entered.connect(func(): _shop_tip(t, b))
 		b.mouse_exited.connect(func(): tip.hide_tip())
-		shop_box.add_child(b)
+		list.add_child(b)
 		shop_buttons[t] = b
 
 	# selected tower info
@@ -186,6 +197,19 @@ func _build_sidebar() -> void:
 	row.add_child(auto_btn)
 
 
+## Thin pixel scrollbar for the shop list.
+static func _style_scrollbar(bar: VScrollBar) -> void:
+	bar.custom_minimum_size.x = 4
+	var track := StyleBoxFlat.new()
+	track.bg_color = Color("181425")
+	bar.add_theme_stylebox_override("scroll", track)
+	bar.add_theme_stylebox_override("scroll_focus", track)
+	for st in ["grabber", "grabber_highlight", "grabber_pressed"]:
+		var g := StyleBoxFlat.new()
+		g.bg_color = Color("5a6988") if st == "grabber" else Color("8b9bb4")
+		bar.add_theme_stylebox_override(st, g)
+
+
 func _stat_row(parent: Control, icon_name: String, col: Color) -> Label:
 	var h := HBoxContainer.new()
 	h.add_theme_constant_override("separation", 3)
@@ -209,7 +233,7 @@ func _refresh() -> void:
 	for t in shop_buttons:
 		var b: Button = shop_buttons[t]
 		var cost: int = battle.tower_cost(t)
-		b.text = ("%s\n$%d" if shop_order.size() <= 7 else "%s $%d") % [Defs.TOWERS[t]["name"], cost]
+		b.text = "%s\n$%d" % [Defs.TOWERS[t]["name"], cost]
 		b.disabled = battle.cash < cost
 	_refresh_selection()
 
