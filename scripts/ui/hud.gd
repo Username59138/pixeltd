@@ -222,8 +222,9 @@ func _refresh() -> void:
 	for t in shop_buttons:
 		var b: Button = shop_buttons[t]
 		var cost: int = battle.tower_cost(t)
-		b.text = "%s\n$%d" % [Defs.TOWERS[t]["name"], cost]
-		b.disabled = battle.cash < cost
+		var n: int = battle.tower_count(t)
+		b.text = "%s\n$%d%s" % [Defs.TOWERS[t]["name"], cost, ("   %d/%d" % [n, battle.type_limit(t)]) if n > 0 else ""]
+		b.disabled = battle.cash < cost or battle.limit_reason(t) != ""
 	_refresh_selection()
 
 

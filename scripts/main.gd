@@ -494,6 +494,25 @@ func _mech_test() -> void:
 		asn.update(Battle.STEP, b.enemies)
 		b._tick_bullets(Battle.STEP)
 	check.call("level 4 daggers hit flyers", abat.hp < abat.max_hp or not abat.alive)
+	# tower limits: 10 of a type, 50 in all
+	for tw in b.towers.values():
+		b.sell_tower(tw)
+	b.cash = 999999
+	var free_tiles: Array = []
+	for y in Battle.ROWS:
+		for x in Battle.COLS:
+			if b.can_place(Vector2i(x, y)):
+				free_tiles.append(Vector2i(x, y))
+	for k in 10:
+		b.place_tower("gunner", free_tiles[k])
+	check.call("10 gunslingers fit", b.tower_count("gunner") == 10)
+	check.call("no 11th gunslinger", b.place_tower("gunner", free_tiles[10]) == null and b.limit_reason("gunner") != "")
+	var k2 := 10
+	for t in ["knight", "soldier", "sniper", "necro"]:
+		for j in 10:
+			b.place_tower(t, free_tiles[k2])
+			k2 += 1
+	check.call("50 towers in all, then no more", b.towers.size() == 50 and b.place_tower("flamer", free_tiles[k2]) == null)
 	print("MECH RESULT ", "PASS" if fails.is_empty() else "FAIL")
 	get_tree().quit()
 

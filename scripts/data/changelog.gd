@@ -3,6 +3,8 @@ extends RefCounted
 
 const ENTRIES := [
 	{"version": "0.2", "title": "In progress", "date": "October 2026", "items": [
+		"Every difficulty now has its own handmade waves. After a win, Continue goes on with generated waves that start from the strength of the last one.",
+		"Tower limits: at most 50 towers in a battle and 10 of each type. The shop shows how many you've built.",
 		"MUSIC! Chiptune tracks by Juhani Junkala play across the menu and the battles, boss waves get their own track and a win plays a little fanfare. Settings has a music volume and a player: see what's playing, skip to the previous or next track.",
 	]},
 	{"version": "0.12", "title": "Acid Refinery", "date": "October 2026", "items": [

@@ -38,7 +38,8 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 ## Mechanics
 
 - **Enemy classes I–IV** only weaken control effects (stun, slow): 100% / 70% / 40% / 20%. Damage, including burning, always applies in full.
-- **Difficulties:** Light (20 waves), Medium (30), Difficult (40), Hardcore (40 waves, 1 life, no selling).
+- **Difficulties:** Light (20 waves), Medium (30), Difficult (40), Hardcore (40 waves, 1 life, no selling). Every difficulty has its own handmade waves; after a win, Continue keeps going with generated waves.
+- **Tower limits:** at most 50 towers in a battle and 10 of each type. The shop shows how many you have.
 - **Maps are bought with paper maps.** Only Green Meadow is open at the start. Every battle pays paper maps: a win pays by map tier (Beginner 10, Intermediate 20, Advanced 35, Expert 60) times the difficulty (Light x1, Medium x1.5, Difficult x2.5, Hardcore x4); a loss pays 40% of that, scaled by the waves survived. A map costs 30 / 60 / 150 / 300 by tier. Repeat wins pay the same, so you can farm.
 - **Towers are unlocked by beating maps** (a higher difficulty counts too):
   - Soldier: Green Meadow on Medium
@@ -83,7 +84,8 @@ Open **Towers** in the main menu and click a portrait to see every tower's full 
 > project. Without that step you get errors like `Identifier "Defs" not declared in the current scope`.
 
 
-- `scripts/data/defs.gd`: all the numbers (towers, enemies, difficulties, wave generator).
+- `scripts/data/defs.gd`: all the numbers (towers, enemies, difficulties, the wave generator used after Continue).
+- `scripts/data/waves.gd`: the handmade waves of every difficulty: groups of [enemy, count, gap, start time, HP].
 - `scripts/battle/`: the battlefield (`battle.gd`), towers (`tower.gd`) and enemies (`enemy.gd`).
 - `scripts/ui/`: menus, the in-battle HUD and tooltips.
 - `tools/gen_art.py`, `tools/sprites.py`, `tools/units.py`: generate all the pixel art and maps (Python + Pillow). Run `python3 tools/gen_art.py` after editing them. `scripts/data/maps_data.gd` is generated too, so don't edit it by hand.

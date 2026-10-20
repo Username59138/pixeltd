@@ -283,6 +283,10 @@ const POOL := [
 	["wolf", 10, 4.5], ["ironclad", 11, 9.0], ["ghost", 12, 7.0], ["imp", 13, 5.5], ["berserker", 15, 11.0],
 	["shaman", 16, 17.0], ["slime_king", 19, 36.0], ["harpy", 21, 42.0], ["ogre", 23, 52.0],
 ]
+# placement limits per battle: all towers together, and per tower type unless the tower sets its own "limit"
+const MAX_TOWERS := 50
+const MAX_PER_TYPE := 10
+
 # readable names for stats (tower info screens)
 const STAT_LABELS := {"damage": "Damage", "rate": "Attacks/s", "range": "Range", "targets": "Targets",
 	"slow": "Slow", "slow_time": "Slow time", "armor_pierce": "Armor pierce", "cleave": "Cleave",

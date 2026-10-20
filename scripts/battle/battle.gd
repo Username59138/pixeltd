@@ -54,6 +54,7 @@ var cash := 0
 var lives := 0
 var wave := 0
 var total_waves := 0
+var endless_mult := 1.0   # waves after Continue start from the strength of the last handmade wave
 var spawn_queue: Array = []
 var wave_t := 0.0
 var spawning := false
@@ -91,7 +92,8 @@ func setup(p_map_id: String, p_diff: int, p_demo := false) -> void:
 	diff = Defs.DIFFICULTIES[diff_idx]
 	cash = int(diff["cash"])
 	lives = int(diff["lives"])
-	total_waves = int(diff["waves"])
+	total_waves = Waves.count(diff["id"])
+	endless_mult = Waves.endless_factor(diff)
 	wave_seed = int(map["seed_idx"]) * 10 + diff_idx + 3   # fixed per map, so adding maps never changes waves
 	rng.seed = wave_seed
 	for pts in map["paths"]:
@@ -157,8 +159,10 @@ func sell_value(tw: Node2D) -> int:
 	return int(tw.spent * float(diff["sell"]))
 
 
+## HP multiplier of the generated waves (after Continue) and of the menu diorama.
 func hp_mult() -> float:
-	return float(diff["hp"]) * float(map["hp_mult"]) * Defs.enemy_hp_scale(maxi(wave, 1))
+	return float(diff["hp"]) * float(map["hp_mult"]) * Defs.enemy_hp_scale(maxi(wave, 1)) * \
+		(endless_mult if wave > total_waves else 1.0)
 
 
 func path_point(pi: int, d: float) -> Array:
@@ -305,7 +309,9 @@ func _tick_waves(dt: float) -> void:
 		wave_t += dt
 		while not spawn_queue.is_empty() and spawn_queue[0][0] <= wave_t:
 			var s: Array = spawn_queue.pop_front()
-			var e := spawn_enemy(s[1], _spawn_counter % paths.size())
+			var hp: float = s[2]   # handmade waves set the HP, generated ones (-1) use hp_mult()
+			var mult := -1.0 if hp < 0.0 else hp / float(Defs.ENEMIES[s[1]]["hp"]) * float(map["hp_mult"])
+			var e := spawn_enemy(s[1], _spawn_counter % paths.size(), 0.0, mult)
 			if wave == total_waves and Defs.BOSS_TYPES.has(s[1]):
 				e.final_boss = true
 			_spawn_counter += 1
@@ -350,11 +356,15 @@ func start_wave(skip_wave := false) -> void:
 	if bonus_pending:
 		_award_bonus()
 	wave += 1
-	var w := Defs.build_wave(wave, total_waves, wave_seed)
+	var w := Waves.build(diff["id"], wave)
+	if w.is_empty():   # past the handmade list (Continue): the generator takes over
+		w = Defs.build_wave(wave, total_waves, wave_seed)
+		for sp in w["spawns"]:
+			sp.append(-1.0)
 	if spawning:
 		# skipped mid-wave: the rest of the current wave still comes, the new one starts now
 		for sp in w["spawns"]:
-			spawn_queue.append([sp[0] + wave_t, sp[1]])
+			spawn_queue.append([sp[0] + wave_t, sp[1], sp[2]])
 		spawn_queue.sort_custom(func(a, b): return a[0] < b[0])
 	else:
 		spawn_queue = w["spawns"]
@@ -633,13 +643,31 @@ func _kill(e: Node2D, src: Node) -> void:
 			add_text(e.position + Vector2(0, -10), "+%d" % e.bounty, Color("feae34"))
 	if e.def.has("split"):
 		for i in int(e.def["split"]):
-			var child := spawn_enemy("slime", e.path_i, maxf(0.0, e.dist - i * 5.0), hp_mult() * 2.0)
+			var child := spawn_enemy("slime", e.path_i, maxf(0.0, e.dist - i * 5.0), e.spawn_mult * 2.0)
 			child.bounty = 1
 
 
 # ---------------------------------------------------------------- towers
+## How many towers of this type stand on the field.
+func tower_count(t: String) -> int:
+	return towers.values().filter(func(tw): return tw.type == t).size()
+
+
+func type_limit(t: String) -> int:
+	return int(Defs.TOWERS[t].get("limit", Defs.MAX_PER_TYPE))
+
+
+## Why no more of this tower can be built ("" when it can).
+func limit_reason(t: String) -> String:
+	if towers.size() >= Defs.MAX_TOWERS:
+		return "Max %d towers" % Defs.MAX_TOWERS
+	if tower_count(t) >= type_limit(t):
+		return "Max %d %ss" % [type_limit(t), Defs.TOWERS[t]["name"]]
+	return ""
+
+
 func place_tower(t: String, tile: Vector2i, free := false) -> Node2D:
-	if not can_place(tile, t):
+	if not can_place(tile, t) or limit_reason(t) != "":
 		return null
 	var cost := 0 if free else tower_cost(t)
 	if cash < cost:
@@ -712,6 +740,11 @@ func begin_place(t: String) -> void:
 		return
 	if cash < tower_cost(t):
 		Sfx.play("error")
+		return
+	var why := limit_reason(t)
+	if why != "":
+		Sfx.play("error")
+		announce.emit(why.to_upper(), Color("e43b44"))
 		return
 	select(null)
 	placing = t
@@ -1168,7 +1201,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			if placing != "":
 				if can_place(hover_tile, placing) and cash >= tower_cost(placing):
 					var tw := place_tower(placing, hover_tile)
-					if not Input.is_key_pressed(KEY_SHIFT) or cash < tower_cost(placing):
+					if not Input.is_key_pressed(KEY_SHIFT) or cash < tower_cost(placing) or limit_reason(placing) != "":
 						placing = ""
 						select(tw)
 				else:

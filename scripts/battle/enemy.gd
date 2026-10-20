@@ -58,6 +58,7 @@ var tex_flash: Texture2D
 var views := {}             # "side" / "down" / "up" -> [texture, hit flash texture]
 var view := "side"
 var effect_mult := 1.0
+var spawn_mult := 1.0      # HP multiplier it was spawned with (slime king children inherit it)
 var fx_layer: Node2D        # drawn over the sprite: flames, ice block
 
 const FLY_HEIGHT := 9.0
@@ -71,6 +72,7 @@ func setup(t: String, hp_mult: float, p_i: int, p_len: float) -> void:
 	def = Defs.ENEMIES[t]
 	cls = int(def["class"])
 	effect_mult = Defs.CLASS_EFFECT[cls]
+	spawn_mult = hp_mult
 	max_hp = roundf(float(def["hp"]) * hp_mult)
 	hp = max_hp
 	speed = float(def["speed"])
