@@ -59,7 +59,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 - **Flying enemies** (Bat, Harpy) follow the road in the air. Gunslinger, Soldier and Sniper can shoot them. Knight, Flamethrower, grenades and cars can't reach them.
 - **Skeletons** fall apart when killed and get back up once with half HP. **Orc Berserkers** run twice as fast below half HP.
 - The final boss of a run gets a big HP bar at the top of the screen. Hover other enemies to see their HP.
-- The bar under a tower shows its level by color: red → yellow → green → purple (max).
+- The bar under a tower shows its level by color: red → yellow → green → blue → purple, and pink for a 6th level (Toxic Assassin).
 
 ## Towers
 

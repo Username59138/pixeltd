@@ -266,7 +266,7 @@ func _open_tower(t: String) -> void:
 	root.add_child(line)
 	var n: int = d["upgrades"].size() + 1
 	var cx0 := 40.0
-	var step := 60.0
+	var step := minf(60.0, 230.0 / (n - 1))   # 6 levels still end left of the info panel
 	line.draw.connect(func():
 		for i in n - 1:
 			var a := Vector2(cx0 + i * step + 17, path_y)

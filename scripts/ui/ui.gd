@@ -10,23 +10,28 @@ static var _title_font: FontFile
 static var _boxes := {}
 
 
-static func _pixelize(f: FontFile) -> FontFile:
+static func _pixelize(f: FontFile, subpixel := false) -> FontFile:
 	f.antialiasing = TextServer.FONT_ANTIALIASING_NONE
 	f.hinting = TextServer.HINTING_NONE
-	f.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
+	# Tiny5 is drawn for 8 px but used at 10: with whole-pixel positions a glyph can overlap the next one
+	# ("Refinery" read "ReA`nery"), subpixel positions keep them apart
+	f.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_AUTO if subpixel else TextServer.SUBPIXEL_POSITIONING_DISABLED
 	f.generate_mipmaps = false
 	return f
 
 
 static func font() -> FontFile:
 	if _font == null:
-		_font = _pixelize(load(FONT_PATH))
+		_font = _pixelize(load(FONT_PATH), true)
 	return _font
 
 
 static func title_font() -> FontFile:
 	if _title_font == null:
 		_title_font = _pixelize(load(TITLE_FONT_PATH))
+		# Press Start 2P has "fi" / "fl" ligatures that drop the i / l ("Acid Refnery")
+		var ts := TextServerManager.get_primary_interface()
+		_title_font.opentype_feature_overrides = {ts.name_to_tag("liga"): 0}
 	return _title_font
 
 
