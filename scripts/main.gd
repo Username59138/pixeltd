@@ -155,6 +155,8 @@ func _ready() -> void:
 				c._open_difficulty("gas_station")
 	if args.has("--uitest"):
 		_ui_test()
+	if args.has("--shop-arrows") and hud:
+		_shop_arrows_test()
 	var s := args.find("--shot")
 	if s >= 0:
 		_shot(args[s + 1], float(args[s + 2]))
@@ -182,10 +184,28 @@ func _shot(path: String, secs: float) -> void:
 	get_tree().quit()
 
 
+## Clicks the shop scrollbar arrows like a player would and prints where the list ends up.
+func _shop_arrows_test() -> void:
+	await get_tree().create_timer(0.5).timeout
+	var bar: VScrollBar = hud.shop_scroll.get_v_scroll_bar()
+	var r := bar.get_global_rect()
+	print("SHOP scroll %d / max %d, step %d" % [hud.shop_scroll.scroll_vertical, bar.max_value - bar.page, bar.custom_step])
+	for k in 2:
+		await _click(Vector2(r.position.x + 3, r.end.y - 3))
+		await get_tree().create_timer(0.1).timeout
+		print("SHOP after down: %d" % hud.shop_scroll.scroll_vertical)
+	await _click(Vector2(r.position.x + 3, r.position.y + 3))
+	await get_tree().create_timer(0.1).timeout
+	print("SHOP after up: %d" % hud.shop_scroll.scroll_vertical)
+
+
 func _click(p: Vector2, button := MOUSE_BUTTON_LEFT) -> void:
-	# viewport (640x360) -> window coordinates
-	var scale := Vector2(get_window().size) / Vector2(640, 360)
-	var wp := p * minf(scale.x, scale.y)
+	# viewport (640x360) -> window coordinates; a window of another aspect gets black bars around the game
+	var ws := Vector2(get_window().size)
+	var k := minf(ws.x / 640.0, ws.y / 360.0)
+	if ProjectSettings.get_setting("display/window/stretch/scale_mode") == "integer":
+		k = maxf(1.0, floorf(k))
+	var wp := p * k + (ws - Vector2(640, 360) * k) / 2.0
 	Input.warp_mouse(wp)
 	var mv := InputEventMouseMotion.new()
 	mv.position = wp

@@ -13,6 +13,7 @@ var lives_l: Label
 var cash_l: Label
 var wave_l: Label
 var shop_box: VBoxContainer
+var shop_scroll: ScrollContainer
 var shop_buttons := {}
 var info_box: VBoxContainer
 var info_title: Label
@@ -117,10 +118,12 @@ func _build_sidebar() -> void:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_style_scrollbar(scroll.get_v_scroll_bar())
 	shop_box.add_child(scroll)
+	shop_scroll = scroll
 	var list := VBoxContainer.new()
 	list.add_theme_constant_override("separation", 3)
 	scroll.add_child(list)
 	var bh := 32 if shop_order.size() <= 6 else 28
+	scroll.get_v_scroll_bar().custom_step = bh + 3   # an arrow click moves the list by one tower (the default is 1 px)
 	for t in shop_order:
 		var b := UI.button("", "blue", Vector2(110 if scrolls else 118, bh))
 		b.icon = Game.tex("res://assets/sprites/towers/%s.png" % Defs.TOWERS[t]["sprite"])
