@@ -3,9 +3,12 @@ extends Control
 ## Armory: tower portraits (click one for the full tower view with its upgrade path) and an enemy bestiary.
 
 const COLS := 5
-const PER_PAGE := 10   # two rows of five, more towers go to the next pages
+const PER_PAGE := 10   # two rows of five cards, the rest go to the next pages
+const CARD := Vector2(96, 128)
+const GAP := 6
 
-static var page := 0   # remembered while the game runs
+static var page := 0         # tower page, remembered while the game runs
+static var enemy_page := 0
 
 var main: Node
 var content: Control
@@ -26,6 +29,7 @@ var circles: Array = []
 var prev_btn: Button
 var next_btn: Button
 var page_label: Label
+var showing_towers := true
 
 
 func _ready() -> void:
@@ -63,6 +67,7 @@ func _ready() -> void:
 
 
 func _show(towers: bool) -> void:
+	showing_towers = towers
 	if content:
 		content.queue_free()
 	content = Control.new()
@@ -76,49 +81,59 @@ func _show(towers: bool) -> void:
 		_build_towers()
 	else:
 		_build_enemies()
-	_update_pager(towers)
+	_update_pager()
 
 
 func _page_count() -> int:
-	return ceili(Defs.TOWER_ORDER.size() / float(PER_PAGE))
+	var n := Defs.TOWER_ORDER.size() if showing_towers else Defs.ENEMY_ORDER.size()
+	return maxi(1, ceili(n / float(PER_PAGE)))
+
+
+func _cur_page() -> int:
+	return clampi(page if showing_towers else enemy_page, 0, _page_count() - 1)
 
 
 func _show_page(p: int) -> void:
 	var np := clampi(p, 0, _page_count() - 1)
-	if np == page:
+	if np == _cur_page():
 		return
-	page = np
+	if showing_towers:
+		page = np
+	else:
+		enemy_page = np
 	Sfx.play("click")
-	_show(true)
+	_show(showing_towers)
 
 
-## The page arrows only exist on the tower grid, and only when the towers don't fit on one page.
-func _update_pager(towers: bool) -> void:
-	var many := towers and _page_count() > 1
-	page = clampi(page, 0, _page_count() - 1)
+## The page arrows only show up when the cards of the open tab don't fit on one page.
+func _update_pager() -> void:
+	var many := _page_count() > 1
 	prev_btn.visible = many
 	next_btn.visible = many
-	prev_btn.disabled = page == 0
-	next_btn.disabled = page == _page_count() - 1
+	prev_btn.disabled = _cur_page() == 0
+	next_btn.disabled = _cur_page() == _page_count() - 1
 	page_label.visible = many
-	page_label.text = "Page %d/%d" % [page + 1, _page_count()]
+	page_label.text = "Page %d/%d" % [_cur_page() + 1, _page_count()]
+
+
+## Top-left corner of card i (0..9) of the 5x2 grid.
+static func _card_pos(i: int) -> Vector2:
+	var x0 := (640 - (COLS * CARD.x + (COLS - 1) * GAP)) / 2
+	return Vector2(x0 + (i % COLS) * (CARD.x + GAP), 2 + (i / COLS) * (CARD.y + GAP))
 
 
 # ---------------------------------------------------------------- portrait grid
 func _build_towers() -> void:
-	page = clampi(page, 0, _page_count() - 1)
+	page = _cur_page()
 	var ids: Array = Defs.TOWER_ORDER.slice(page * PER_PAGE, (page + 1) * PER_PAGE)
-	var gap := 6
-	var cw := 96
-	var ch := 128
-	var x0 := (640 - (COLS * cw + (COLS - 1) * gap)) / 2
+	var cw := int(CARD.x)
 	for i in ids.size():
 		var t: String = ids[i]
 		var d: Dictionary = Defs.TOWERS[t]
 		var unlocked := Game.is_tower_unlocked(t)
-		var b := UI.button("", "blue", Vector2(cw, ch))
-		b.position = Vector2(x0 + (i % COLS) * (cw + gap), 2 + (i / COLS) * (ch + gap))
-		b.size = Vector2(cw, ch)
+		var b := UI.button("", "blue", CARD)
+		b.position = _card_pos(i)
+		b.size = CARD
 		b.add_theme_stylebox_override("normal", UI.box("card", 4, Vector4(4, 4, 4, 4)))
 		b.add_theme_stylebox_override("hover", UI.box("card_hover", 4, Vector4(4, 4, 4, 4)))
 		b.add_theme_stylebox_override("pressed", UI.box("card_selected", 4, Vector4(4, 4, 4, 4)))
@@ -144,7 +159,7 @@ func _build_towers() -> void:
 		nl.size = Vector2(cw, 12)
 		b.add_child(nl)
 	var hint := UI.label("Click a tower to see everything about it", 10, Color("8b9bb4"), HORIZONTAL_ALIGNMENT_CENTER)
-	hint.position = Vector2(0, 2 * ch + gap + 8)
+	hint.position = Vector2(0, 2 * CARD.y + GAP + 8)
 	hint.size = Vector2(640, 12)
 	content.add_child(hint)
 
@@ -360,62 +375,70 @@ func _close_tower() -> void:
 
 # ---------------------------------------------------------------- bestiary
 func _build_enemies() -> void:
-	var cols := 4
-	var cw := 150
-	var ch := 48
-	var gap := 4
-	var x0 := (640 - (cols * cw + (cols - 1) * gap)) / 2
-	for i in Defs.ENEMY_ORDER.size():
-		var id: String = Defs.ENEMY_ORDER[i]
+	enemy_page = _cur_page()
+	var ids: Array = Defs.ENEMY_ORDER.slice(enemy_page * PER_PAGE, (enemy_page + 1) * PER_PAGE)
+	for i in ids.size():
+		var id: String = ids[i]
 		var e: Dictionary = Defs.ENEMIES[id]
 		var cls: int = e["class"]
-		var p := UI.panel("card", 4)
-		p.position = Vector2(x0 + (i % cols) * (cw + gap), (i / cols) * (ch + gap))
-		p.custom_minimum_size = Vector2(cw, ch)
-		p.size = Vector2(cw, ch)
+		var p := Panel.new()
+		p.add_theme_stylebox_override("panel", UI.box("card", 4))
+		p.position = _card_pos(i)
+		p.size = CARD
+		p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		content.add_child(p)
-		var h := HBoxContainer.new()
-		p.add_child(h)
 		var frame := PanelContainer.new()
-		frame.add_theme_stylebox_override("panel", UI.box("panel_dark", 4, Vector4(2, 2, 2, 2)))
-		frame.custom_minimum_size = Vector2(36, 36)
-		frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		h.add_child(frame)
-		frame.add_child(UI.sprite_rect("res://assets/sprites/enemies/%s_down.png" % id, 2 if cls < 3 else 1))
-		var v := VBoxContainer.new()
-		v.add_theme_constant_override("separation", 0)
-		h.add_child(v)
-		var top := HBoxContainer.new()
-		v.add_child(top)
-		top.add_child(UI.label(e["name"], 10, Color.WHITE))
-		top.add_child(UI.label(Defs.CLASS_ROMAN[cls], 10, Defs.CLASS_COLORS[cls]))
-		top.add_child(UI.label("ctrl %d%%" % int(Defs.CLASS_EFFECT[cls] * 100), 10, Defs.CLASS_COLORS[cls]))
-		v.add_child(UI.label("HP %d   Speed %d" % [e["hp"], e["speed"]], 10, Color("c0cbdc")))
-		var tr: Array = []
-		if e.get("flying", false):
-			tr.append("Flying")
-		if e.get("invisible", false):
-			tr.append("Invisible")
-		if e.has("revive"):
-			tr.append("Revives")
-		if e.has("rage"):
-			tr.append("Enrages")
-		if e.has("armor"):
-			tr.append("Armor %d" % e["armor"])
-		if e.get("fire_res", 0.0) >= 1.0:
-			tr.append("Fireproof")
-		elif e.has("fire_res"):
-			tr.append("Fire res %d%%" % int(e["fire_res"] * 100))
-		if e.has("heal"):
-			tr.append("Heals")
-		if e.has("split"):
-			tr.append("Splits")
-		v.add_child(UI.label(", ".join(tr) if tr.size() else "-", 10, Color("feae34")))
-	var foot := UI.label("Class weakens only CONTROL (stun, slow):  I 100%  II 70%  III 40%  IV 20%.",
+		frame.add_theme_stylebox_override("panel", UI.box("panel_dark", 4, Vector4(3, 3, 3, 3)))
+		frame.position = Vector2(8, 6)
+		frame.size = Vector2(CARD.x - 16, 58)
+		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		p.add_child(frame)
+		var path := "res://assets/sprites/enemies/%s_down.png" % id
+		var tex_h: float = (load(path) as Texture2D).get_height()
+		frame.add_child(UI.sprite_rect(path, 2 if tex_h <= 24 else 1))   # bosses are big enough at 1x
+		var lines := VBoxContainer.new()
+		lines.add_theme_constant_override("separation", 0)
+		lines.position = Vector2(4, 66)
+		lines.size = Vector2(CARD.x - 8, 60)
+		p.add_child(lines)
+		lines.add_child(UI.label(e["name"], 10, Color.WHITE, HORIZONTAL_ALIGNMENT_CENTER))
+		lines.add_child(UI.label("Class %s  ctrl %d%%" % [Defs.CLASS_ROMAN[cls], int(Defs.CLASS_EFFECT[cls] * 100)],
+			10, Defs.CLASS_COLORS[cls], HORIZONTAL_ALIGNMENT_CENTER))
+		lines.add_child(UI.label("HP %d  Spd %d" % [e["hp"], e["speed"]], 10, Color("c0cbdc"),
+			HORIZONTAL_ALIGNMENT_CENTER))
+		var traits := UI.label(", ".join(_traits(e)) if _traits(e).size() else "-", 10, Color("feae34"),
+			HORIZONTAL_ALIGNMENT_CENTER)
+		traits.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		traits.custom_minimum_size.x = CARD.x - 8
+		lines.add_child(traits)
+	var foot := UI.label("Class weakens only CONTROL (stun, slow, chill):  I 100%  II 70%  III 40%  IV 20%.",
 		10, Color("c0cbdc"), HORIZONTAL_ALIGNMENT_CENTER)
-	foot.position = Vector2(0, 212)
+	foot.position = Vector2(0, 2 * CARD.y + GAP + 8)
 	foot.size = Vector2(640, 12)
 	content.add_child(foot)
+
+
+static func _traits(e: Dictionary) -> Array:
+	var tr: Array = []
+	if e.get("flying", false):
+		tr.append("Flying")
+	if e.get("invisible", false):
+		tr.append("Invisible")
+	if e.has("revive"):
+		tr.append("Revives")
+	if e.has("rage"):
+		tr.append("Enrages")
+	if e.has("armor"):
+		tr.append("Armor %d" % e["armor"])
+	if e.get("fire_res", 0.0) >= 1.0:
+		tr.append("Fireproof")
+	elif e.has("fire_res"):
+		tr.append("Fire res %d%%" % int(e["fire_res"] * 100))
+	if e.has("heal"):
+		tr.append("Heals")
+	if e.has("split"):
+		tr.append("Splits")
+	return tr
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
