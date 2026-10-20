@@ -3,7 +3,7 @@ extends RefCounted
 
 const ENTRIES := [
 	{"version": "0.12", "title": "In progress", "date": "October 2026", "items": [
-		"The tower list in battle got a pixel art scrollbar with arrow buttons.",
+		"The tower list in battle and the changelog got a pixel art scrollbar with arrow buttons.",
 		"The Armory's Enemies tab uses the same 2 rows of 5 cards with pages as the Towers tab.",
 		"Enemies are never tinted any more, every status shows with particles: a green plus floats up from enemies healed by a Goblin Shaman, slowed enemies shed grey specks, and enraged Orc Berserkers throw off red sparks. The Necromancer's undead aren't green any more either: you can tell they're yours because they walk back down the road.",
 	]},

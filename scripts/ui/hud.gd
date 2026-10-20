@@ -116,14 +116,13 @@ func _build_sidebar() -> void:
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_style_scrollbar(scroll.get_v_scroll_bar())
 	shop_box.add_child(scroll)
 	shop_scroll = scroll
 	var list := VBoxContainer.new()
 	list.add_theme_constant_override("separation", 3)
 	scroll.add_child(list)
 	var bh := 32 if shop_order.size() <= 6 else 28
-	scroll.get_v_scroll_bar().custom_step = bh + 3   # an arrow click moves the list by one tower (the default is 1 px)
+	UI.style_scrollbar(scroll.get_v_scroll_bar(), bh + 3)   # an arrow click moves the list by one tower
 	for t in shop_order:
 		var b := UI.button("", "blue", Vector2(110 if scrolls else 118, bh))
 		b.icon = Game.tex("res://assets/sprites/towers/%s.png" % Defs.TOWERS[t]["sprite"])
@@ -198,27 +197,6 @@ func _build_sidebar() -> void:
 	auto_btn.pressed.connect(_on_auto)
 	auto_btn.tooltip_text = "Start next wave automatically"
 	row.add_child(auto_btn)
-
-
-## Pixel art scrollbar for the shop list (textures from tools/gen_art.py gen_scrollbar).
-static func _style_scrollbar(bar: VScrollBar) -> void:
-	bar.custom_minimum_size.x = 7
-	var track := UI.box("scroll_track", 3, Vector4(0, 0, 0, 0))
-	bar.add_theme_stylebox_override("scroll", track)
-	bar.add_theme_stylebox_override("scroll_focus", track)
-	for st in [["grabber", ""], ["grabber_highlight", "_hover"], ["grabber_pressed", "_pressed"]]:
-		var g := StyleBoxTexture.new()
-		g.texture = load("res://assets/ui/scroll_grab%s.png" % st[1])
-		g.texture_margin_left = 2
-		g.texture_margin_right = 2
-		g.texture_margin_top = 3
-		g.texture_margin_bottom = 3
-		g.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_TILE   # the ridges repeat along it
-		bar.add_theme_stylebox_override(st[0], g)
-	for dir in [["decrement", "up"], ["increment", "down"]]:
-		bar.add_theme_icon_override(dir[0], load("res://assets/ui/scroll_%s.png" % dir[1]))
-		bar.add_theme_icon_override(dir[0] + "_highlight", load("res://assets/ui/scroll_%s_hover.png" % dir[1]))
-		bar.add_theme_icon_override(dir[0] + "_pressed", load("res://assets/ui/scroll_%s_pressed.png" % dir[1]))
 
 
 func _stat_row(parent: Control, icon_name: String, col: Color) -> Label:

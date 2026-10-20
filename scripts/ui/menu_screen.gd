@@ -130,6 +130,7 @@ func _open_changelog() -> void:
 	var scroll := ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(404, 242)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	UI.style_scrollbar(scroll.get_v_scroll_bar())
 	v.add_child(scroll)
 	var list := VBoxContainer.new()
 	list.add_theme_constant_override("separation", 3)

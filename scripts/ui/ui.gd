@@ -156,3 +156,26 @@ static func fmt_num(v: float) -> String:
 	if absf(v - roundf(v)) < 0.05:
 		return str(int(roundf(v)))
 	return "%.1f" % v
+
+
+## Pixel art scrollbar (textures from tools/gen_art.py gen_scrollbar). `step` is how far an arrow click scrolls:
+## a ScrollContainer's bar keeps the default step, which barely moves it.
+static func style_scrollbar(bar: VScrollBar, step := 24.0) -> void:
+	bar.custom_step = step
+	bar.custom_minimum_size.x = 7
+	var track := box("scroll_track", 3, Vector4(0, 0, 0, 0))
+	bar.add_theme_stylebox_override("scroll", track)
+	bar.add_theme_stylebox_override("scroll_focus", track)
+	for st in [["grabber", ""], ["grabber_highlight", "_hover"], ["grabber_pressed", "_pressed"]]:
+		var g := StyleBoxTexture.new()
+		g.texture = load("res://assets/ui/scroll_grab%s.png" % st[1])
+		g.texture_margin_left = 2
+		g.texture_margin_right = 2
+		g.texture_margin_top = 3
+		g.texture_margin_bottom = 3
+		g.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_TILE   # the ridges repeat along it
+		bar.add_theme_stylebox_override(st[0], g)
+	for dir in [["decrement", "up"], ["increment", "down"]]:
+		bar.add_theme_icon_override(dir[0], load("res://assets/ui/scroll_%s.png" % dir[1]))
+		bar.add_theme_icon_override(dir[0] + "_highlight", load("res://assets/ui/scroll_%s_hover.png" % dir[1]))
+		bar.add_theme_icon_override(dir[0] + "_pressed", load("res://assets/ui/scroll_%s_pressed.png" % dir[1]))
