@@ -6,6 +6,7 @@ const SAVE_PATH := "user://pixel_td_save.json"
 
 var beaten := {}            # map_id -> Array of beaten difficulty indices
 var sfx_volume := 0.8
+var music_volume := 0.6
 var fullscreen := false
 
 # ---------------------------------------------------------------- key bindings
@@ -88,6 +89,7 @@ func _ready() -> void:
 func _reset_data() -> void:
 	beaten = {}
 	sfx_volume = 0.8
+	music_volume = 0.6
 	fullscreen = false
 	keys = DEFAULT_KEYS.duplicate()
 	unlocked_maps = START_MAPS.duplicate()
@@ -235,7 +237,7 @@ func save_progress() -> void:
 		var real: Dictionary = _cheat_snapshot if not _cheat_snapshot.is_empty() else {
 			"beaten": beaten if _real_beaten == null else _real_beaten, "unlocked_maps": unlocked_maps,
 			"paper_maps": paper_maps}
-		f.store_string(JSON.stringify({"beaten": real["beaten"], "sfx_volume": sfx_volume, "fullscreen": fullscreen,
+		f.store_string(JSON.stringify({"beaten": real["beaten"], "sfx_volume": sfx_volume, "music_volume": music_volume, "fullscreen": fullscreen,
 			"keys": keys, "unlocked_maps": real["unlocked_maps"], "paper_maps": real["paper_maps"]}))
 
 
@@ -312,6 +314,7 @@ func load_progress() -> void:
 				for d in beaten[m]:
 					paper_maps += win_reward(m, int(d))
 	sfx_volume = float(data.get("sfx_volume", 0.8))
+	music_volume = float(data.get("music_volume", 0.6))
 	fullscreen = bool(data.get("fullscreen", false))
 	var k = data.get("keys", {})
 	if typeof(k) == TYPE_DICTIONARY:

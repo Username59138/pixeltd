@@ -330,6 +330,8 @@ func _check_round() -> void:
 
 func _award_bonus() -> void:
 	bonus_pending = false
+	if not headless and not demo:
+		Music.set_boss(false)   # the wave is over, boss or not
 	var b := roundi(Defs.wave_bonus(wave) * diff["bonus_multi"])
 	cash += b
 	add_text(Vector2(256, 40), "+$%d wave bonus" % b, Color("fee761"))
@@ -372,6 +374,8 @@ func start_wave(skip_wave := false) -> void:
 		seen_types[sp[1]] = true
 	if w["boss"]:
 		announce.emit("BOSS WAVE %d!" % wave, Color("e43b44"))
+		if not headless:
+			Music.set_boss(true)
 	elif warn != "":
 		announce.emit("WAVE %d - %s" % [wave, warn], Color("b25aff"))
 	else:
@@ -544,11 +548,13 @@ func _finish(win: bool) -> void:
 		if record:
 			newly = Game.record_win(map_id, diff_idx)
 		Sfx.play("win")
+		Music.play_victory()
 	elif not headless:
 		# a loss after Continue was already paid as a win
 		if record and not continued:
 			Game.record_loss(map_id, diff_idx, maxi(0, wave - 1), total_waves)
 		Sfx.play("lose")
+		Music.fade_out()
 	ended.emit(win, newly)
 
 

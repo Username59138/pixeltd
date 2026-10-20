@@ -2,6 +2,9 @@ extends RefCounted
 ## What's new, shown from the main menu. Newest version first.
 
 const ENTRIES := [
+	{"version": "0.2", "title": "In progress", "date": "October 2026", "items": [
+		"MUSIC! Chiptune tracks by Juhani Junkala play across the menu and the battles, boss waves get their own track and a win plays a little fanfare. Settings has a music volume and a player: see what's playing, skip to the previous or next track.",
+	]},
 	{"version": "0.12", "title": "Acid Refinery", "date": "October 2026", "items": [
 		"NEW MAP: Acid Refinery (Advanced). Two roads through a leaking chemical plant join in the middle; acid lakes, storage tanks and huge hazard barrels take some of the space.",
 		"ACID: hurts over time through armor and eats some of the armor while it lasts, so every other tower hits harder too.",

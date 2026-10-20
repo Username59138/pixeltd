@@ -591,6 +591,7 @@ func _ensure_demo() -> void:
 
 
 func show_menu() -> void:
+	Music.back_to_playlist()
 	_ensure_demo()
 	_clear_ui()
 	var s := MenuScreen.new()
@@ -615,6 +616,7 @@ func show_towers() -> void:
 
 
 func start_battle(map_id: String, diff: int) -> void:
+	Music.back_to_playlist()
 	Game.selected_map = map_id
 	Game.selected_difficulty = diff
 	_clear_ui()

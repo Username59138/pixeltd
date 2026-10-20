@@ -7,6 +7,8 @@ signal closed
 var waiting := ""        # action waiting for a new key
 var key_buttons := {}
 var vol_label: Label
+var music_label: Label
+var now_playing: Label
 var fs_button: Button
 
 
@@ -35,7 +37,9 @@ func _ready() -> void:
 	left.add_child(UI.label("SOUND", 10, Color("8b9bb4")))
 	var vol_row := HBoxContainer.new()
 	left.add_child(vol_row)
-	vol_row.add_child(UI.label("Effects", 10, Color.WHITE))
+	var el := UI.label("Effects", 10, Color.WHITE)
+	el.custom_minimum_size.x = 36
+	vol_row.add_child(el)
 	var sl := HSlider.new()
 	sl.min_value = 0
 	sl.max_value = 1
@@ -50,6 +54,43 @@ func _ready() -> void:
 	vol_label.custom_minimum_size = Vector2(28, 0)
 	vol_row.add_child(vol_label)
 	_on_volume(Game.sfx_volume, false)
+	var mrow := HBoxContainer.new()
+	left.add_child(mrow)
+	var ml := UI.label("Music", 10, Color.WHITE)
+	ml.custom_minimum_size.x = 36
+	mrow.add_child(ml)
+	var ms := HSlider.new()
+	ms.min_value = 0
+	ms.max_value = 1
+	ms.step = 0.05
+	ms.value = Game.music_volume
+	ms.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ms.custom_minimum_size = Vector2(120, 12)
+	ms.focus_mode = Control.FOCUS_NONE
+	ms.value_changed.connect(_on_music_volume)
+	mrow.add_child(ms)
+	music_label = UI.label("", 10, Color("fee761"))
+	music_label.custom_minimum_size = Vector2(28, 0)
+	mrow.add_child(music_label)
+	_on_music_volume(Game.music_volume, false)
+	# music player: what's playing, previous / next track
+	var prow := HBoxContainer.new()
+	prow.add_theme_constant_override("separation", 3)
+	left.add_child(prow)
+	var pb := UI.button("<", "gray", Vector2(18, 16))
+	pb.tooltip_text = "Previous track"
+	pb.pressed.connect(Music.prev)
+	prow.add_child(pb)
+	now_playing = UI.label("", 10, Color("c0cbdc"), HORIZONTAL_ALIGNMENT_CENTER)
+	now_playing.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	now_playing.clip_text = true
+	prow.add_child(now_playing)
+	var nb := UI.button(">", "gray", Vector2(18, 16))
+	nb.tooltip_text = "Next track"
+	nb.pressed.connect(Music.next)
+	prow.add_child(nb)
+	Music.track_changed.connect(_update_now_playing)
+	_update_now_playing()
 
 	left.add_child(UI.label("DISPLAY", 10, Color("8b9bb4")))
 	var fs_row := HBoxContainer.new()
@@ -122,6 +163,20 @@ func _on_volume(v: float, play := true) -> void:
 	if play:
 		Game.save_progress()
 		Sfx.play("click")
+
+
+func _on_music_volume(v: float, save := true) -> void:
+	Game.music_volume = v
+	Music.apply_volume()
+	music_label.text = "%d%%" % int(round(v * 100))
+	if save:
+		Game.save_progress()
+
+
+func _update_now_playing() -> void:
+	var t: Dictionary = Music.current()
+	now_playing.text = "%s - %s" % [t["title"], t["author"]]
+	now_playing.tooltip_text = "Now playing: %s by %s" % [t["title"], t["author"]]
 
 
 func _update_fs() -> void:
