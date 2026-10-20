@@ -1363,16 +1363,6 @@ func _draw_over(n: Node2D) -> void:
 		var tp := Vector2(roundf(p.x - w / 2.0), p.y)
 		n.draw_string(f, tp + Vector2(1, 1), t["t"], HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.09, 0.08, 0.15, a))
 		n.draw_string(f, tp, t["t"], HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(t["c"], a))
-	# the hovered tower's level above it, in the level colour (red ... gold)
-	if hovered_tower and is_instance_valid(hovered_tower) and placing == "" and not demo:
-		var tw = hovered_tower
-		var lv := "Lv. %d" % (tw.level + 1)
-		var w := f.get_string_size(lv, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x
-		var top: Vector2 = (tw.position + Vector2(-roundf(w / 2.0), -tw.sprite.texture.get_height() - 4.0
-			+ tw.sprite.offset.y + tw.sprite.texture.get_height() / 2.0)).round()
-		n.draw_rect(Rect2(top + Vector2(-2, -8), Vector2(w + 4, 10)), Color(0.09, 0.08, 0.15, 0.85))
-		n.draw_string(f, top, lv, HORIZONTAL_ALIGNMENT_LEFT, -1, 10,
-			Defs.RAINBOW[clampi(tw.level, 0, Defs.RAINBOW.size() - 1)])
 	if placing != "" and not demo:
 		var tex := Game.tex("res://assets/sprites/towers/%s.png" % Defs.TOWERS[placing]["sprite"])
 		var c := tile_center(hover_tile)
