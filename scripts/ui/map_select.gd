@@ -169,8 +169,8 @@ func _open_difficulty(id: String) -> void:
 	popup.add_child(UI.dim_rect(0.6))
 	add_child(popup)
 	var p := UI.panel("panel", 8)
-	p.position = Vector2(40, 8)
-	p.size = Vector2(560, 344)
+	p.position = Vector2(40, 30)
+	p.size = Vector2(560, 300)
 	popup.add_child(p)
 	var h := HBoxContainer.new()
 	h.add_theme_constant_override("separation", 10)
@@ -197,17 +197,29 @@ func _open_difficulty(id: String) -> void:
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	h.add_child(right)
 	right.add_child(UI.title("DIFFICULTY", 8, Color.WHITE))
+	# four difficulties fit, the rest scroll (mouse wheel or the bar)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	right.add_child(scroll)
+	var list := VBoxContainer.new()
+	list.add_theme_constant_override("separation", 4)
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(list)
+	UI.style_scrollbar(scroll.get_v_scroll_bar(), 54)   # an arrow click moves the list by one difficulty
 	for d in Defs.DIFFICULTIES.size():
 		var dd: Dictionary = Defs.DIFFICULTIES[d]
 		var open := Game.is_diff_open(id, d)
 		var b := UI.button("", dd["btn"] if open else "gray", Vector2(0, 50))
 		b.disabled = not open
 		b.pressed.connect(func(): Sfx.play("click"); main.start_battle(id, d))
-		right.add_child(b)
+		list.add_child(b)
 		var bv := VBoxContainer.new()
 		bv.add_theme_constant_override("separation", 0)
-		bv.position = Vector2(6, 4)
-		bv.size = Vector2(262, 44)
+		bv.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		bv.offset_left = 6
+		bv.offset_top = 4
+		bv.offset_right = -6
 		bv.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(bv)
 		var top := HBoxContainer.new()
