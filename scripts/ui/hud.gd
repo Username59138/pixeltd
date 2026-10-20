@@ -667,21 +667,71 @@ func _open_settings() -> void:
 func _open_cheats() -> void:
 	pause_layer.visible = false
 	cheat_layer = _overlay()
-	var v := _center_panel(cheat_layer, 180)
+	var v := _center_panel(cheat_layer, 250)
 	v.add_child(UI.title("Cheats", 16))
-	var sk := UI.button("Skip wave", "green", Vector2(0, 20))
-	sk.pressed.connect(func(): battle.start_wave(true))
-	v.add_child(sk)
-	var gm := UI.button("Give money", "green", Vector2(0, 20))
-	gm.pressed.connect(func():
-		battle.cash += 9999
-		battle.cheated = true
+	v.add_child(UI.label("Wins after cheating are not saved", 10, Color("8b9bb4"), HORIZONTAL_ALIGNMENT_CENTER))
+	# jump to any wave
+	var target := [mini(battle.wave + 1, battle.total_waves)]
+	var wave_l := UI.label("", 10, Color.WHITE, HORIZONTAL_ALIGNMENT_CENTER)
+	wave_l.custom_minimum_size.x = 60
+	var show_wave := func(): wave_l.text = "Wave %d/%d" % [target[0], battle.total_waves]
+	var wr := _cheat_row(v)
+	for d in [-10, -1]:
+		_cheat_btn(wr, "%d" % d, "gray", func():
+			target[0] = clampi(target[0] + d, 1, battle.total_waves)
+			show_wave.call())
+	wr.add_child(wave_l)
+	for d in [1, 10]:
+		_cheat_btn(wr, "+%d" % d, "gray", func():
+			target[0] = clampi(target[0] + d, 1, battle.total_waves)
+			show_wave.call())
+	show_wave.call()
+	_cheat_btn(_cheat_row(v), "Go to wave", "green", func():
+		battle.cheat_jump_to_wave(target[0])
 		battle.stats_changed.emit())
-	v.add_child(gm)
+	# money and lives
+	var mr := _cheat_row(v)
+	mr.add_child(UI.label("Money", 10, Color("fee761")))
+	for amt in [100, 1000, 10000]:
+		_cheat_btn(mr, "+%d" % amt, "gold", func():
+			battle.cash += amt
+			battle.cheated = true
+			battle.stats_changed.emit())
+	var lr := _cheat_row(v)
+	lr.add_child(UI.label("Lives", 10, Color("f6757a")))
+	for amt in [10, 100]:
+		_cheat_btn(lr, "+%d" % amt, "red", func():
+			battle.lives += amt
+			battle.cheated = true
+			battle.stats_changed.emit())
+	# the rest
+	var ar := _cheat_row(v)
+	_cheat_btn(ar, "Next wave now", "blue", func(): battle.start_wave(true))
+	_cheat_btn(ar, "Clear enemies", "blue", func(): battle.cheat_clear_enemies())
+	_cheat_btn(_cheat_row(v), "Win battle", "purple", func():
+		toggle_cheats()
+		toggle_pause()
+		battle.cheat_win())
 	var q := UI.button("Back", "red", Vector2(0, 20))
 	q.pressed.connect(toggle_cheats)
 	v.add_child(q)
-	
+
+
+func _cheat_row(v: VBoxContainer) -> HBoxContainer:
+	var r := HBoxContainer.new()
+	r.alignment = BoxContainer.ALIGNMENT_CENTER
+	r.add_theme_constant_override("separation", 3)
+	v.add_child(r)
+	return r
+
+
+func _cheat_btn(row: HBoxContainer, text: String, color: String, fn: Callable) -> void:
+	var b := UI.button(text, color, Vector2(0, 18))
+	b.custom_minimum_size.x = maxf(34.0, UI.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x + 12.0)
+	b.pressed.connect(fn)
+	row.add_child(b)
+
+
 func toggle_cheats() -> void:
 	if cheat_layer:
 		cheat_layer.queue_free()

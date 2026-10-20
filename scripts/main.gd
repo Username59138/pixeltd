@@ -587,8 +587,7 @@ func start_battle(map_id: String, diff: int) -> void:
 	battle.setup(map_id, diff)
 	hud = Hud.new()
 	ui_root.add_child(hud)
-	if OS.get_cmdline_user_args().has("--cheats"):
-		hud.cheats = true
+	hud.cheats = Game.cheats
 	hud.setup(battle)
 	hud.quit_to_menu.connect(show_menu)
 	hud.restart.connect(func(): start_battle(map_id, diff))

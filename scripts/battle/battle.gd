@@ -458,6 +458,35 @@ func _fx_healed(e: Node2D) -> void:
 			Vector2(randf_range(-4, 4), -randf_range(10, 20)), 0.45, Color("b6f08c"), 1)
 
 
+# ---------------------------------------------------------------- cheats (pause menu, dev flag --cheats)
+## Removes every enemy on the field without paying their bounty.
+func cheat_clear_enemies() -> void:
+	cheated = true
+	for e in enemies:
+		if not e.is_friendly:
+			e.alive = false
+	bullets.clear()
+	grenades.clear()
+
+
+## Drops the current wave and starts wave n right away (enemies get wave n's HP).
+func cheat_jump_to_wave(n: int) -> void:
+	cheat_clear_enemies()
+	spawn_queue = []
+	spawning = false
+	bonus_pending = false
+	auto_t = -1.0
+	wave = clampi(n, 1, total_waves) - 1
+	start_wave(true)
+
+
+func cheat_win() -> void:
+	cheated = true
+	cheat_clear_enemies()
+	wave = total_waves
+	_finish(true)
+
+
 func _shaman_heal(s: Node2D) -> void:
 	var healed := false
 	for o in enemies:

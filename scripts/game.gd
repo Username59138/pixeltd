@@ -48,12 +48,15 @@ var _tex_cache := {}
 var _cursor_scale := 0
 var _real_beaten = null
 var save_fake := false   # dev flag --save-fake: progress from cheats / --unlock-all is written to the save
+var cheats := false      # dev flag --cheats: Cheats buttons in the main menu and the pause menu
+var _cheat_snapshot := {}   # real progress from before the first menu cheat: what gets saved (unless --save-fake)
 var _no_save := false     # dev flag --reset-data without --save-fake: play with a clean slate, never touch the save
 
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	save_fake = args.has("--save-fake")
+	cheats = args.has("--cheats")
 	load_progress()
 	var today := Time.get_date_dict_from_system()
 	var md := int(today["month"]) * 100 + int(today["day"])
@@ -229,8 +232,51 @@ func save_progress() -> void:
 		return
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f:
-		f.store_string(JSON.stringify({"beaten": beaten if _real_beaten == null else _real_beaten, "sfx_volume": sfx_volume, "fullscreen": fullscreen,
-			"keys": keys, "unlocked_maps": unlocked_maps, "paper_maps": paper_maps}))
+		var real: Dictionary = _cheat_snapshot if not _cheat_snapshot.is_empty() else {
+			"beaten": beaten if _real_beaten == null else _real_beaten, "unlocked_maps": unlocked_maps,
+			"paper_maps": paper_maps}
+		f.store_string(JSON.stringify({"beaten": real["beaten"], "sfx_volume": sfx_volume, "fullscreen": fullscreen,
+			"keys": keys, "unlocked_maps": real["unlocked_maps"], "paper_maps": real["paper_maps"]}))
+
+
+# ---------------------------------------------------------------- cheats (dev flag --cheats)
+# Menu cheats change progress for this session only: the save keeps the real progress from before the first
+# cheat, and anything earned afterwards this session isn't saved either. With --save-fake it is all saved.
+func _cheat_begin() -> void:
+	if save_fake or not _cheat_snapshot.is_empty():
+		return
+	_cheat_snapshot = {"beaten": (beaten if _real_beaten == null else _real_beaten).duplicate(true),
+		"unlocked_maps": unlocked_maps.duplicate(), "paper_maps": paper_maps}
+
+
+func cheat_paper_maps(amount: int) -> void:
+	_cheat_begin()
+	paper_maps = maxi(0, paper_maps + amount)
+	save_progress()
+
+
+func cheat_set_map_open(map_id: String, open: bool) -> void:
+	_cheat_begin()
+	if open and not unlocked_maps.has(map_id):
+		unlocked_maps.append(map_id)
+	elif not open:
+		unlocked_maps.erase(map_id)
+	save_progress()
+
+
+## Marks one difficulty of one map as beaten (or not); towers unlock from this like from a real win.
+func cheat_set_beaten(map_id: String, diff: int, on: bool) -> void:
+	_cheat_begin()
+	var list: Array = beaten.get(map_id, [])
+	if on and not list.has(diff):
+		list.append(diff)
+	elif not on:
+		list.erase(diff)
+	if list.is_empty():
+		beaten.erase(map_id)
+	else:
+		beaten[map_id] = list
+	save_progress()
 
 
 func load_progress() -> void:

@@ -6,6 +6,7 @@ extends Control
 # preload instead of the global class name: works even if the editor class cache is stale
 const SettingsScreenScript := preload("res://scripts/ui/settings_screen.gd")
 const Changelog := preload("res://scripts/data/changelog.gd")
+const CheatsScreenScript := preload("res://scripts/ui/cheats_screen.gd")
 
 var main: Node
 var logo: TextureRect
@@ -73,6 +74,11 @@ func _ready() -> void:
 	news.position = Vector2(6, 338)
 	news.pressed.connect(_open_changelog)
 	add_child(news)
+	if Game.cheats:
+		var ch := UI.button("Cheats", "purple", Vector2(56, 16))
+		ch.position = Vector2(88, 338)
+		ch.pressed.connect(_open_cheats)
+		add_child(ch)
 	var ver := UI.label("v%s  -  F11 fullscreen" % Changelog.ENTRIES[0]["version"], 10, Color("8b9bb4"))
 	ver.position = Vector2(6, 324)
 	add_child(ver)
@@ -97,6 +103,13 @@ func _open_settings() -> void:
 	var st := SettingsScreenScript.new()
 	add_child(st)
 	st.closed.connect(st.queue_free)
+
+
+func _open_cheats() -> void:
+	Sfx.play("click")
+	var c := CheatsScreenScript.new()
+	add_child(c)
+	c.closed.connect(func(): main.show_menu())   # rebuilds the menu so the stars and paper maps are current
 
 
 func _open_changelog() -> void:
