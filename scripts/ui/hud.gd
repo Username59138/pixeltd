@@ -501,7 +501,7 @@ func _update_tooltip() -> void:
 		return
 	var tw = battle.hovered_tower
 	if tw and is_instance_valid(tw) and battle.placing == "":
-		tip.show_lines([{"t": tw.def["name"], "c": Color("fee761"), "r": "Lv %d" % (tw.level + 1),
+		tip.show_lines([{"t": tw.def["name"], "c": Color("fee761"), "r": "Lv. %d" % (tw.level + 1),
 			"rc": Color("8b9bb4")}, {"t": "Click to select", "c": Color("8b9bb4")}], m)
 		return
 	tip.hide_tip()

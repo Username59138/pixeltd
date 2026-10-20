@@ -441,10 +441,6 @@ func _update_visual() -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(-5, 4, 10, 2), Color(0, 0, 0, 0.3))
-	# level bar: always full, colour goes red -> yellow -> green -> purple
-	var col: Color = Defs.RAINBOW[clampi(level, 0, Defs.RAINBOW.size() - 1)]
-	draw_rect(Rect2(-6, 6, 12, 3), Color("181425"))
-	draw_rect(Rect2(-5, 7, 10, 1), col)
 	if float(stats.get("aura", 0.0)) > 0.0:   # Holy Champion: faint golden ring where the aura reaches
 		draw_arc(Vector2(0, 2), Battle.AURA_RANGE, 0.0, TAU, 48, Color(1.0, 0.85, 0.35, 0.25), 1.0)
 	if disabled_t > 0.0:

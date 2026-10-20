@@ -62,7 +62,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 - **Flying enemies** (Bat, Harpy, Gargoyle) follow the road in the air. Gunslinger, Soldier and Sniper can shoot them. Knight, Flamethrower, grenades and cars can't reach them.
 - **Skeletons** fall apart when killed and get back up once with half HP (the **Bone Dragon** boss with 30%). **Orc Berserkers** run twice as fast below half HP. **Cave Trolls** heal 2% of their HP a second, but not while they burn or acid eats them.
 - The final boss of a run gets a big HP bar at the top of the screen. Hover other enemies to see their HP.
-- The bar under a tower shows its level by color: red → yellow → green → blue → purple → pink → gold (top level).
+- Hover a tower to see its level above it ("Lv. 1" ... "Lv. 7"), colored red → yellow → green → blue → purple → pink → gold (top level).
 
 ## Towers
 
