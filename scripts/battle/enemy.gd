@@ -266,8 +266,6 @@ func update_visual(dir: Vector2) -> void:
 		sprite.position = Vector2(-sprite.offset.y, -2.0)
 	# statuses are shown with particles, never by tinting the sprite
 	var m := Color.WHITE
-	if undead:
-		m = Color(0.55, 1.0, 0.6, 0.85)   # ghostly green
 	if invisible:
 		# shimmering, see-through
 		m.a = 0.32 + 0.12 * sin(anim_t * 5.0)
