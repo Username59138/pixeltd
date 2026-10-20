@@ -79,11 +79,18 @@ func _rebuild() -> void:
 		for id in MapsData.ORDER:
 			for d in DIFF_SHORT.size():
 				Game.cheat_set_beaten(id, d, true))
+	_btn(ar, "Unlock all maps + towers", "gold", 150, func():
+		for id in MapsData.ORDER:
+			Game.cheat_set_map_open(id, true)
+		for t in Defs.TOWER_ORDER:
+			Game.cheat_set_tower_bought(t, true))
 	_btn(ar, "Reset progress", "red", 100, func():
 		for id in MapsData.ORDER:
 			Game.cheat_set_map_open(id, Game.START_MAPS.has(id))
 			for d in DIFF_SHORT.size():
-				Game.cheat_set_beaten(id, d, false))
+				Game.cheat_set_beaten(id, d, false)
+		for t in Defs.TOWER_ORDER:
+			Game.cheat_set_tower_bought(t, false))
 
 
 func _row() -> HBoxContainer:

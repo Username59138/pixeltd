@@ -104,7 +104,7 @@ Developer flags (passed after `--`):
 
 - `--sim`: run the balance bot on every map and difficulty (works with `--headless`).
 - `--unlock-all`: unlock every map and tower.
-- `--cheats`: adds Cheats buttons. In the main menu: give paper maps, open any map, mark any difficulty of any map as beaten (towers unlock from it). These only last for the session: the save keeps the real progress. In the pause menu: jump to any wave, give money or lives, start the next wave now, clear the enemies, win the battle. Wins after using a cheat are not saved.
+- `--cheats`: adds Cheats buttons. In the main menu: give paper maps, open any map, mark any difficulty of any map as beaten (its towers go on sale), unlock all maps and towers at once. These only last for the session: the save keeps the real progress. In the pause menu: jump to any wave, give money or lives, start the next wave now, clear the enemies, win the battle. Wins after using a cheat are not saved.
 - `--save-fake`: write progress from `--unlock-all`, menu cheats and cheated wins to the save file anyway.
 - `--halloween` / `--no-halloween`: force the Halloween event on or off.
 - `--reset-data`: start with no progress and default settings, without touching the save file (nothing is saved that session). With `--save-fake` the save file is deleted for real.

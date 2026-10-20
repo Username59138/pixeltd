@@ -293,6 +293,16 @@ func cheat_set_map_open(map_id: String, open: bool) -> void:
 	save_progress()
 
 
+## Owns a tower (or not) as if it had been bought with paper maps.
+func cheat_set_tower_bought(tower_id: String, on: bool) -> void:
+	_cheat_begin()
+	if on and not bought_towers.has(tower_id):
+		bought_towers.append(tower_id)
+	elif not on:
+		bought_towers.erase(tower_id)
+	save_progress()
+
+
 ## Marks one difficulty of one map as beaten (or not); towers unlock from this like from a real win.
 func cheat_set_beaten(map_id: String, diff: int, on: bool) -> void:
 	_cheat_begin()
