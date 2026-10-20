@@ -275,6 +275,8 @@ static func _stats_text(t: String, s: Dictionary) -> String:
 		var note := ""
 		if t in ["flamer", "freezer"] or (t == "knight" and s["cleave"]):
 			note = " (each enemy hit)"
+		elif t == "minigun":
+			note = " (spun up)"
 		elif t == "gunner" and int(s["targets"]) > 1:
 			note = " (%d targets)" % s["targets"]
 		elif t == "garage":
@@ -335,6 +337,12 @@ static func _stats_core(t: String, s: Dictionary) -> String:
 			return txt
 		"farm":
 			return "Pays $%d at the end\nof every wave" % s["income"]
+		"minigun":
+			var txt := "Dmg %s  %s > %s shots/s\nSpins up in %ss  Range %d" % [UI.fmt_num(s["damage"]),
+				UI.fmt_num(s["min_rate"]), UI.fmt_num(s["max_rate"]), UI.fmt_num(s["spin_time"]), s["range"]]
+			if s["armor_pierce"] > 0.0:
+				txt += "\nArmor pierce %d%%" % int(s["armor_pierce"] * 100)
+			return txt
 		"garage":
 			var txt := "%s every %ss\nCar HP %d (crash: both lose\nthe weaker one's HP)" % [
 				String(s["vehicle"]).capitalize(), UI.fmt_num(s["interval"]), s["car_hp"]]

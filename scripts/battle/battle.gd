@@ -614,7 +614,7 @@ func damage_enemy(e: Node2D, amount: float, kind: String, src: Node, pierce := 0
 			return
 	var before: float = e.hp
 	e.hp -= dmg
-	if flash:
+	if flash and e.flash_t < -0.1:   # rapid fire (minigun) would keep it white all the time
 		e.flash_t = 0.05
 	if src and is_instance_valid(src):
 		src.damage_dealt += minf(dmg, before)

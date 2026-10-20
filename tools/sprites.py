@@ -895,6 +895,39 @@ SOLDIER = [
 SOLDIER_C = {'q': 'glass', 'Q': 'glass_d', 'e': 'black', 'h': 'olv_l', 'H': 'olv', 'n': 'olv_l', 'd': 'olv_d', 'k': 'xdbrown', 'F': 'skin', 'f': 'skin_d', 'z': 'skin_dd', 'g': 'glass', 'G': 'gun_d', 'B': 'tan_m', 'b': 'tan_d', 'O': 'tan_l', 'o': 'tan_m', 'P': 'olv', 't': 'wd', 'T': 'wd_d', 'l': 'gun_l', 'w': 'olv_dd', 'y': 'gld', 'K': 'xdbrown'}
 SOLDIER_ELITE = {'q': 'red_l', 'Q': 'red_d', 'e': 'black', 'h': 'xdgray', 'H': 'navy', 'n': 'xdgray', 'd': 'black', 'k': 'xdbrown', 'F': 'skin', 'f': 'skin_d', 'z': 'skin_dd', 'g': 'glass', 'G': 'gun_d', 'B': 'gun_d', 'b': 'black', 'O': 'gun', 'o': 'gun_d', 'P': 'navy', 't': 'gld', 'T': 'gld_d', 'l': 'gld_l', 'w': 'black', 'y': 'gld', 'K': 'xdbrown'}
 
+# MINIGUNNER: bandana, shades and a six-barrel minigun at the hip
+MINIGUN = [
+    "....................",
+    "....................",
+    "........rrrr........",
+    ".......rRRRRr.......",
+    "......rRRRRRRr......",
+    "......FFFFFFFrr.....",
+    "......FkkkkkF.r.....",
+    "......FFFFFFF.......",
+    "......fFFzFFf.......",
+    ".......fzzzf........",
+    "....FFSSSSSSSFF.....",
+    "...FFSSySSSySSFF....",
+    "...FFSSSySySSSFF....",
+    "...FFSSSSySSSGGGG...",
+    "...fFSSSSSSGGGllllll",
+    "....fSSSSSGGGGGGGGGG",
+    ".....sssssGGGllllll.",
+    ".....bbbbybbGGG.....",
+    ".....OOO..OOO.......",
+    ".....OOo..OOo.......",
+    ".....OOo..OOo.......",
+    ".....KKK..KKK.......",
+    "....KKKKk.KKKKk.....",
+    "....................",
+]
+MINIGUN_C = {'r': 'red_m', 'R': 'red_l', 'F': 'skin', 'f': 'skin_d', 'z': 'skin_dd', 'k': 'black', 'S': 'olv',
+             's': 'olv_d', 'y': 'gld', 'G': 'gun_d', 'l': 'gun_l', 'b': 'xdbrown', 'O': 'tan_m', 'o': 'tan_d',
+             'K': 'xdbrown'}
+MINIGUN_ELITE = dict(MINIGUN_C, r='xdgray', R='gray', S='navy', s='black', G='gld_d', l='gld_l', y='red_l', O='gun',
+                     o='gun_d')
+
 SNIPER = [
     "....................",
     ".......g.g..........",
@@ -1101,6 +1134,49 @@ FARM_C = {'R': 'red', 'r': 'dred', 'W': 'white', 'w': 'sand', 'd': 'dbrown', 'y'
 FARM_ELITE = dict(FARM_C, R='gld', r='gld_d', W='white', w='white', d='red', y='yellow', Y='white')
 
 UP_ICONS = {
+    # minigunner
+    'bigger_drum': ([
+        ".ggggg.",
+        "gGyGyGg",
+        "gyGyGyg",
+        "gGyGyGg",
+        ".ggggg.",
+    ], {'g': 'gun_d', 'G': 'gun', 'y': 'gld'}),
+    'hot_barrels': ([
+        "ooooooo",
+        "rrrrrr.",
+        "ooooooo",
+        "rrrrrr.",
+        "ooooooo",
+    ], {'o': 'org', 'r': 'red_m'}),
+    'tungsten': ([
+        "..ww...",
+        ".wGGg..",
+        "wGGGggg",
+        ".wGGg..",
+        "..ww...",
+    ], {'w': 'white', 'G': 'gray', 'g': 'gld'}),
+    'twin_barrels': ([
+        "lllllll",
+        "ggg....",
+        "lllllll",
+        "ggg....",
+        "lllllll",
+    ], {'l': 'gun_l', 'g': 'gun_d'}),
+    'heavy_minigun': ([
+        "..ggggg",
+        "gggGGGl",
+        "gGGGGGl",
+        "gggGGGl",
+        "..y.y..",
+    ], {'g': 'gun_d', 'G': 'gun', 'l': 'gun_l', 'y': 'gld'}),
+    'bullet_storm': ([
+        "y.y.y.y",
+        ".y.y.y.",
+        "y.y.y.y",
+        ".y.y.y.",
+        "y.y.y.y",
+    ], {'y': 'gld_l'}),
     # farm
     'bigger_fields': ([
         "y.y.y.y",

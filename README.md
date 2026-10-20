@@ -52,6 +52,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
   - Toxic Gunner: Acid Refinery on Difficult, 130
   - Toxic Assassin: Acid Refinery on Hardcore, 200
   - Farm: Farmlands on Difficult, 75
+  - Minigunner: Green Meadow on Hardcore, 90
 - **Halloween event (Oct 10 - Nov 7):** Green Meadow gets an autumn look with jack-o'-lanterns. Only the looks change, the layout stays the same.
 - **Volcano:** two short roads, lava on the best spots and an eruption every second wave. Tiles next to the lava flash orange, then towers on them stop shooting for 6 seconds.
 - **Murky Swamp:** the boardwalk crosses itself, so towers near the crossing hit enemies twice. The bog eats the best spots.
@@ -77,6 +78,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 - **Toxic Gunner:** shoots globs of acid, hits flying enemies. Corrosive Mix → Scope (sees invisible) → Acid Splash (acid on everyone around the target) → Toxic Overload → Biohazard → Plague.
 - **Toxic Assassin:** fast melee with poisoned blades that ignore 25% of armor, ground only. Poisoned Blades → Swift Strikes → Throwing Daggers (a ranged second attack whose daggers hit flying enemies, flyers first) → Twin Daggers (2 at once, sees invisible) → Master Assassin → Shadow Blade (3 daggers).
 - **Freezer:** sprays a cone of ice water. Every enemy in it builds up chill (scaled by class like any control effect): the more chill, the slower it walks, and at 100% it freezes solid in a block of ice for a while (also scaled by class, so bosses freeze rarely and briefly). Water puts out burning enemies, and the Flamethrower's fire melts the chill and the ice. Ground only; it can't aim at invisible enemies but soaks them anyway. Cold Water → Pressure Hose → Ice Water (cold damage that ignores armor) → Liquid Nitrogen → Cryo Cannon → Absolute Zero (enemies it freezes take 25% more damage from everything).
+- **Minigunner:** spins up while it keeps shooting: the fire rate climbs from a few shots a second to its top speed, and with nothing in range it winds down twice as fast. Best on bosses and tanks, hits flying enemies. Bigger Drum → Hot Barrels → Tungsten Rounds (armor and lead piercing, sees invisible) → Twin Barrels → Heavy Minigun → Bullet Storm (ignores all armor).
 - **Farm:** doesn't fight, pays money at the end of every wave: $60, then $110 → $230 → $500 → $1000 → $2000 → $4000 with Bigger Fields → Barn → Tractor → Irrigation → Greenhouses → Agro Empire. At most 8 farms in a battle.
 - **Sniper:** slow, heavy shots from almost across the map, sees invisible and hits flying enemies. Optics → Full Metal Jacket (ignores all armor, pierces lead) → Headshot (15% chance to kill any non-boss outright) → Elite Sniper → Anti-Material Rifle → Deadeye (25%).
 

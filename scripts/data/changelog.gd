@@ -15,6 +15,8 @@ const ENTRIES := [
 		"Hardcore now has 50 lives instead of 1.",
 		"Every tower that fights shows its DPS (damage per second of all its attacks together) in the shop, the selected tower panel and the Armory.",
 		"Toxic Assassin buffed: about twice the damage on levels 1-6 (42 dps right away instead of 19), as befits the priciest melee tower.",
+		"NEW TOWER: the Minigunner. Beat Green Meadow on Hardcore to put it on sale. It spins up while it keeps shooting, from a few shots a second up to 32 with Bullet Storm (about 700 DPS), and winds down fast with nothing to shoot: a boss and tank killer.",
+		"Enemies under rapid fire no longer stay white from the hit flashes.",
 		"NEW TOWER: the Farm. Doesn't fight, pays money at the end of every wave, from $60 up to $4000 a wave with Agro Empire. At most 8 farms in a battle. Beat Farmlands on Difficult to put it on sale.",
 		"NEW MAP: Farmlands (Intermediate). A winding country road between fenced fields of wheat, cabbage and corn, with a big red barn in the middle.",
 		"Towers are bought now: beating a tower's map puts it on sale in the Armory, and you buy it with paper maps (25 for the Soldier up to 200 for the Toxic Assassin). Towers you already unlocked stay yours.",

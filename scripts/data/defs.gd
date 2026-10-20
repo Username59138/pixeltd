@@ -34,7 +34,7 @@ const DIFFICULTIES := [
 # ---------------------------------------------------------------- towers
 # "base" holds level-0 stats; each upgrade overrides some of them ("set"). Upgrades are a single line.
 const TOWER_ORDER := ["gunner", "knight", "soldier", "garage", "flamer", "sniper", "necro", "freezer", "toxic",
-	"assassin", "farm"]
+	"assassin", "minigun", "farm"]
 const TOWERS := {
 	"gunner": {
 		"name": "Gunslinger", "role": "Ranged - single target", "cost": 250, "sprite": "gunner",
@@ -299,6 +299,31 @@ const TOWERS := {
 					"daggers": 3, "dagger_rate": 2.0}},
 		],
 	},
+	"minigun": {
+		"name": "Minigunner", "role": "Ranged - spins up, huge DPS", "cost": 1400, "sprite": "minigun",
+		"desc": "Spins up while it keeps shooting: from a few shots a second to a storm of bullets. With nothing to shoot it winds down fast, so it shines on bosses and tanks. Hits FLYING enemies.",
+		"unlock": {"map": "meadow", "difficulty": 3, "price": 90},
+		"base": {"damage": 3, "min_rate": 3.0, "max_rate": 12.0, "spin_time": 3.0, "range": 84, "armor_pierce": 0.0,
+			"kind": "physical", "camo": false, "air": true},
+		"upgrades": [
+			{"name": "Bigger Drum", "icon": "bigger_drum", "cost": 500, "desc": "Top speed 12 > 16 shots a second.",
+				"set": {"max_rate": 16.0}},
+			{"name": "Hot Barrels", "icon": "hot_barrels", "cost": 900,
+				"desc": "Spins up in 2s instead of 3, starts at 5 shots a second. Damage 3 > 4.",
+				"set": {"spin_time": 2.0, "min_rate": 5.0, "damage": 4}},
+			{"name": "Tungsten Rounds", "icon": "tungsten", "cost": 1600,
+				"desc": "Bullets ignore 60% of armor and pierce LEAD. Damage 5. Spots INVISIBLE enemies.",
+				"set": {"armor_pierce": 0.6, "lead": true, "camo": true, "damage": 5}},
+			{"name": "Twin Barrels", "icon": "twin_barrels", "cost": 3000, "desc": "Top speed 24 shots a second, damage 6.",
+				"set": {"max_rate": 24.0, "damage": 6}},
+			{"name": "Heavy Minigun", "icon": "heavy_minigun", "cost": 7000,
+				"desc": "Damage 10, top speed 28, starts at 7 shots a second.",
+				"set": {"damage": 10, "max_rate": 28.0, "min_rate": 7.0}},
+			{"name": "Bullet Storm", "icon": "bullet_storm", "cost": 26000,
+				"desc": "Damage 22, top speed 32, spins up in 1.5s, ignores ALL armor.",
+				"set": {"damage": 22, "max_rate": 32.0, "spin_time": 1.5, "armor_pierce": 1.0}},
+		],
+	},
 	"farm": {
 		"name": "Farm", "role": "Economy - money every wave", "cost": 450, "sprite": "farm", "limit": 8,
 		"desc": "Doesn't fight: pays money at the end of every wave. The upgrades pay more and more. At most 8 farms in a battle.",
@@ -412,7 +437,8 @@ const STAT_LABELS := {"damage": "Damage", "rate": "Attacks/s", "range": "Range",
 	"acid_dps": "Acid dps", "acid_time": "Acid time", "acid_shred": "Armor eaten", "splash": "Acid splash",
 	"dagger_dmg": "Dagger dmg", "dagger_rate": "Daggers/s", "dagger_range": "Dagger range", "daggers": "Daggers",
 	"aura": "Aura dmg bonus", "brittle": "Frozen take extra", "lead": "Pierces lead",
-	"income": "Money per wave"}
+	"income": "Money per wave", "min_rate": "Shots/s cold", "max_rate": "Shots/s spun up",
+	"spin_time": "Spin-up time"}
 const PERCENT_STATS := ["slow", "armor_pierce", "fire_pierce", "headshot", "raise_hp", "chill", "chill_slow", "aura",
 	"brittle"]
 # level colors: red, yellow, green, blue, purple, pink, and gold for the top level
@@ -442,6 +468,8 @@ static func tower_dps(t: String, s: Dictionary) -> float:
 			return float(s["damage"]) * float(s["rate"]) * float(s["targets"])
 		"knight", "sniper", "necro":
 			return float(s["damage"]) * float(s["rate"])
+		"minigun":   # fully spun up
+			return float(s["damage"]) * float(s["max_rate"])
 		"soldier":
 			var g := float(s["grenade_dmg"]) * float(s["rate"]) / float(s["grenade_every"]) if int(s["grenade_every"]) > 0 else 0.0
 			return float(s["damage"]) * float(s["burst"]) * float(s["rate"]) + g

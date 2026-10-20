@@ -47,7 +47,8 @@ def gen_sprites():
                            ('freezer', FREEZER, FREEZER_C), ('freezer_elite', FREEZER, FREEZER_ELITE),
                            ('toxic', TOXIC, TOXIC_C), ('toxic_elite', TOXIC, TOXIC_ELITE),
                            ('assassin', ASSASSIN, ASSASSIN_C), ('assassin_elite', ASSASSIN, ASSASSIN_ELITE),
-                           ('farm', FARM, FARM_C), ('farm_elite', FARM, FARM_ELITE)]:
+                           ('farm', FARM, FARM_C), ('farm_elite', FARM, FARM_ELITE),
+                           ('minigun', MINIGUN, MINIGUN_C), ('minigun_elite', MINIGUN, MINIGUN_ELITE)]:
         make(rows, cm).save(out(f'sprites/towers/{name}.png'))
     # enemies and friendly vehicles: side view (name.png), front (name_down.png), back (name_up.png)
     for name, u in U.UNITS.items():

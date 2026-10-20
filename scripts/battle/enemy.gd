@@ -266,7 +266,7 @@ func tick_status(dt: float) -> void:
 		slow_t -= dt
 		if slow_t <= 0.0:
 			slow_f = 0.0
-	if flash_t > 0.0:
+	if flash_t > -1.0:   # below 0 it counts the pause since the last hit flash
 		flash_t -= dt
 	if heal_lock > 0.0:
 		heal_lock -= dt

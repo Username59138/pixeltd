@@ -30,6 +30,7 @@ var flame_tick := 0.0
 var dagger_cd := 0.0
 # soldier
 var burst_left := 0
+var spin := 0.0            # minigun: 0 = cold, 1 = fully spun up
 var burst_t := 0.0
 var burst_count := 0
 # garage
@@ -155,6 +156,8 @@ func update(dt: float, enemies: Array) -> void:
 			_update_garage(enemies)
 		"sniper":
 			_update_sniper(enemies)
+		"minigun":
+			_update_minigun(dt, enemies)
 		"necro":
 			_update_necro(enemies)
 	_update_visual()
@@ -183,6 +186,30 @@ func _update_gunner(enemies: Array) -> void:
 	attack_anim = 0.08
 	battle.fx_muzzle(_muzzle() + Vector2(aim.x, 0))
 	Sfx.play("shot", 0.1)
+
+
+## Spins up while it has something to shoot: the fire rate climbs from min_rate to max_rate over spin_time,
+## and winds down twice as fast once nothing is in range.
+func _update_minigun(dt: float, enemies: Array) -> void:
+	var ts := pick_targets(enemies, 1, true)
+	if ts.is_empty():
+		spin = maxf(0.0, spin - dt * 2.0 / float(stats["spin_time"]))
+		cooldown = maxf(cooldown, 0.0)
+		return
+	spin = minf(1.0, spin + dt / float(stats["spin_time"]))
+	_face(ts[0].position)
+	var rate := lerpf(float(stats["min_rate"]), float(stats["max_rate"]), spin)
+	var shots := 0
+	while cooldown <= 0.0 and shots < 4:   # high rates fire several bullets in one tick
+		cooldown += 1.0 / rate
+		shots += 1
+		battle.spawn_bullet(self, _muzzle() + Vector2(0, 2), ts[0], float(stats["damage"]), 0.0, 0.0,
+			float(stats["armor_pierce"]), Color("feae34") if level >= max_level() else Color("fee761"))
+	if shots > 0:
+		attack_anim = 0.05
+		if randf() < 0.3:   # visual only: battle.rng stays for the game rules
+			battle.fx_muzzle(_muzzle() + Vector2(aim.x, 2))
+		Sfx.play("shot", 0.1)
 
 
 func _update_soldier(dt: float, enemies: Array) -> void:
@@ -423,7 +450,7 @@ func _update_visual() -> void:
 	var off := Vector2(0, base_offset_y(sprite.texture))
 	if attack_anim > 0.0:
 		match type:
-			"gunner", "soldier", "toxic":
+			"gunner", "soldier", "toxic", "minigun":
 				off.x -= signf(aim.x) * 1.0
 			"sniper":
 				off.x -= signf(aim.x) * 2.0

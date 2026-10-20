@@ -612,6 +612,26 @@ func _mech_test() -> void:
 	for k in range(1, 9):
 		b.place_tower("farm", farm_tiles[k])
 	check.call("at most 8 farms", b.tower_count("farm") == 8)
+	# minigun: spins up while it shoots, winds down with nothing in range
+	b.enemies.clear()
+	var mg = b.place_tower("minigun", farm_tiles[9])
+	var tank = b.spawn_enemy("golem", 0, 120.0, 1.0)
+	tank.position = mg.position + Vector2(20, 0)
+	var shots0: int = b.bullets.size()
+	for k in 30:
+		mg.update(Battle.STEP, b.enemies)
+	var cold_shots: int = b.bullets.size() - shots0
+	for k in 200:
+		mg.update(Battle.STEP, b.enemies)
+	check.call("minigun spins up", is_equal_approx(mg.spin, 1.0))
+	shots0 = b.bullets.size()
+	for k in 30:
+		mg.update(Battle.STEP, b.enemies)
+	check.call("spun up it fires ~4x faster", b.bullets.size() - shots0 >= cold_shots * 3)
+	b.enemies.clear()
+	for k in 120:
+		mg.update(Battle.STEP, b.enemies)
+	check.call("minigun winds down with nothing to shoot", mg.spin < 0.4)
 	# tower limits: 10 of a type, 50 in all
 	for tw in b.towers.values():
 		b.sell_tower(tw)
