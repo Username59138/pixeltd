@@ -43,7 +43,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 - **Tower limits:** at most 50 towers in a battle and 10 of each type. The shop shows how many you have.
 - **Maps are bought with paper maps.** Only Green Meadow is open at the start. Every battle pays paper maps: a win pays by map tier (Beginner 10, Intermediate 20, Advanced 35, Expert 60) times the difficulty (Light x1, Medium x1.5, Difficult x2.5, Hardcore x4, Ultracore x6); a loss pays 40% of that, scaled by the waves survived. A map costs 30 / 60 / 150 / 300 by tier. Repeat wins pay the same, so you can farm.
 - **Towers are bought with paper maps.** Beating a tower's map (a higher difficulty counts too) puts it on sale in the Armory, then you buy it:
-  - Soldier: Green Meadow on Medium, 25 paper maps
+  - Soldier: on sale from the start, 25 paper maps
   - Garage: Gas Station on Difficult, 75
   - Flamethrower: Volcano on Medium, 140
   - Sniper: Green Meadow on Difficult, 40

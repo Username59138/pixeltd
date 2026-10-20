@@ -582,13 +582,14 @@ func _mech_test() -> void:
 	Game.beaten = {}
 	Game.bought_towers = []
 	Game.paper_maps = 30
-	check.call("soldier locked before Medium is beaten", not Game.is_tower_unlocked("soldier") and not Game.is_tower_for_sale("soldier"))
-	Game.record_win("meadow", 1)
-	check.call("a win puts the soldier on sale", Game.is_tower_for_sale("soldier") and not Game.is_tower_unlocked("soldier"))
-	Game.paper_maps = Game.tower_price("soldier") - 1
-	check.call("can't buy without enough paper maps", not Game.buy_tower("soldier"))
-	Game.paper_maps = Game.tower_price("soldier")
-	check.call("bought soldier is unlocked", Game.buy_tower("soldier") and Game.is_tower_unlocked("soldier") and Game.paper_maps == 0)
+	check.call("soldier on sale from the start", Game.is_tower_for_sale("soldier") and not Game.is_tower_unlocked("soldier"))
+	check.call("sniper locked before Difficult is beaten", not Game.is_tower_for_sale("sniper"))
+	Game.record_win("meadow", 2)
+	check.call("a win puts the sniper on sale", Game.is_tower_for_sale("sniper") and not Game.is_tower_unlocked("sniper"))
+	Game.paper_maps = Game.tower_price("sniper") - 1
+	check.call("can't buy without enough paper maps", not Game.buy_tower("sniper"))
+	Game.paper_maps = Game.tower_price("sniper")
+	check.call("bought sniper is unlocked", Game.buy_tower("sniper") and Game.is_tower_unlocked("sniper") and Game.paper_maps == 0)
 	Game.beaten = keep["beaten"]
 	Game.bought_towers = keep["bought"]
 	Game.paper_maps = keep["paper"]

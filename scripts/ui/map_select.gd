@@ -149,7 +149,7 @@ func _map_card(id: String) -> Button:
 	# tower unlock reward hint
 	for t in Defs.TOWER_ORDER:
 		var u: Dictionary = Defs.TOWERS[t]["unlock"]
-		if not u.is_empty() and u["map"] == id:
+		if u.get("map", "") == id:
 			var h := HBoxContainer.new()
 			h.add_theme_constant_override("separation", 2)
 			v.add_child(h)
@@ -239,7 +239,7 @@ func _open_difficulty(id: String) -> void:
 		# reward note
 		for t in Defs.TOWER_ORDER:
 			var u: Dictionary = Defs.TOWERS[t]["unlock"]
-			if not u.is_empty() and u["map"] == id and int(u["difficulty"]) <= d and not Game.is_tower_unlocked(t) \
+			if u.get("map", "") == id and int(u["difficulty"]) <= d and not Game.is_tower_unlocked(t) \
 					and not Game.is_tower_for_sale(t):
 				bv.add_child(UI.label("Reward: %s goes on sale" % Defs.TOWERS[t]["name"], 10, Color("fee761")))
 	var back := UI.button("Back", "gray", Vector2(0, 18))

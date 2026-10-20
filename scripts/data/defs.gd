@@ -80,7 +80,7 @@ const TOWERS := {
 	"soldier": {
 		"name": "Soldier", "role": "Ranged - bursts, anti-armor", "cost": 650, "sprite": "soldier",
 		"desc": "Assault rifle firing 3-round bursts from long range.",
-		"unlock": {"map": "meadow", "difficulty": 1, "price": 25},
+		"unlock": {"price": 25},   # on sale from the start
 		"base": {"damage": 4, "rate": 0.8, "burst": 3, "burst_gap": 0.09, "range": 92, "armor_pierce": 0.0,
 			"grenade_every": 0, "grenade_dmg": 0, "grenade_radius": 0, "kind": "physical",
 			"camo": false, "air": true},

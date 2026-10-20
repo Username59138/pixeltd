@@ -152,10 +152,13 @@ func is_tower_unlocked(tower_id: String) -> bool:
 	return u.is_empty() or all_maps_open or bought_towers.has(tower_id)
 
 
-## Beating the tower's map on its difficulty (or a harder one) puts it up for sale in the Armory.
+## Beating the tower's map on its difficulty (or a harder one) puts it up for sale in the Armory; a tower
+## with a price but no map (the Soldier) is on sale from the start.
 func is_tower_for_sale(tower_id: String) -> bool:
 	var u: Dictionary = Defs.TOWERS[tower_id]["unlock"]
-	return not is_tower_unlocked(tower_id) and best_beaten(u["map"]) >= int(u["difficulty"])
+	if is_tower_unlocked(tower_id):
+		return false
+	return not u.has("map") or best_beaten(u["map"]) >= int(u["difficulty"])
 
 
 func tower_price(tower_id: String) -> int:
@@ -175,6 +178,8 @@ func unlock_text(tower_id: String) -> String:
 	var u: Dictionary = Defs.TOWERS[tower_id]["unlock"]
 	if u.is_empty():
 		return ""
+	if not u.has("map"):
+		return "Buy it for %d paper maps" % tower_price(tower_id)
 	return "Beat %s on %s, then buy it for %d paper maps" % [MapsData.MAPS[u["map"]]["name"],
 		Defs.DIFFICULTIES[u["difficulty"]]["name"], tower_price(tower_id)]
 
