@@ -77,35 +77,6 @@ func _ready() -> void:
 						var dead = battle.spawn_enemy(["goblin", "ironclad", "wolf"][k], 0, 260.0 + k * 14.0)
 						dead.alive = false
 						battle.raise_dead(tw, dead)
-		if args.has("--freezetest"):
-			battle.cash = 99999
-			for t in [[Vector2i(7, 6), "freezer", 4], [Vector2i(9, 5), "freezer", 0], [Vector2i(9, 8), "flamer", 1],
-					[Vector2i(9, 3), "gunner", 1]]:
-				var tw = battle.place_tower(t[1], t[0])
-				if tw == null:
-					continue
-				for k in t[2]:
-					battle.upgrade_tower(tw)
-			for k in 12:
-				battle.start_wave()
-				battle.spawning = false
-			battle.spawn_queue = []
-			for k in 12:
-				battle.spawn_enemy(["goblin", "ironclad", "wolf", "ogre"][k % 4], 0, 30.0 + k * 12.0)
-			battle.spawn_enemy("golem", 0, 5.0)
-		if args.has("--statustest"):   # shaman heals (first one 2.5s in), enraged berserkers, Dual Pistols slow
-			battle.cash = 99999
-			var gs = battle.place_tower("gunner", Vector2i(9, 3))
-			for k in 3:
-				battle.upgrade_tower(gs)
-			for k in 12:
-				battle.start_wave()
-				battle.spawning = false
-			battle.spawn_queue = []
-			for k in 6:
-				var g = battle.spawn_enemy(["goblin", "ironclad", "berserker"][k % 3], 0, 40.0 + k * 10.0)
-				g.hp *= 0.3
-			battle.spawn_enemy("shaman", 0, 75.0)
 	elif args.has("--maps"):
 		show_map_select()
 	elif args.has("--towers"):
@@ -155,8 +126,6 @@ func _ready() -> void:
 				c._open_difficulty("gas_station")
 	if args.has("--uitest"):
 		_ui_test()
-	if args.has("--shop-arrows") and hud:
-		_shop_arrows_test()
 	var s := args.find("--shot")
 	if s >= 0:
 		_shot(args[s + 1], float(args[s + 2]))
@@ -182,21 +151,6 @@ func _shot(path: String, secs: float) -> void:
 			await get_tree().create_timer(0.2).timeout
 	get_viewport().get_texture().get_image().save_png(path)
 	get_tree().quit()
-
-
-## Clicks the shop scrollbar arrows like a player would and prints where the list ends up.
-func _shop_arrows_test() -> void:
-	await get_tree().create_timer(0.5).timeout
-	var bar: VScrollBar = hud.shop_scroll.get_v_scroll_bar()
-	var r := bar.get_global_rect()
-	print("SHOP scroll %d / max %d, step %d" % [hud.shop_scroll.scroll_vertical, bar.max_value - bar.page, bar.custom_step])
-	for k in 2:
-		await _click(Vector2(r.position.x + 3, r.end.y - 3))
-		await get_tree().create_timer(0.1).timeout
-		print("SHOP after down: %d" % hud.shop_scroll.scroll_vertical)
-	await _click(Vector2(r.position.x + 3, r.position.y + 3))
-	await get_tree().create_timer(0.1).timeout
-	print("SHOP after up: %d" % hud.shop_scroll.scroll_vertical)
 
 
 func _click(p: Vector2, button := MOUSE_BUTTON_LEFT) -> void:
