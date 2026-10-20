@@ -31,6 +31,10 @@ var burn_t := 0.0
 var burn_pierce := 0.0
 var burn_src: Node = null
 var burn_acc := 0.0
+var acid_dps := 0.0       # acid: damage over time that ignores armor...
+var acid_t := 0.0
+var acid_shred := 0.0     # ...and eats this much armor while it lasts
+var acid_src: Node = null
 var chill := 0.0          # 0..1, built up by the Freezer's water; at 1 the enemy freezes solid
 var chill_slow := 0.0     # slow at full chill (from the strongest Freezer that hit it)
 var chill_hold := 0.0     # chill only starts melting once nobody sprays it for a moment
@@ -201,6 +205,22 @@ func thaw() -> bool:
 	chill = 0.0
 	frozen_t = 0.0
 	return was
+
+
+## Armor left after acid ate some of it.
+func cur_armor() -> float:
+	return maxf(0.0, armor - (acid_shred if acid_t > 0.0 else 0.0))
+
+
+## Acid is damage, so class doesn't weaken it. The strongest acid wins, the armor loss keeps the highest value.
+func apply_acid(dps: float, duration: float, shred: float, src: Node) -> void:
+	if acid_t <= 0.0:
+		acid_shred = 0.0
+	if dps >= acid_dps or acid_t <= 0.0:
+		acid_dps = dps
+		acid_src = src
+	acid_shred = maxf(acid_shred, shred)
+	acid_t = maxf(acid_t, duration)
 
 
 ## Burn is damage, so it is NOT reduced by class.

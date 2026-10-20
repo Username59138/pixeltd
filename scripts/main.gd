@@ -452,6 +452,53 @@ func _mech_test() -> void:
 	fz.flame_tick = 0.0
 	fz.update(Battle.STEP, b.enemies)
 	check.call("liquid nitrogen ignores armor", absf(ih - iron.hp - 3.0) < 0.01)
+	# acid: damage over time through armor, eats armor while it lasts; puddles on the road put it on enemies
+	for tw in b.towers.values():
+		b.sell_tower(tw)
+	for e in b.enemies:
+		e.alive = false
+	b.enemies.clear()
+	var ac = b.spawn_enemy("ironclad", 0, 120.0)
+	var arm0: float = ac.armor
+	ac.apply_acid(10.0, 1.0, 2.0, null)
+	check.call("acid eats armor", ac.cur_armor() == arm0 - 2.0)
+	var ah: float = ac.hp
+	for k in 30:
+		b._tick_enemies(Battle.STEP)
+	check.call("acid hurts through armor", absf(ah - ac.hp - 5.0) < 0.2)
+	for k in 60:
+		b._tick_enemies(Battle.STEP)
+	check.call("armor comes back after the acid", ac.acid_t <= 0.0 and ac.cur_armor() == arm0)
+	var ag = b.spawn_enemy("goblin", 0, 0.0)
+	b.acid_tiles[Vector2i(floori(ag.position.x / Battle.TILE), floori(ag.position.y / Battle.TILE))] = true
+	b._tick_enemies(Battle.STEP)
+	check.call("acid puddle puts acid on walkers", ag.acid_t > 0.0)
+	b.acid_tiles.clear()
+	for e in b.enemies:
+		e.alive = false
+	b.enemies.clear()
+	var tg = b.place_tower("toxic", spot)
+	var tgt = b.spawn_enemy("ogre", 0, 120.0)
+	tgt.position = tg.position + Vector2(30, 0)
+	for k in 60:
+		tg.update(Battle.STEP, b.enemies)
+		b._tick_bullets(Battle.STEP)
+	check.call("toxic gunner puts acid on", tgt.acid_t > 0.0)
+	b.sell_tower(tg)
+	var asn = b.place_tower("assassin", spot)
+	var abat = b.spawn_enemy("bat", 0, 120.0)
+	abat.position = asn.position + Vector2(40, 0)
+	check.call("assassin blades can't hit flyers", not asn.can_target(abat))
+	for k in 60:
+		asn.update(Battle.STEP, b.enemies)
+		b._tick_bullets(Battle.STEP)
+	check.call("no daggers before level 4", abat.hp == abat.max_hp)
+	asn.level = 3
+	asn.recompute()
+	for k in 60:
+		asn.update(Battle.STEP, b.enemies)
+		b._tick_bullets(Battle.STEP)
+	check.call("level 4 daggers hit flyers", abat.hp < abat.max_hp or not abat.alive)
 	print("MECH RESULT ", "PASS" if fails.is_empty() else "FAIL")
 	get_tree().quit()
 

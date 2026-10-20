@@ -3,6 +3,11 @@ extends RefCounted
 
 const ENTRIES := [
 	{"version": "0.12", "title": "In progress", "date": "October 2026", "items": [
+		"NEW MAP: Acid Refinery (Advanced). Acid puddles on the road eat at the enemies walking through, but nothing can be built next to them.",
+		"ACID: hurts over time through armor and eats some of the armor while it lasts, so every other tower hits harder too.",
+		"NEW TOWER: the Toxic Gunner. Beat Acid Refinery on Difficult. Shoots globs of acid, and from Acid Splash on they burst over everyone around the target.",
+		"NEW TOWER: the Toxic Assassin. Beat Acid Refinery on Hardcore. Very fast poisoned blades up close; from level 4 the Assassin also throws daggers at range, and the daggers reach flying enemies.",
+		"Keys 9 and 0 buy the 9th and 10th tower.",
 		"The tower list in battle and the changelog got a pixel art scrollbar with arrow buttons.",
 		"The Armory's Enemies tab uses the same 2 rows of 5 cards with pages as the Towers tab.",
 		"Enemies are never tinted any more, every status shows with particles: a green plus floats up from enemies healed by a Goblin Shaman, slowed enemies shed grey specks, and enraged Orc Berserkers throw off red sparks. The Necromancer's undead aren't green any more either: you can tell they're yours because they walk back down the road.",

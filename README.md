@@ -19,7 +19,7 @@ Every key below is a default and can be changed in **Settings** (gear button in 
 
 | Action | Default |
 |---|---|
-| Buy a tower | Button on the right or keys **1–8** (the shop only shows unlocked towers) |
+| Buy a tower | Button on the right or keys **1–9, 0** (the shop only shows unlocked towers) |
 | Place it | Left click on a tile (hold **Shift** to place several) |
 | Select a tower | Left click on it |
 | Upgrade selected tower | **E** |
@@ -47,10 +47,14 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
   - Sniper: Green Meadow on Difficult
   - Necromancer (Halloween character): Old Graveyard on Difficult
   - Freezer: Frozen Lake on Difficult
+  - Toxic Gunner: Acid Refinery on Difficult
+  - Toxic Assassin: Acid Refinery on Hardcore
 - **Halloween event (Oct 10 - Nov 7):** Green Meadow gets an autumn look with jack-o'-lanterns. Only the looks change, the layout stays the same.
 - **Volcano:** two short roads, lava on the best spots and an eruption every second wave. Tiles next to the lava flash orange, then towers on them stop shooting for 6 seconds.
 - **Murky Swamp:** the boardwalk crosses itself, so towers near the crossing hit enemies twice. The bog eats the best spots.
 - **Old Graveyard:** a second road starts at the crypt in the middle of the map. Grave plots take some of the space.
+- **Acid Refinery:** acid puddles on the road put acid on every ground enemy walking through (4 dps for 2s, eats 2 armor). Nothing can be built right next to a puddle. Acid lakes and storage tanks take more of the space.
+- **Acid** hurts over time through armor and, while it lasts, eats some of the enemy's armor, so physical towers hit harder too. The strongest acid on an enemy wins; class doesn't weaken it (it's damage, not control).
 - **Invisible enemies** (Ghost) are drawn see-through and can only be aimed at by towers that spot them: Gunslinger from Hollow Points, Soldier from AP Rounds, and the Sniper always. The Flamethrower can't aim at them, but its flames still burn any that walk through the cone. Garage cars run them over.
 - **Flying enemies** (Bat, Harpy) follow the road in the air. Gunslinger, Soldier and Sniper can shoot them. Knight, Flamethrower, grenades and cars can't reach them.
 - **Skeletons** fall apart when killed and get back up once with half HP. **Orc Berserkers** run twice as fast below half HP.
@@ -65,6 +69,8 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 - **Garage:** must be built next to a road. Sends friendly cars (`is_friendly` enemies) that drive along the road towards the enemies. On a crash both sides lose `min(car HP, enemy HP)`. Pickup → Truck → Armored Car (with a turret).
 - **Flamethrower:** fire cone and burning, ignores armor, but the Fire Imp is immune. Bigger Tank → Napalm → Blue Flame.
 - **Necromancer:** dark bolts that ignore 60% of armor. An enemy his bolt kills rises as a friendly undead (Garage-style crash) with part of its max HP: 20% → 35% → 50% → 70%. They rise at a random spot of road inside his range. No flyers, no bosses, and undead never raise more undead. Dark Pact → Bone Army (sees invisible) → Lich.
+- **Toxic Gunner:** shoots globs of acid, hits flying enemies. Corrosive Mix → Scope (sees invisible) → Acid Splash (acid on everyone around the target) → Toxic Overload.
+- **Toxic Assassin:** fast melee with poisoned blades that ignore 25% of armor, ground only. Poisoned Blades → Swift Strikes → Throwing Daggers (a ranged second attack whose daggers hit flying enemies, flyers first) → Twin Daggers (2 at once, sees invisible) → Master Assassin.
 - **Freezer:** sprays a cone of ice water. Every enemy in it builds up chill (scaled by class like any control effect): the more chill, the slower it walks, and at 100% it freezes solid in a block of ice for a while (also scaled by class, so bosses freeze rarely and briefly). Water puts out burning enemies, and the Flamethrower's fire melts the chill and the ice. Ground only; it can't aim at invisible enemies but soaks them anyway. Cold Water → Pressure Hose → Ice Water (cold damage that ignores armor) → Liquid Nitrogen.
 - **Sniper:** slow, heavy shots from almost across the map, sees invisible and hits flying enemies. Optics → Full Metal Jacket (ignores all armor) → Headshot (15% chance to kill any non-boss outright).
 

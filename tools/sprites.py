@@ -515,7 +515,76 @@ PUMPKIN_C = {'g': 'olv', 'o': 'org_d', 'O': 'org', 'k': 'black', 'y': 'yellow'}
 AUTUMN_TREE_C = {'g': 'red_l', 'G': 'red_m', 'l': 'gld', 'd': 'red_d', 'T': 'xdbrown'}
 SWAMP_TREE_C = {'g': 'olv_l', 'G': 'olv', 'l': 'olv_l', 'd': 'olv_d', 'T': 'xdbrown'}
 
+# acid refinery
+TOXIC_BARREL = [
+    "..gG.....",
+    ".bbgbbbb.",
+    "bYYYYYYyb",
+    "bkkkkkkkb",
+    "bYYYYYYyb",
+    "bYYgYYYyb",
+    "bYYgYYYyb",
+    "bkkgkkkkb",
+    "bYYYYYYyb",
+    ".bbbbbbb.",
+    "..ggG....",
+]
+TOXIC_BARREL_C = {'b': 'dbrown', 'Y': 'gold', 'y': 'lorange', 'k': 'xdbrown', 'g': 'lgreen', 'G': 'green'}
+ACID_BARREL = [
+    ".........",
+    ".bbbbbbb.",
+    "bGGGGGGgb",
+    "bGwGGGGgb",
+    "bgggggggb",
+    "bGGGGGGgb",
+    "bGwGGGGgb",
+    "bgggggggb",
+    "bGGGGGGgb",
+    ".bbbbbbb.",
+]
+ACID_BARREL_C = {'b': 'xdgreen', 'G': 'green', 'g': 'dgreen', 'w': 'lgreen'}
+PIPE = [
+    "...rrr......",
+    "....s.......",
+    "pPPPsPPPPPPp",
+    "pLLLLLLLLLLp",
+    "pPPPPPPPPPPp",
+    "pdddddddddPp",
+    "dd.......ddd",
+]
+PIPE_C = {'r': 'red', 's': 'dgray', 'p': 'xdgray', 'P': 'gray', 'L': 'lgray', 'd': 'dgray'}
+TANK = [
+    "......LLLLLLLLLLLLL.......",
+    "...LLLsssssssssssssLLL....",
+    "..LsssSSSSSSSSSSSSSsssL...",
+    ".LssSSSSSSSSSSSSSSSSSssL..",
+    ".LsSSSSSSSSSSSSSSSSSSSsLr.",
+    "LsSSSSSSSSSSSSSSSSSSSSSsLr",
+    "LdddddddddddddddddddddddLr",
+    "LsSSSSSSSSSSSSSSSSSSSSSsLr",
+    "LsSSSSSSSSyyyyySSSSSSSSsLr",
+    "LsSSSSSSSyyGGGyySSSSSSSsLr",
+    "LsSSSSSSSyGGGGGySSSSSSSsLr",
+    "LsSSSSSSSyyGGGyySSSSSSSsLr",
+    "LsSSSSSSSSyyyyySSSSSSSSsLr",
+    "LsSSSSSSSSSSSSSSSSSSSSSsLr",
+    "LdddddddddddddddddddddddLr",
+    "LsSSSSSSSSSSSSSSSSSSSSSsLr",
+    "LsSSSSSSSSSSSSSSSSSSSSSsLr",
+    "LsSSSSSSSSSSSSSSSSSSSSSsLr",
+    "LsSSSSSSSSSSSSSSSSSSSSSsLr",
+    "LdddddddddddddddddddddddLr",
+    "LsSSSSSSSSSSSSSSSSSSSSSsL.",
+    ".LsSSSSSSSSSSSSSSSSSSSsL..",
+    "..LLsssssssssssssssssLL...",
+    "...kk.............kk......",
+]
+TANK_C = {'L': 'dgray', 's': 'gray', 'S': 'lgray', 'd': 'dgray', 'y': 'gold', 'k': 'black', 'G': 'lgreen',
+          'r': 'xdgray'}
+
 DECOR_SPRITES = {
+    'toxic_barrel': (TOXIC_BARREL, TOXIC_BARREL_C), 'acid_barrel': (ACID_BARREL, ACID_BARREL_C),
+    'pipe': (PIPE, PIPE_C), 'tank': (TANK, TANK_C),
     'swamp_tree': (TREE, SWAMP_TREE_C), 'autumn_tree': (TREE, AUTUMN_TREE_C),
     'lamp': (LAMP, LAMP_C), 'hydrant': (HYDRANT, HYDRANT_C), 'trash': (TRASH, TRASH_C),
     'dumpster': (DUMPSTER, DUMPSTER_C), 'reeds': (REEDS, REEDS_C), 'mushroom': (MUSHROOM, MUSHROOM_C),
@@ -837,6 +906,72 @@ FREEZER_C = {'w': 'white', 'H': 'blu', 'M': 'gun_d', 'C': 'gun', 'g': 'glass', '
 FREEZER_ELITE = dict(FREEZER_C, H='stl', J='stl_l', j='stl', t='stl_dd', T='stl_d', L='white', g='cyan',
                      q='white', Q='stl_l', P='navy', p='black', y='cyan')
 
+TOXIC = [
+    "....................",
+    "....................",
+    ".......HHHHH........",
+    "......HHHHHHH.......",
+    ".....HHMMMMMHH......",
+    ".....HMggMggMH......",
+    ".....HMMMMMMMH......",
+    "......HMcCcMH.......",
+    "......HHMcMHH.......",
+    ".....SSSSSSSSS......",
+    "....SsSSSSSSSSS.....",
+    "....SsSSSSSSAAnnnnnq",
+    "....SsSSSSSSAAnGGNNQ",
+    "....SskkkkkkkS.GG...",
+    ".....sSSSSSSSS......",
+    ".....sSSSSSSSS......",
+    ".....PPPPPPPPP......",
+    ".....PPP..PPP.......",
+    ".....PPp..PPp.......",
+    ".....PPp..PPp.......",
+    ".....BBB..BBB.......",
+    "....BBBBx.BBBBx.....",
+    "....................",
+    "....................",
+]
+TOXIC_C = {'H': 'gld_d', 'M': 'xdgray', 'g': 'lgreen', 'c': 'gun', 'C': 'gun_d', 'S': 'gld', 's': 'gld_d',
+           'A': 'black', 'n': 'gun_d', 'N': 'xdgray', 'q': 'lgreen', 'Q': 'green', 'G': 'lgreen', 'k': 'black',
+           'P': 'gld_d', 'p': 'hat_d', 'B': 'xdgray', 'x': 'black'}
+# Toxic Overload: black hazmat suit, glowing acid
+TOXIC_ELITE = dict(TOXIC_C, H='navy', S='xdgray', s='navy', P='navy', p='black', k='green', G=(170, 240, 100),
+                   q=(170, 240, 100))
+
+ASSASSIN = [
+    "....................",
+    "....................",
+    "........hhhh........",
+    ".......hHHHHh.......",
+    "......hHHHHHHd......",
+    "......HHkkkkHd......",
+    "......HkEkkEkd......",
+    "......HmmmmmmHd.....",
+    ".......dmmmmd.......",
+    ".....CCCCCCCCC......",
+    "....CcCCCCCCCCC....w",
+    "....CcCCbbCCCCAAwww.",
+    "....CcCCCbCCCCAA....",
+    "....CcCCCCbCCCC.....",
+    "...CcCCCCCCbCCCC....",
+    "...CcCCCCCCCbCCC....",
+    "...cCCCCCCCCCCCCc...",
+    "....PPPPPPPPPP......",
+    ".....PPP..PPP.......",
+    ".....PPp..PPp.......",
+    ".....BBB..BBB.......",
+    "....BBBBx.BBBBx.....",
+    "....................",
+    "....................",
+]
+ASSASSIN_C = {'h': 'olv_l', 'H': 'olv', 'd': 'olv_d', 'k': 'black', 'E': 'lgreen', 'm': 'olv_dd', 'C': 'olv',
+              'c': 'olv_d', 'b': 'wd_d', 'A': 'black', 'w': 'lgray', 'P': 'olv_dd', 'p': 'black', 'B': 'xdbrown',
+              'x': 'black'}
+# Master Assassin: black cloak, poison-green blade
+ASSASSIN_ELITE = dict(ASSASSIN_C, h='xdgray', H='navy', d='black', C='navy', c='black', m='black', P='black',
+                      w='lgreen', b='green')
+
 GARAGE = [
     "..RRRRRRRRRRRR..",
     ".RRRRRRRRRRRRRR.",
@@ -856,6 +991,77 @@ GARAGE_C = {'R': 'red', 'r': 'dred', 'W': 'lgray', 'y': 'gold', 'D': 'gray', 'd'
 GARAGE_ELITE = dict(GARAGE_C, R='dblue', r='navy', W='sand', y='cyan', D='gold', d='lorange')
 
 UP_ICONS = {
+    'corrosive_mix': ([
+        "..gg..",
+        "..gg..",
+        ".gGGg.",
+        "gGlGGg",
+        "gGGGlg",
+        ".gggg.",
+    ], {'g': 'dgreen', 'G': 'lgreen', 'l': 'white'}),
+    'toxic_scope': ([
+        "..g..",
+        ".ggg.",
+        "gg.gg",
+        ".ggg.",
+        "..g..",
+    ], {'g': 'lgreen'}),
+    'acid_splash': ([
+        "g.....g",
+        "..G.G..",
+        ".GlGGG.",
+        "g.GGG.g",
+        "..G.G..",
+        "g.....g",
+    ], {'g': 'green', 'G': 'lgreen', 'l': 'white'}),
+    'toxic_overload': ([
+        ".GGGGG.",
+        "GGGGGGG",
+        "GkkGkkG",
+        "GGGkGGG",
+        ".GGGGG.",
+        ".G.G.G.",
+    ], {'G': 'lgreen', 'k': 'black'}),
+    'poisoned_blades': ([
+        "....w",
+        "...w.",
+        "..w..",
+        "bw...",
+        ".b.G.",
+        "b..G.",
+    ], {'w': 'lgray', 'b': 'wd_d', 'G': 'lgreen'}),
+    'swift_strikes': ([
+        "...ww",
+        "..ww.",
+        ".ww.w",
+        "ww.ww",
+        "w.ww.",
+        ".ww..",
+    ], {'w': 'lgray'}),
+    'throwing_daggers': ([
+        "......w",
+        ".....w.",
+        "....w..",
+        ".g.w...",
+        "..b....",
+        ".b.g...",
+    ], {'w': 'lgray', 'b': 'wd_d', 'g': 'gray'}),
+    'twin_daggers': ([
+        "w.....w",
+        ".w...w.",
+        "..w.w..",
+        "...w...",
+        "..b.b..",
+        ".b...b.",
+    ], {'w': 'lgray', 'b': 'wd_d'}),
+    'master_assassin': ([
+        "..hhh..",
+        ".hHHHh.",
+        "hHkkkHh",
+        "hkGkGkh",
+        "hHkkkHh",
+        ".hhhhh.",
+    ], {'h': 'olv_d', 'H': 'olv', 'k': 'black', 'G': 'lgreen'}),
     'cold_water': ([
         "..b..",
         "..b..",

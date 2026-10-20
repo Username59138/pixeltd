@@ -46,6 +46,8 @@ var seen_types := {}
 var rng := RandomNumberGenerator.new()
 var path_tiles := {}
 var lava_tiles: Array = []
+var acid_tiles := {}   # road tiles with an acid puddle: enemies walking through get acid on them
+const PUDDLE_ACID := {"dps": 4.0, "time": 2.0, "shred": 2.0}
 var eruption_t := -1.0
 var eruption_warn: Array = []   # tiles about to be hit
 var eruption_warn_t := 0.0
@@ -111,6 +113,8 @@ func setup(p_map_id: String, p_diff: int, p_demo := false) -> void:
 				c += step
 				path_tiles[c] = true
 	lava_tiles = map.get("lava", [])
+	for t in map.get("acid", []):
+		acid_tiles[t] = true
 	var rows: Array = map["blocked"]
 	for y in rows.size():
 		var r: String = rows[y]
@@ -417,6 +421,21 @@ func _tick_enemies(dt: float) -> void:
 			elif not headless and randf() < dt * 10.0:
 				_spawn_particle(e.position + Vector2(randf_range(-4, 4), -randf_range(2, 10)), Vector2(0, -14),
 					0.45, Color("f77622") if randf() < 0.6 else Color("fee761"), 1)
+		if e.acid_t > 0.0:
+			e.acid_t -= dt
+			var asrc: Node = e.acid_src if is_instance_valid(e.acid_src) else null
+			damage_enemy(e, e.acid_dps * dt, "acid", asrc, 0.0, false)
+			if not e.alive:
+				continue
+			if e.acid_t <= 0.0:
+				e.acid_dps = 0.0
+				e.acid_shred = 0.0
+			elif not headless and randf() < dt * 9.0:   # green bubbles
+				_spawn_particle(e.position + Vector2(randf_range(-4, 4), -randf_range(1, 9)), Vector2(0, -10),
+					0.5, Color("63c74d") if randf() < 0.6 else Color("b6f08c"), 2 if randf() < 0.3 else 1)
+		if not acid_tiles.is_empty() and not e.flying and \
+				acid_tiles.has(Vector2i(floori(e.position.x / TILE), floori(e.position.y / TILE))):
+			e.apply_acid(PUDDLE_ACID["dps"], PUDDLE_ACID["time"], PUDDLE_ACID["shred"], null)
 		# slowed: grey specks dropping off like dead weight
 		if not headless and e.slow_t > 0.0 and randf() < dt * 10.0:
 			_spawn_particle(e.position + Vector2(randf_range(-4, 4), -randf_range(4, 10)),
@@ -546,7 +565,7 @@ func damage_enemy(e: Node2D, amount: float, kind: String, src: Node, pierce := 0
 		return
 	var dmg := amount   # kind "pure" (car crashes) ignores armor and resistances
 	if kind == "physical":
-		var arm: float = e.armor * (1.0 - pierce)
+		var arm: float = e.cur_armor() * (1.0 - pierce)
 		dmg = maxf(amount - arm, maxf(1.0, amount * 0.15))
 	elif kind == "fire":
 		var res: float = e.fire_res * (1.0 - pierce)
@@ -576,6 +595,9 @@ func _fall_apart(e: Node2D) -> void:
 	e.burn_t = 0.0
 	e.burn_dps = 0.0
 	e.slow_t = 0.0
+	e.acid_t = 0.0
+	e.acid_dps = 0.0
+	e.acid_shred = 0.0
 	e.thaw()
 	e.incoming = 0.0
 	if not headless:
@@ -697,12 +719,14 @@ func begin_place(t: String) -> void:
 
 
 # ---------------------------------------------------------------- projectiles
+## acid: {} or {"dps", "time", "shred", "splash"} put on the enemy hit (and on everyone within "splash" px).
 func spawn_bullet(src: Node, from: Vector2, target: Node2D, dmg: float, slow: float, slow_t: float,
-		pierce := 0.0, col := Color("fee761")) -> void:
-	var expected := maxf(dmg - target.armor * (1.0 - pierce), maxf(1.0, dmg * 0.15))
+		pierce := 0.0, col := Color("fee761"), acid := {}) -> void:
+	var expected := maxf(dmg - target.cur_armor() * (1.0 - pierce), maxf(1.0, dmg * 0.15))
 	target.incoming += expected
 	bullets.append({"pos": from, "target": target, "dmg": dmg, "slow": slow, "slow_t": slow_t, "src": src,
-		"dir": (target.position - from).normalized(), "life": 0.6, "exp": expected, "pierce": pierce, "col": col})
+		"dir": (target.position - from).normalized(), "life": 0.6, "exp": expected, "pierce": pierce, "col": col,
+		"acid": acid})
 
 
 func _tick_bullets(dt: float) -> void:
@@ -745,6 +769,8 @@ func _tick_bullets(dt: float) -> void:
 				raise_dead(src, hit)
 			if hit.alive and b["slow"] > 0.0:
 				hit.apply_slow(b["slow"], b["slow_t"])
+			if not (b["acid"] as Dictionary).is_empty():
+				splash_acid(hit, b["acid"], src)
 			if not headless:
 				_spawn_particle(b["pos"], -b["dir"] * 30.0, 0.12, b["col"], 1)
 			continue
@@ -753,6 +779,18 @@ func _tick_bullets(dt: float) -> void:
 		if b["life"] > 0.0:
 			keep.append(b)
 	bullets = keep
+
+
+## Puts acid on the enemy hit and, with "splash", on every enemy around it (flyers too: it's a splash).
+func splash_acid(hit: Node2D, acid: Dictionary, src: Node) -> void:
+	var r := float(acid.get("splash", 0.0))
+	for e in ([hit] if r <= 0.0 else enemies):
+		if e.alive and e.targetable() and (e == hit or e.position.distance_to(hit.position) <= r):
+			e.apply_acid(float(acid["dps"]), float(acid["time"]), float(acid["shred"]), src)
+	if r > 0.0 and not headless:
+		for i in 10:
+			var a := randf() * TAU
+			_spawn_particle(hit.position + Vector2(0, -4), Vector2(cos(a), sin(a)) * r * 2.0, 0.25, Color("63c74d"), 1)
 
 
 # ---------------------------------------------------------------- grenades

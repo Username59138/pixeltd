@@ -25,6 +25,7 @@ var attack_anim := 0.0
 var aim := Vector2.RIGHT
 var flame_on := 0.0
 var flame_tick := 0.0
+var dagger_cd := 0.0
 # soldier
 var burst_left := 0
 var burst_t := 0.0
@@ -140,6 +141,10 @@ func update(dt: float, enemies: Array) -> void:
 			_update_flamer(dt, enemies)
 		"freezer":
 			_update_freezer(dt, enemies)
+		"toxic":
+			_update_toxic(enemies)
+		"assassin":
+			_update_assassin(dt, enemies)
 		"soldier":
 			_update_soldier(dt, enemies)
 		"garage":
@@ -341,6 +346,59 @@ func _update_necro(enemies: Array) -> void:
 	Sfx.play("shot", 0.1)
 
 
+func _acid() -> Dictionary:
+	return {"dps": float(stats["acid_dps"]), "time": float(stats["acid_time"]), "shred": float(stats["acid_shred"]),
+		"splash": float(stats.get("splash", 0.0))}
+
+
+func _update_toxic(enemies: Array) -> void:
+	if cooldown > 0.0:
+		return
+	var ts := pick_targets(enemies, 1)
+	if ts.is_empty():
+		return
+	cooldown = 1.0 / float(stats["rate"])
+	_face(ts[0].position)
+	battle.spawn_bullet(self, _muzzle(), ts[0], float(stats["damage"]), 0.0, 0.0, 0.0, Color("63c74d"), _acid())
+	attack_anim = 0.08
+	Sfx.play("shot", 0.1)
+
+
+## Fast poisoned melee on the ground; from Throwing Daggers on also daggers at range, which reach flyers.
+func _update_assassin(dt: float, enemies: Array) -> void:
+	dagger_cd -= dt
+	if int(stats["daggers"]) > 0 and dagger_cd <= 0.0:
+		var r2 := float(stats["dagger_range"]) * float(stats["dagger_range"])
+		var cands: Array = enemies.filter(func(e): return e.targetable() and (stats["camo"] or not e.invisible) \
+			and e.position.distance_squared_to(position) <= r2 and e.hp - e.incoming > 0.0)
+		# flyers first: the blades can't reach them
+		cands.sort_custom(func(a, b): return a.flying and not b.flying if a.flying != b.flying \
+			else a.remaining() < b.remaining())
+		if not cands.is_empty():
+			dagger_cd = 1.0 / float(stats["dagger_rate"])
+			var acid := _acid()
+			acid["splash"] = 0.0
+			for e in cands.slice(0, int(stats["daggers"])):
+				battle.spawn_bullet(self, position + Vector2(0, -8), e, float(stats["dagger_dmg"]), 0.0, 0.0,
+					float(stats["armor_pierce"]), Color("c0cbdc"), acid)
+			Sfx.play("shot", 0.15)
+	if cooldown > 0.0:
+		return
+	var ts := pick_targets(enemies, 1)
+	if ts.is_empty():
+		return
+	cooldown = 1.0 / float(stats["rate"])
+	_face(ts[0].position)
+	battle.damage_enemy(ts[0], float(stats["damage"]), "physical", self, float(stats["armor_pierce"]))
+	if ts[0].alive:
+		var acid := _acid()
+		acid["splash"] = 0.0
+		battle.splash_acid(ts[0], acid, self)
+	attack_anim = 0.1
+	battle.fx_slash(position + Vector2(0, -3), aim, range_px() * 0.8, false, false)
+	Sfx.play("slash", 0.2)
+
+
 func _update_garage(enemies: Array) -> void:
 	if cooldown > 0.0 or road.is_empty():
 		return
@@ -359,13 +417,13 @@ func _update_visual() -> void:
 	var off := Vector2(0, base_offset_y(sprite.texture))
 	if attack_anim > 0.0:
 		match type:
-			"gunner", "soldier":
+			"gunner", "soldier", "toxic":
 				off.x -= signf(aim.x) * 1.0
 			"sniper":
 				off.x -= signf(aim.x) * 2.0
 			"necro":
 				off.y -= 1.0
-			"knight":
+			"knight", "assassin":
 				off += (aim * 2.0).round()
 			"garage":
 				off.y += float(int(anim_t * 20.0) % 2)

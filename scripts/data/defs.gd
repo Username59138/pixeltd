@@ -29,7 +29,8 @@ const DIFFICULTIES := [
 
 # ---------------------------------------------------------------- towers
 # "base" holds level-0 stats; each upgrade overrides some of them ("set"). Upgrades are a single line.
-const TOWER_ORDER := ["gunner", "knight", "soldier", "garage", "flamer", "sniper", "necro", "freezer"]
+const TOWER_ORDER := ["gunner", "knight", "soldier", "garage", "flamer", "sniper", "necro", "freezer", "toxic",
+	"assassin"]
 const TOWERS := {
 	"gunner": {
 		"name": "Gunslinger", "role": "Ranged - single target", "cost": 200, "sprite": "gunner",
@@ -178,6 +179,54 @@ const TOWERS := {
 				"set": {"damage": 3.0, "chill": 1.4, "chill_slow": 0.65, "freeze": 2.5}},
 		],
 	},
+	# acid towers: acid hurts over time through armor and eats some armor while it lasts
+	"toxic": {
+		"name": "Toxic Gunner", "role": "Ranged - acid", "cost": 350, "sprite": "toxic",
+		"desc": "Shoots globs of acid. Acid burns through armor over time and eats some of the armor while it lasts, so every other tower hits harder too.",
+		"unlock": {"map": "refinery", "difficulty": 2},
+		"base": {"damage": 3, "rate": 1.2, "range": 80, "acid_dps": 4.0, "acid_time": 3.0, "acid_shred": 1.0,
+			"splash": 0.0, "kind": "physical", "camo": false, "air": true},
+		"upgrades": [
+			{"name": "Corrosive Mix", "icon": "corrosive_mix", "cost": 220,
+				"desc": "Stronger acid: 4 > 8 dps, eats 2 armor.",
+				"set": {"acid_dps": 8.0, "acid_shred": 2.0}},
+			{"name": "Scope", "icon": "toxic_scope", "cost": 380,
+				"desc": "Range 80 > 96, shoots faster. Spots INVISIBLE enemies.",
+				"set": {"range": 96, "rate": 1.5, "camo": true}},
+			{"name": "Acid Splash", "icon": "acid_splash", "cost": 700,
+				"desc": "Globs burst: everyone within 18 px of the target gets the acid too.",
+				"set": {"splash": 18.0}},
+			{"name": "Toxic Overload", "icon": "toxic_overload", "cost": 1600,
+				"desc": "Acid 20 dps for 4s, eats 4 armor. Damage 8, faster, bigger splash.",
+				"set": {"damage": 8, "rate": 1.8, "acid_dps": 20.0, "acid_time": 4.0, "acid_shred": 4.0, "splash": 24.0}},
+		],
+	},
+	"assassin": {
+		"name": "Toxic Assassin", "role": "Melee - fast, acid, daggers", "cost": 450, "sprite": "assassin",
+		"desc": "Quick poisoned blades up close. From level 4 the Assassin also throws daggers at range, and the daggers reach FLYING enemies.",
+		"unlock": {"map": "refinery", "difficulty": 3},
+		"base": {"damage": 8, "rate": 2.0, "range": 28, "armor_pierce": 0.25, "acid_dps": 5.0, "acid_time": 2.0,
+			"acid_shred": 1.0, "dagger_dmg": 0, "dagger_rate": 0.0, "dagger_range": 0, "daggers": 0,
+			"kind": "physical", "camo": false, "air": false},
+		"upgrades": [
+			{"name": "Poisoned Blades", "icon": "poisoned_blades", "cost": 260,
+				"desc": "Acid 5 > 10 dps, eats 2 armor.",
+				"set": {"acid_dps": 10.0, "acid_shred": 2.0}},
+			{"name": "Swift Strikes", "icon": "swift_strikes", "cost": 420,
+				"desc": "Attacks 2 > 2.8 times a second, damage 8 > 10.",
+				"set": {"rate": 2.8, "damage": 10}},
+			{"name": "Throwing Daggers", "icon": "throwing_daggers", "cost": 700,
+				"desc": "NEW ATTACK: throws a poisoned dagger (12 dmg) at range 90. Daggers hit FLYING enemies.",
+				"set": {"dagger_dmg": 12, "dagger_rate": 1.2, "dagger_range": 90, "daggers": 1}},
+			{"name": "Twin Daggers", "icon": "twin_daggers", "cost": 1100,
+				"desc": "Throws 2 daggers at once, 14 dmg. Spots INVISIBLE enemies.",
+				"set": {"dagger_dmg": 14, "daggers": 2, "camo": true}},
+			{"name": "Master Assassin", "icon": "master_assassin", "cost": 2200,
+				"desc": "Blades 22 dmg, 3.2 attacks a second, acid 24 dps eating 4 armor. Daggers 20 dmg, faster.",
+				"set": {"damage": 22, "rate": 3.2, "acid_dps": 24.0, "acid_shred": 4.0, "dagger_dmg": 20,
+					"dagger_rate": 1.6}},
+		],
+	},
 }
 
 # ---------------------------------------------------------------- enemies
@@ -244,7 +293,9 @@ const STAT_LABELS := {"damage": "Damage", "rate": "Attacks/s", "range": "Range",
 	"cone": "Cone angle", "burn": "Burn dps", "burn_time": "Burn time", "fire_pierce": "Fire res. pierce",
 	"headshot": "Headshot chance", "camo": "Sees invisible", "air": "Hits flying",
 	"raise_hp": "Undead HP", "raise_class": "Raises up to class",
-	"chill": "Chill /s", "chill_slow": "Max slow", "freeze": "Freeze time"}
+	"chill": "Chill /s", "chill_slow": "Max slow", "freeze": "Freeze time",
+	"acid_dps": "Acid dps", "acid_time": "Acid time", "acid_shred": "Armor eaten", "splash": "Acid splash",
+	"dagger_dmg": "Dagger dmg", "dagger_rate": "Daggers/s", "dagger_range": "Dagger range", "daggers": "Daggers"}
 const PERCENT_STATS := ["slow", "armor_pierce", "fire_pierce", "headshot", "raise_hp", "chill", "chill_slow"]
 const RAINBOW := [Color("e43b44"), Color("fee761"), Color("63c74d"), Color("2c9aceff"), Color(0.473, 0.411, 0.962, 1.0)]
 

@@ -276,11 +276,19 @@ static func _stats_text(t: String, s: Dictionary) -> String:
 		txt += "\nGround only. Can't aim at invisible\nbut the flames still burn them"
 	elif t == "freezer":
 		txt += "\nGround only. Can't aim at invisible\nbut the water still soaks them"
+	elif t == "assassin":
+		txt += "\nBlades: ground" + (" + invisible" if s.get("camo", false) else "")
+		if int(s["daggers"]) > 0:
+			txt += "\nDaggers: ground + flying" + (" + invisible" if s.get("camo", false) else "")
 	elif t == "garage":
 		txt += "\nRuns over invisible, not flying"
 	elif t != "garage":
 		txt += "\nHits: " + ("ground" if sees.is_empty() else "ground + " + ", ".join(sees).to_lower())
 	return txt
+
+
+static func _acid_text(s: Dictionary) -> String:
+	return "Acid %s dps %ss, eats %d armor" % [UI.fmt_num(s["acid_dps"]), UI.fmt_num(s["acid_time"]), s["acid_shred"]]
 
 
 static func _stats_core(t: String, s: Dictionary) -> String:
@@ -325,6 +333,20 @@ static func _stats_core(t: String, s: Dictionary) -> String:
 			if s["damage"] > 0.0:
 				txt += "\nCold %s dps, ignores armor" % UI.fmt_num(s["damage"] * 10.0)
 			txt += "\nPuts out fire, fire melts ice"
+			return txt
+		"toxic":
+			var txt := "Dmg %s  Rate %s/s\nRange %d" % [UI.fmt_num(s["damage"]), UI.fmt_num(s["rate"]), s["range"]]
+			txt += "\n" + _acid_text(s)
+			if s["splash"] > 0.0:
+				txt += "\nSplash %d px" % s["splash"]
+			return txt
+		"assassin":
+			var txt := "Dmg %s  Rate %s/s\nRange %d  Armor pierce %d%%" % [UI.fmt_num(s["damage"]),
+				UI.fmt_num(s["rate"]), s["range"], int(s["armor_pierce"] * 100)]
+			txt += "\n" + _acid_text(s)
+			if int(s["daggers"]) > 0:
+				txt += "\nDaggers %d x%d, %s/s, range %d" % [s["dagger_dmg"], s["daggers"], UI.fmt_num(s["dagger_rate"]),
+					s["dagger_range"]]
 			return txt
 		"sniper":
 			var txt := "Dmg %s  Rate %s/s\nRange %d  Armor pierce %d%%" % [UI.fmt_num(s["damage"]),
@@ -499,7 +521,10 @@ static func enemy_lines(e) -> Array:
 	lines.append({"bar": f, "bc": Color("63c74d") if f > 0.5 else (Color("feae34") if f > 0.25 else Color("e43b44"))})
 	lines.append({"t": "Speed", "c": Color("8b9bb4"), "r": str(int(e.speed)), "rc": Color.WHITE})
 	if e.armor > 0:
-		lines.append({"t": "Armor", "c": Color("8b9bb4"), "r": str(int(e.armor)), "rc": Color("c0cbdc")})
+		var eaten: bool = e.cur_armor() < e.armor
+		lines.append({"t": "Armor", "c": Color("8b9bb4"),
+			"r": ("%d (of %d)" % [int(e.cur_armor()), int(e.armor)]) if eaten else str(int(e.armor)),
+			"rc": Color("63c74d") if eaten else Color("c0cbdc")})
 	if e.fire_res > 0:
 		lines.append({"t": "Fire resist", "c": Color("8b9bb4"),
 			"r": "IMMUNE" if e.fire_res >= 1.0 else "%d%%" % int(e.fire_res * 100), "rc": Color("f77622")})
@@ -528,6 +553,8 @@ static func enemy_lines(e) -> Array:
 	elif e.chill > 0:
 		st.append({"t": "CHILLED %d%% (slow %d%%)" % [int(e.chill * 100), int(e.chill * e.chill_slow * 100)],
 			"c": Color("8bd8f0")})
+	if e.acid_t > 0:
+		st.append({"t": "ACID %s/s, armor -%d" % [UI.fmt_num(e.acid_dps), int(e.acid_shred)], "c": Color("63c74d")})
 	if e.burn_t > 0:
 		st.append({"t": "BURNING %s/s" % UI.fmt_num(e.burn_dps * (1.0 - e.fire_res * (1.0 - e.burn_pierce))),
 			"c": Color("f77622")})
