@@ -122,7 +122,7 @@ func _build_sidebar() -> void:
 	scroll.add_child(list)
 	var bh := 32 if shop_order.size() <= 6 else 28
 	for t in shop_order:
-		var b := UI.button("", "blue", Vector2(112 if scrolls else 118, bh))
+		var b := UI.button("", "blue", Vector2(110 if scrolls else 118, bh))
 		b.icon = Game.tex("res://assets/sprites/towers/%s.png" % Defs.TOWERS[t]["sprite"])
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.add_theme_constant_override("icon_max_width", 22)
@@ -197,17 +197,25 @@ func _build_sidebar() -> void:
 	row.add_child(auto_btn)
 
 
-## Thin pixel scrollbar for the shop list.
+## Pixel art scrollbar for the shop list (textures from tools/gen_art.py gen_scrollbar).
 static func _style_scrollbar(bar: VScrollBar) -> void:
-	bar.custom_minimum_size.x = 4
-	var track := StyleBoxFlat.new()
-	track.bg_color = Color("181425")
+	bar.custom_minimum_size.x = 7
+	var track := UI.box("scroll_track", 3, Vector4(0, 0, 0, 0))
 	bar.add_theme_stylebox_override("scroll", track)
 	bar.add_theme_stylebox_override("scroll_focus", track)
-	for st in ["grabber", "grabber_highlight", "grabber_pressed"]:
-		var g := StyleBoxFlat.new()
-		g.bg_color = Color("5a6988") if st == "grabber" else Color("8b9bb4")
-		bar.add_theme_stylebox_override(st, g)
+	for st in [["grabber", ""], ["grabber_highlight", "_hover"], ["grabber_pressed", "_pressed"]]:
+		var g := StyleBoxTexture.new()
+		g.texture = load("res://assets/ui/scroll_grab%s.png" % st[1])
+		g.texture_margin_left = 2
+		g.texture_margin_right = 2
+		g.texture_margin_top = 3
+		g.texture_margin_bottom = 3
+		g.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_TILE   # the ridges repeat along it
+		bar.add_theme_stylebox_override(st[0], g)
+	for dir in [["decrement", "up"], ["increment", "down"]]:
+		bar.add_theme_icon_override(dir[0], load("res://assets/ui/scroll_%s.png" % dir[1]))
+		bar.add_theme_icon_override(dir[0] + "_highlight", load("res://assets/ui/scroll_%s_hover.png" % dir[1]))
+		bar.add_theme_icon_override(dir[0] + "_pressed", load("res://assets/ui/scroll_%s_pressed.png" % dir[1]))
 
 
 func _stat_row(parent: Control, icon_name: String, col: Color) -> Label:

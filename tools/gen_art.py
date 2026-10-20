@@ -111,7 +111,52 @@ def gen_ui():
     bevel_box(16, 16, (58, 68, 102), light=C['dgray'], dark=C['navy']).save(out('ui/card.png'))
     bevel_box(16, 16, (78, 90, 130), light=C['gray'], dark=C['xdgray']).save(out('ui/card_hover.png'))
     bevel_box(16, 16, C['dgreen'], light=C['green'], dark=C['xdgreen']).save(out('ui/card_selected.png'))
+    gen_scrollbar()
     gen_logo()
+
+
+def gen_scrollbar():
+    """7 px wide scrollbar for the battle shop: inset groove, ridged blue grabber, tiny arrow buttons."""
+    W = 7
+    # groove: an inverted bevel so it looks pressed into the panel
+    bevel_box(W, 8, (30, 26, 46), light=(22, 19, 34), dark=C['navy']).save(out('ui/scroll_track.png'))
+    # grabber: 3 px caps top and bottom, the 4 middle rows are tiled (one ridge every 4 px)
+    for suffix, base, light, dark in (('', C['blu'], C['blu_l'], C['blu_d']),
+                                      ('_hover', C['blu_l'], (120, 200, 245), C['blu']),
+                                      ('_pressed', C['blu_d'], C['blu'], (12, 46, 90))):
+        H = 10
+        img = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+        px = img.load()
+        for y in range(H):
+            for x in range(W):
+                if (x in (0, W - 1)) and (y in (0, H - 1)):
+                    continue
+                inner = 1 < x < W - 2
+                if x in (0, W - 1) or y in (0, H - 1):
+                    c = C['black']
+                elif y == 1:
+                    c = light
+                elif y == H - 2:
+                    c = dark
+                elif y == 4 and inner:
+                    c = light
+                elif y == 5 and inner:
+                    c = dark
+                else:
+                    c = base
+                px[x, y] = c + (255,)
+        img.save(out(f'ui/scroll_grab{suffix}.png'))
+    # arrow buttons (Godot draws them at the ends of the bar)
+    for name, up in (('scroll_up', True), ('scroll_down', False)):
+        for suffix, base, light, arrow in (('', C['dblue'], C['blu'], C['lgray']),
+                                           ('_hover', C['blu'], C['blu_l'], C['white']),
+                                           ('_pressed', C['blu_d'], C['dblue'], C['gray'])):
+            img = bevel_box(W, 7, base, light=light, dark=shade(base, 0.7))
+            px = img.load()
+            for i, (x0, x1) in enumerate(((3, 4), (2, 5)) if up else ((2, 5), (3, 4))):   # 1 then 3 px wide
+                for x in range(x0, x1):
+                    px[x, 2 + i] = arrow + (255,)
+            img.save(out(f'ui/{name}{suffix}.png'))
 
 
 FONT5 = {
