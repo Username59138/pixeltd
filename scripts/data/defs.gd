@@ -22,12 +22,12 @@ const DIFFICULTIES := [
 		"desc": "40 waves. Tougher enemies, pricier towers, 100 lives.",
 		"bonus_multi": 0.95},
 	{"id": "hardcore", "name": "Hardcore", "lives": 50, "cash": 1300, "hp": 1.12, "cost": 1.08, "waves": 40,
-		"sell": 0.0, "color": Color("e43b44"), "btn": "red",
-		"desc": "40 waves. 50 lives. Towers can't be sold.",
+		"sell": 0.7, "color": Color("e43b44"), "btn": "red",
+		"desc": "40 waves. Lots of lead enemies. 50 lives.",
 		"bonus_multi": 0.7},
 	{"id": "ultracore", "name": "Ultracore", "lives": 1, "cash": 1500, "hp": 1.25, "cost": 1.1, "waves": 40,
-		"sell": 0.0, "color": Color("b25aff"), "btn": "purple",
-		"desc": "40 waves. ONE life, no selling. Beat Hardcore here first.",
+		"sell": 0.7, "color": Color("b25aff"), "btn": "purple",
+		"desc": "40 waves. ONE life. Beat Hardcore here first.",
 		"bonus_multi": 0.8, "needs": 3},
 ]
 

@@ -6,6 +6,7 @@ const ENTRIES := [
 		"Every difficulty is easier: all enemies and bosses have 40% less HP (the Stone Golem 4500, the Bone Dragon 18k, the Demon Lord 30k, the Void Titan 600k) and pay the same.",
 		"The Stone Golem's armor is 2 instead of 4, so Medium can be beaten with Gunslingers alone again.",
 		"Not every tower goes to level 7 any more, like in TDS. Early game towers are cheap and stop at level 5: the Gunslinger tops out at Fan the Hammer, the Toxic Gunner at Toxic Overload. Mid game towers stop at level 6: Garage (Twin Turret), Necromancer (Lord of Bones) and Freezer (Cryo Cannon, which now makes frozen enemies take 25% more damage). The pricey end game towers keep all 7 levels.",
+		"Towers can be sold on Hardcore and Ultracore again (70% back, like on Medium and Difficult).",
 		"The Soldier is on sale in the Armory from the start (25 paper maps), no map to beat first.",
 		"The Gunslinger's DPS shows per target now (\"DPS 42 x2 targets\"): the sum over all its targets looked like it hit a boss that hard.",
 		"Bloated enemies look like any other now; hover one to see that it's Bloated and has twice the HP.",
