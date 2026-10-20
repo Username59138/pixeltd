@@ -53,7 +53,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 - **Volcano:** two short roads, lava on the best spots and an eruption every second wave. Tiles next to the lava flash orange, then towers on them stop shooting for 6 seconds.
 - **Murky Swamp:** the boardwalk crosses itself, so towers near the crossing hit enemies twice. The bog eats the best spots.
 - **Old Graveyard:** a second road starts at the crypt in the middle of the map. Grave plots take some of the space.
-- **Acid Refinery:** acid puddles on the road put acid on every ground enemy walking through (4 dps for 2s, eats 2 armor). Nothing can be built right next to a puddle. Acid lakes and storage tanks take more of the space.
+- **Acid Refinery:** two roads, from the top left and the bottom left, join in the middle. Acid lakes, storage tanks and huge hazard barrels take some of the space.
 - **Acid** hurts over time through armor and, while it lasts, eats some of the enemy's armor, so physical towers hit harder too. The strongest acid on an enemy wins; class doesn't weaken it (it's damage, not control).
 - **Invisible enemies** (Ghost) are drawn see-through and can only be aimed at by towers that spot them: Gunslinger from Hollow Points, Soldier from AP Rounds, and the Sniper always. The Flamethrower can't aim at them, but its flames still burn any that walk through the cone. Garage cars run them over.
 - **Flying enemies** (Bat, Harpy) follow the road in the air. Gunslinger, Soldier and Sniper can shoot them. Knight, Flamethrower, grenades and cars can't reach them.

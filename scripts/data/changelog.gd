@@ -3,7 +3,7 @@ extends RefCounted
 
 const ENTRIES := [
 	{"version": "0.12", "title": "In progress", "date": "October 2026", "items": [
-		"NEW MAP: Acid Refinery (Advanced). Acid puddles on the road eat at the enemies walking through, but nothing can be built next to them.",
+		"NEW MAP: Acid Refinery (Advanced). Two roads through a leaking chemical plant join in the middle; acid lakes, storage tanks and huge hazard barrels take some of the space.",
 		"ACID: hurts over time through armor and eats some of the armor while it lasts, so every other tower hits harder too.",
 		"NEW TOWER: the Toxic Gunner. Beat Acid Refinery on Difficult. Shoots globs of acid, and from Acid Splash on they burst over everyone around the target.",
 		"NEW TOWER: the Toxic Assassin. Beat Acid Refinery on Hardcore. Very fast poisoned blades up close; from level 4 the Assassin also throws daggers at range, and the daggers reach flying enemies.",

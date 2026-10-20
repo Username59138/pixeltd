@@ -553,6 +553,58 @@ PIPE = [
     "dd.......ddd",
 ]
 PIPE_C = {'r': 'red', 's': 'dgray', 'p': 'xdgray', 'P': 'gray', 'L': 'lgray', 'd': 'dgray'}
+def _big_barrel(W=30, H=40):
+    """Huge yellow drum: lid, ribs, a white hazard label (black triangle with "!"), acid over the lid, a puddle."""
+    r = [['.'] * W for _ in range(H)]
+    top, bot = 4, H - 3
+    for y in range(top, bot):
+        for x in range(1, W - 1):
+            r[y][x] = 'y' if x <= 4 else ('o' if x >= W - 6 else 'Y')
+    for x in range(3, W - 3):              # lid
+        r[top - 2][x] = 'd'
+        r[top - 1][x] = 'y' if x < W - 6 else 'Y'
+    for x in (1, 2, W - 3, W - 2):
+        r[top - 1][x] = 'd'
+    for y in (top + 6, bot - 6):           # ribs
+        for x in range(1, W - 1):
+            r[y][x] = 'd'
+    lx0, ly0 = 7, top + 10                 # white label with a warning triangle
+    for y in range(ly0, ly0 + 13):
+        for x in range(lx0, lx0 + 16):
+            r[y][x] = 'w'
+    tri = ["......k......",
+           ".....kkk.....",
+           ".....kYk.....",
+           "....kYkYk....",
+           "....kYkYk....",
+           "...kYYkYYk...",
+           "...kYYkYYk...",
+           "..kYYYYYYYk..",
+           "..kYYYkYYYk..",
+           ".kYYYYYYYYYk.",
+           "kkkkkkkkkkkkk"]
+    for dy, row in enumerate(tri):
+        for dx, ch in enumerate(row):
+            if ch != '.':
+                r[ly0 + 1 + dy][lx0 + 1 + dx] = ch
+    for x in range(6, 18):                 # acid spilling over the lid and running down
+        r[top - 3][x] = 'g'
+        r[top - 2][x] = 'G' if x % 3 else 'g'
+    for y in range(top - 1, top + 9):
+        r[y][8] = 'G'
+        r[y][9] = 'g'
+    for y in range(top - 1, top + 4):
+        r[y][15] = 'G'
+    for x in range(2, 18):                 # puddle at the foot
+        r[bot][x] = 'G'
+        r[bot + 1][x] = 'g' if x % 4 else 'G'
+    return [''.join(row) for row in r]
+
+
+BIG_BARREL = _big_barrel()
+BIG_BARREL_C = {'Y': 'gold', 'y': 'yellow', 'o': 'lorange', 'd': 'xdbrown', 'w': 'white', 'k': 'black',
+                'g': 'green', 'G': 'lgreen'}
+
 TANK = [
     "......LLLLLLLLLLLLL.......",
     "...LLLsssssssssssssLLL....",
@@ -584,7 +636,7 @@ TANK_C = {'L': 'dgray', 's': 'gray', 'S': 'lgray', 'd': 'dgray', 'y': 'gold', 'k
 
 DECOR_SPRITES = {
     'toxic_barrel': (TOXIC_BARREL, TOXIC_BARREL_C), 'acid_barrel': (ACID_BARREL, ACID_BARREL_C),
-    'pipe': (PIPE, PIPE_C), 'tank': (TANK, TANK_C),
+    'pipe': (PIPE, PIPE_C), 'tank': (TANK, TANK_C), 'big_barrel': (BIG_BARREL, BIG_BARREL_C),
     'swamp_tree': (TREE, SWAMP_TREE_C), 'autumn_tree': (TREE, AUTUMN_TREE_C),
     'lamp': (LAMP, LAMP_C), 'hydrant': (HYDRANT, HYDRANT_C), 'trash': (TRASH, TRASH_C),
     'dumpster': (DUMPSTER, DUMPSTER_C), 'reeds': (REEDS, REEDS_C), 'mushroom': (MUSHROOM, MUSHROOM_C),

@@ -415,10 +415,10 @@ MAPS = [
          decor=['dead_tree', 'tomb', 'tomb_cross', 'skull', 'pumpkin', 'rock'], density=0.035,
          desc='The dead crawl out of the crypt. Short roads, no rest.'),
     dict(id='refinery', name='Acid Refinery', theme='toxic', tier='Advanced', hp_mult=1.2, seed=31, seed_idx=7,
-         paths=[[(-1, 4), (7, 4), (7, 16), (14, 16), (14, 6), (22, 6), (22, 17), (28, 17), (28, 9), (33, 9)]],
-         acid_road=[(7, 10), (14, 11), (22, 11), (25, 17)],
+         paths=[[(-1, 3), (6, 3), (6, 9), (13, 9), (13, 13), (20, 13), (20, 4), (27, 4), (27, 17), (33, 17)],
+                [(-1, 19), (10, 19), (10, 13), (13, 13), (20, 13), (20, 4), (27, 4), (27, 17), (33, 17)]],
          decor=['toxic_barrel', 'toxic_barrel', 'acid_barrel', 'pipe', 'tires', 'rock'], density=0.05,
-         desc='Leaking barrels everywhere. Acid puddles on the road eat at the enemies.'),
+         desc='Two roads through a leaking chemical plant. They join in the middle.'),
     dict(id='volcano', name='Volcano', theme='volcano', tier='Expert', hp_mult=1.45, seed=3, seed_idx=4,
          paths=[[(5, -1), (5, 6), (27, 6), (27, 23)],
                 [(-1, 17), (14, 17), (14, 12), (27, 12), (27, 23)]],
@@ -495,8 +495,8 @@ def bake_map(m, cols=32, rows=23, variant=None):
                       (20.0, 17.0, 4.0, 2.6), (8.5, 20.5, 3.5, 1.5)]]
     if m['id'] == 'refinery':
         ellipses += [('acid', cx, cy, rx, ry) for (cx, cy, rx, ry) in
-                     [(3.5, 11.0, 2.2, 2.4), (18.0, 12.0, 2.3, 2.8), (26.5, 2.8, 3.0, 1.6), (10.5, 20.0, 3.0, 1.3),
-                      (30.5, 15.0, 1.4, 2.0)]]
+                     [(2.5, 12.0, 2.0, 2.5), (16.5, 18.0, 3.0, 1.8), (24.0, 9.5, 2.0, 3.0), (11.0, 1.5, 3.5, 1.2),
+                      (30.5, 10.5, 1.3, 2.5)]]
     if m['id'] == 'swamp':
         ellipses += [('bog', cx, cy, rx, ry) for (cx, cy, rx, ry) in
                      [(3.5, 14.5, 2.6, 3.0), (19.5, 12.0, 4.0, 1.7), (28.5, 4.5, 2.8, 2.6), (13.5, 21.3, 3.2, 1.3),
@@ -730,8 +730,6 @@ def bake_map(m, cols=32, rows=23, variant=None):
                         px[xx, yy] = C['gold'] + (255,)
     if m['id'] == 'swamp':
         paint_lily_pads(img, rnd, special_px, W, H)
-    if m['id'] == 'refinery':
-        paint_acid_puddles(img, rnd, m['acid_road'], ptiles, cols, rows)
     # lava glow speck
     if det == 'embers':
         for (tx, ty), k in special.items():
@@ -766,15 +764,10 @@ def bake_map(m, cols=32, rows=23, variant=None):
         place('trash', 21, 5)
         place('hydrant', 2, 9)
     if m['id'] == 'refinery':
-        # nobody builds next to a puddle on the road (the splashes would eat the tower)
-        for (x, y) in m['acid_road']:
-            for dx in (-1, 0, 1):
-                for dy in (-1, 0, 1):
-                    if (x + dx, y + dy) not in ptiles:
-                        blocked.add((x + dx, y + dy))
-        place('tank', 10, 1, 2, 2)
-        place('tank', 17, 18, 2, 2)
-        place('tank', 30, 4, 2, 2)
+        place('tank', 16, 6, 2, 2)
+        place('tank', 23, 18, 2, 2)
+        for (x, y) in ((2, 5), (8, 14), (29, 0), (14, 14), (23, 13)):
+            place('big_barrel', x, y, 2, 3)
     if m['id'] == 'graveyard':
         draw_crypt(img, 20 * T, 0, 5 * T, 3 * T)
         for (rect, xs, ys, chance) in GRAVE_PLOTS:
@@ -1164,32 +1157,6 @@ def draw_crypt(img, x0, y0, w, h):
         px[x0 + w - 1, y] = C['black'] + (255,)
 
 
-def paint_acid_puddles(img, rnd, road, ptiles, cols, rows):
-    """Bright acid puddles on the road tiles in `road`; the ground around them is stained green."""
-    px = img.load()
-    for (tx, ty) in road:
-        cx, cy = tx * T + 8, ty * T + 8
-        for y in range(ty * T, ty * T + T):
-            for x in range(tx * T, tx * T + T):
-                d = ((x + 0.5 - cx) / 7.0) ** 2 + ((y + 0.5 - cy) / 6.0) ** 2
-                if d <= 1.0:
-                    col = (170, 240, 100) if d < 0.25 else (C['lgreen'] if d < 0.7 else (60, 160, 64))
-                    if (x * 5 + y * 3) % 13 == 0:
-                        col = (220, 255, 170)
-                    px[x, y] = col + (255,)
-                elif d <= 1.35:
-                    px[x, y] = C['xdgreen'] + (255,)
-        # stains on the blocked ground around it
-        for dx in (-1, 0, 1):
-            for dy in (-1, 0, 1):
-                nt = (tx + dx, ty + dy)
-                if nt in ptiles or not (0 <= nt[0] < cols and 0 <= nt[1] < rows):
-                    continue
-                for _ in range(10):
-                    x, y = nt[0] * T + rnd.randrange(1, 15), nt[1] * T + rnd.randrange(1, 15)
-                    px[x, y] = rnd.choice([(74, 112, 64), (60, 160, 64), C['xdgreen']]) + (255,)
-
-
 def paint_lily_pads(img, rnd, special_px, W, H):
     px = img.load()
     for _ in range(400):
@@ -1244,7 +1211,6 @@ def gen_maps():
         lines.append('\t\t"blocked": [%s],' % ', '.join(rows_txt))
         lava = sorted(t for t, k in special.items() if k == 'lava' and 0 <= t[0] < cols and 0 <= t[1] < 22)
         lines.append('\t\t"lava": [%s],' % ', '.join('Vector2i(%d, %d)' % t for t in lava))
-        lines.append('\t\t"acid": [%s],' % ', '.join('Vector2i(%d, %d)' % t for t in m.get('acid_road', [])))
         lines.append('\t},')
     lines.append('}')
     with open(os.path.join(ROOT, 'scripts/data/maps_data.gd'), 'w') as f:

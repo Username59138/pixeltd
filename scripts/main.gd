@@ -452,7 +452,7 @@ func _mech_test() -> void:
 	fz.flame_tick = 0.0
 	fz.update(Battle.STEP, b.enemies)
 	check.call("liquid nitrogen ignores armor", absf(ih - iron.hp - 3.0) < 0.01)
-	# acid: damage over time through armor, eats armor while it lasts; puddles on the road put it on enemies
+	# acid: damage over time through armor, eats armor while it lasts
 	for tw in b.towers.values():
 		b.sell_tower(tw)
 	for e in b.enemies:
@@ -469,11 +469,6 @@ func _mech_test() -> void:
 	for k in 60:
 		b._tick_enemies(Battle.STEP)
 	check.call("armor comes back after the acid", ac.acid_t <= 0.0 and ac.cur_armor() == arm0)
-	var ag = b.spawn_enemy("goblin", 0, 0.0)
-	b.acid_tiles[Vector2i(floori(ag.position.x / Battle.TILE), floori(ag.position.y / Battle.TILE))] = true
-	b._tick_enemies(Battle.STEP)
-	check.call("acid puddle puts acid on walkers", ag.acid_t > 0.0)
-	b.acid_tiles.clear()
 	for e in b.enemies:
 		e.alive = false
 	b.enemies.clear()

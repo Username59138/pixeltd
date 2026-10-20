@@ -46,8 +46,6 @@ var seen_types := {}
 var rng := RandomNumberGenerator.new()
 var path_tiles := {}
 var lava_tiles: Array = []
-var acid_tiles := {}   # road tiles with an acid puddle: enemies walking through get acid on them
-const PUDDLE_ACID := {"dps": 4.0, "time": 2.0, "shred": 2.0}
 var eruption_t := -1.0
 var eruption_warn: Array = []   # tiles about to be hit
 var eruption_warn_t := 0.0
@@ -113,8 +111,6 @@ func setup(p_map_id: String, p_diff: int, p_demo := false) -> void:
 				c += step
 				path_tiles[c] = true
 	lava_tiles = map.get("lava", [])
-	for t in map.get("acid", []):
-		acid_tiles[t] = true
 	var rows: Array = map["blocked"]
 	for y in rows.size():
 		var r: String = rows[y]
@@ -433,9 +429,6 @@ func _tick_enemies(dt: float) -> void:
 			elif not headless and randf() < dt * 9.0:   # green bubbles
 				_spawn_particle(e.position + Vector2(randf_range(-4, 4), -randf_range(1, 9)), Vector2(0, -10),
 					0.5, Color("63c74d") if randf() < 0.6 else Color("b6f08c"), 2 if randf() < 0.3 else 1)
-		if not acid_tiles.is_empty() and not e.flying and \
-				acid_tiles.has(Vector2i(floori(e.position.x / TILE), floori(e.position.y / TILE))):
-			e.apply_acid(PUDDLE_ACID["dps"], PUDDLE_ACID["time"], PUDDLE_ACID["shred"], null)
 		# slowed: grey specks dropping off like dead weight
 		if not headless and e.slow_t > 0.0 and randf() < dt * 10.0:
 			_spawn_particle(e.position + Vector2(randf_range(-4, 4), -randf_range(4, 10)),
