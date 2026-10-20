@@ -38,7 +38,6 @@ var frozen_t := 0.0       # > 0 while stuck in a block of ice
 var freeze_immune_t := 0.0
 var heal_cd := 0.0
 var flash_t := 0.0
-var heal_flash_t := 0.0
 var heal_lock := 0.0
 var incoming := 0.0  # damage of bullets already flying at this enemy
 var final_boss := false
@@ -225,8 +224,6 @@ func tick_status(dt: float) -> void:
 			slow_f = 0.0
 	if flash_t > 0.0:
 		flash_t -= dt
-	if heal_flash_t > 0.0:
-		heal_flash_t -= dt
 	if heal_lock > 0.0:
 		heal_lock -= dt
 	if downed_t > 0.0:
@@ -270,8 +267,6 @@ func update_visual(dir: Vector2) -> void:
 	var m := Color.WHITE
 	if slow_t > 0.0:
 		m = Color(0.7, 0.85, 1.0)
-	elif heal_flash_t > 0.0:
-		m = Color(0.7, 1.0, 0.7)
 	elif is_enraged():
 		m = Color(1.0, 0.6 + 0.2 * sin(anim_t * 12.0), 0.6)
 	if downed_t > 0.0:

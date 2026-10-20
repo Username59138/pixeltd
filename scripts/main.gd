@@ -93,6 +93,15 @@ func _ready() -> void:
 			for k in 12:
 				battle.spawn_enemy(["goblin", "ironclad", "wolf", "ogre"][k % 4], 0, 30.0 + k * 12.0)
 			battle.spawn_enemy("golem", 0, 5.0)
+		if args.has("--healtest"):   # a shaman healing hurt goblins (first heal 2.5s in)
+			for k in 12:
+				battle.start_wave()
+				battle.spawning = false
+			battle.spawn_queue = []
+			for k in 6:
+				var g = battle.spawn_enemy(["goblin", "ironclad", "berserker"][k % 3], 0, 40.0 + k * 10.0)
+				g.hp *= 0.3
+			battle.spawn_enemy("shaman", 0, 75.0)
 	elif args.has("--maps"):
 		show_map_select()
 	elif args.has("--towers"):

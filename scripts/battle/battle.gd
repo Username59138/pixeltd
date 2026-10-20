@@ -436,6 +436,19 @@ func _tick_enemies(dt: float) -> void:
 			e.update_visual(pp[1])
 
 
+## A green plus floats up from a healed enemy, with a few sparkles.
+func _fx_healed(e: Node2D) -> void:
+	if headless:
+		return
+	var p: Vector2 = e.position + Vector2(randf_range(-3, 3), -8)
+	var v := Vector2(0, -16)
+	for d in [Vector2.ZERO, Vector2(-1, 0), Vector2(1, 0), Vector2(0, -1), Vector2(0, 1)]:
+		_spawn_particle(p + d, v, 0.6, Color("63c74d"), 1)
+	for i in 3:
+		_spawn_particle(e.position + Vector2(randf_range(-5, 5), -randf_range(0, 10)),
+			Vector2(randf_range(-4, 4), -randf_range(10, 20)), 0.45, Color("b6f08c"), 1)
+
+
 func _shaman_heal(s: Node2D) -> void:
 	var healed := false
 	for o in enemies:
@@ -443,7 +456,7 @@ func _shaman_heal(s: Node2D) -> void:
 			o.heal_lock = 2.5  # heals from several shamans don't stack
 			var amt: float = o.max_hp * (float(s.def["heal"]) if o.cls < 4 else 0.02)
 			o.hp = minf(o.max_hp, o.hp + amt)
-			o.heal_flash_t = 0.3
+			_fx_healed(o)
 			healed = true
 	if healed and not headless:
 		for i in 10:

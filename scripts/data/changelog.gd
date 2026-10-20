@@ -2,6 +2,9 @@ extends RefCounted
 ## What's new, shown from the main menu. Newest version first.
 
 const ENTRIES := [
+	{"version": "0.12", "title": "In progress", "date": "October 2026", "items": [
+		"Enemies healed by a Goblin Shaman no longer flash green: a green plus floats up from them instead.",
+	]},
 	{"version": "0.11", "title": "The Freezer", "date": "October 2026", "items": [
 		"NEW TOWER: the Freezer. Beat Frozen Lake on Difficult to unlock it. Hoses enemies with ice water: the more they get soaked the slower they walk, until they freeze solid in a block of ice. Higher classes chill slower and thaw faster, so bosses only freeze now and then.",
 		"Its upgrades make the water colder and colder: Cold Water, Pressure Hose, Ice Water (starts to hurt) and Liquid Nitrogen.",
