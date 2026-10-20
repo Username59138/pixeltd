@@ -131,6 +131,7 @@ func _build_towers() -> void:
 		var t: String = ids[i]
 		var d: Dictionary = Defs.TOWERS[t]
 		var unlocked := Game.is_tower_unlocked(t)
+		var for_sale := Game.is_tower_for_sale(t)
 		var b := UI.button("", "blue", CARD)
 		b.position = _card_pos(i)
 		b.size = CARD
@@ -146,19 +147,31 @@ func _build_towers() -> void:
 		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(frame)
 		var spr := UI.sprite_rect("res://assets/sprites/towers/%s.png" % d["sprite"], 3)
-		if not unlocked:
+		if not unlocked and not for_sale:
 			spr.modulate = Color(0, 0, 0, 0.9)
 		frame.add_child(spr)
 		if not unlocked:
 			var lock := UI.sprite_rect("res://assets/ui/icons/lock.png", 2)
 			lock.position = Vector2(cw - 34, 12)
 			b.add_child(lock)
-		var nl := UI.label(d["name"] if unlocked else "???", 10, Color("fee761") if unlocked else Color("8b9bb4"),
-			HORIZONTAL_ALIGNMENT_CENTER)
+		var nl := UI.label(d["name"] if unlocked or for_sale else "???", 10,
+			Color("fee761") if unlocked or for_sale else Color("8b9bb4"), HORIZONTAL_ALIGNMENT_CENTER)
 		nl.position = Vector2(0, 106)
 		nl.size = Vector2(cw, 12)
 		b.add_child(nl)
-	var hint := UI.label("Click a tower to see everything about it", 10, Color("8b9bb4"), HORIZONTAL_ALIGNMENT_CENTER)
+		if for_sale:   # beaten its map: buy it for paper maps
+			var ph := HBoxContainer.new()
+			ph.alignment = BoxContainer.ALIGNMENT_CENTER
+			ph.add_theme_constant_override("separation", 2)
+			ph.position = Vector2(0, 88)
+			ph.size = Vector2(cw, 12)
+			ph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			b.add_child(ph)
+			var afford := Game.paper_maps >= Game.tower_price(t)
+			ph.add_child(UI.label("BUY %d" % Game.tower_price(t), 10, Color("fee761") if afford else Color("8b9bb4")))
+			ph.add_child(UI.icon("map"))
+	var hint := UI.label("Click a tower to see everything about it.  You have %d paper maps." % Game.paper_maps, 10,
+		Color("8b9bb4"), HORIZONTAL_ALIGNMENT_CENTER)
 	hint.position = Vector2(0, 2 * CARD.y + GAP + 8)
 	hint.size = Vector2(640, 12)
 	content.add_child(hint)
@@ -216,11 +229,12 @@ func _open_tower(t: String) -> void:
 	frame.position = Vector2(0, 0)
 	frame.size = Vector2(150, 140)
 	root.add_child(frame)
+	var for_sale := Game.is_tower_for_sale(t)
 	view_sprite = UI.sprite_rect("res://assets/sprites/towers/%s.png" % d["sprite"], 5)
-	if not unlocked:
+	if not unlocked and not for_sale:
 		view_sprite.modulate = Color(0, 0, 0, 0.9)
 	frame.add_child(view_sprite)
-	var name_l := UI.label(d["name"] if unlocked else "???", 20, Color("fee761"))
+	var name_l := UI.label(d["name"] if unlocked or for_sale else "???", 20, Color("fee761"))
 	name_l.position = Vector2(0, 146)
 	root.add_child(name_l)
 	var role_l := UI.label(d["role"], 10, Color("c0cbdc"))
@@ -232,6 +246,34 @@ func _open_tower(t: String) -> void:
 	cost_row.add_child(UI.icon("coin"))
 	cost_row.add_child(UI.label("$%d" % d["cost"], 10, Color("feae34")))
 
+	if for_sale:
+		var price := Game.tower_price(t)
+		var afford := Game.paper_maps >= price
+		var sdesc := UI.label(d["desc"], 10, Color.WHITE)
+		sdesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sdesc.position = Vector2(166, 0)
+		sdesc.custom_minimum_size = Vector2(400, 0)
+		root.add_child(sdesc)
+		var l := UI.label("FOR SALE", 20, Color("fee761"), HORIZONTAL_ALIGNMENT_CENTER)
+		l.position = Vector2(170, 90)
+		l.size = Vector2(400, 20)
+		root.add_child(l)
+		var buy := UI.button("Buy for %d paper maps" % price, "gold" if afford else "gray", Vector2(200, 28))
+		buy.position = Vector2(270, 120)
+		buy.disabled = not afford
+		buy.pressed.connect(func():
+			if Game.buy_tower(t):
+				Sfx.play("unlock")
+				_close_tower()
+				_show(true)
+				_open_tower(t))
+		root.add_child(buy)
+		var have := UI.label("You have %d paper maps" % Game.paper_maps, 10, Color("c0cbdc") if afford else Color("e43b44"),
+			HORIZONTAL_ALIGNMENT_CENTER)
+		have.position = Vector2(170, 154)
+		have.size = Vector2(400, 12)
+		root.add_child(have)
+		return
 	if not unlocked:
 		var lock := UI.sprite_rect("res://assets/ui/icons/lock.png", 4)
 		lock.position = Vector2(340, 60)

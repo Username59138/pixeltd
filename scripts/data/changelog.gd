@@ -13,6 +13,7 @@ const ENTRIES := [
 		"LEAD enemies, from Difficult up: cast in grey lead, only towers that pierce lead can hurt them. Fire melts lead and acid eats through it, so the Flamethrower, Toxic Gunner and Toxic Assassin always can; so do Garage cars, the Soldier from AP Rounds and the Sniper from Full Metal Jacket. Gunslinger, Knight, Necromancer and Freezer can't.",
 		"NEW DIFFICULTY: Ultracore. 40 waves, one life, no selling, the toughest waves with lots of lead, and the Void Titan (1,000,000 HP) at the end. Opens on a map once you beat Hardcore there.",
 		"Hardcore now has 50 lives instead of 1.",
+		"Towers are bought now: beating a tower's map puts it on sale in the Armory, and you buy it with paper maps (25 for the Soldier up to 200 for the Toxic Assassin). Towers you already unlocked stay yours.",
 		"No more level bar under the towers (other towers and enemies hid it anyway): hover a tower and its card shows \"Lv. 1\" ... \"Lv. 7\".",
 		"Towers are priced by how strong they are: from 250 for the Gunslinger up to 1500 for the Toxic Assassin. The towers that got much pricier hit a bit harder.",
 		"More money: twice the starting cash, tougher enemies pay more, and clearing a wave pays more and more as the waves go on.",

@@ -573,6 +573,26 @@ func _mech_test() -> void:
 	b._tick_friendly(bouncer, Battle.STEP)
 	check.call("undead bounce off lead", bouncer.alive and lg.hp == lh)
 	check.call("Ultracore needs Hardcore beaten on the map", not Game.is_diff_open("nope", 4) and Game.is_diff_open("nope", 3))
+	# towers: beating the map puts them on sale, then they're bought with paper maps (never touches the save)
+	var keep := {"no_save": Game._no_save, "beaten": Game.beaten.duplicate(true), "bought": Game.bought_towers.duplicate(),
+		"paper": Game.paper_maps, "all": Game.all_maps_open}
+	Game._no_save = true
+	Game.all_maps_open = false
+	Game.beaten = {}
+	Game.bought_towers = []
+	Game.paper_maps = 30
+	check.call("soldier locked before Medium is beaten", not Game.is_tower_unlocked("soldier") and not Game.is_tower_for_sale("soldier"))
+	Game.record_win("meadow", 1)
+	check.call("a win puts the soldier on sale", Game.is_tower_for_sale("soldier") and not Game.is_tower_unlocked("soldier"))
+	Game.paper_maps = Game.tower_price("soldier") - 1
+	check.call("can't buy without enough paper maps", not Game.buy_tower("soldier"))
+	Game.paper_maps = Game.tower_price("soldier")
+	check.call("bought soldier is unlocked", Game.buy_tower("soldier") and Game.is_tower_unlocked("soldier") and Game.paper_maps == 0)
+	Game.beaten = keep["beaten"]
+	Game.bought_towers = keep["bought"]
+	Game.paper_maps = keep["paper"]
+	Game.all_maps_open = keep["all"]
+	Game._no_save = keep["no_save"]
 	# tower limits: 10 of a type, 50 in all
 	for tw in b.towers.values():
 		b.sell_tower(tw)

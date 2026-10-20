@@ -33,6 +33,7 @@ const LOSS_SHARE := 0.4                        # a loss pays this share of a win
 const MAP_PRICE := [30, 60, 150, 300]          # by map tier
 var unlocked_maps: Array = START_MAPS.duplicate()
 var paper_maps := 0
+var bought_towers: Array = []   # towers bought with paper maps (beating their map only puts them up for sale)
 var all_maps_open := false      # dev flag --unlock-all
 var last_reward := 0            # paper maps paid by the last finished battle
 
@@ -94,6 +95,7 @@ func _reset_data() -> void:
 	keys = DEFAULT_KEYS.duplicate()
 	unlocked_maps = START_MAPS.duplicate()
 	paper_maps = 0
+	bought_towers = []
 	if save_fake:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
 	else:
@@ -147,16 +149,34 @@ func best_beaten(map_id: String) -> int:
 
 func is_tower_unlocked(tower_id: String) -> bool:
 	var u: Dictionary = Defs.TOWERS[tower_id]["unlock"]
-	if u.is_empty():
-		return true
-	return best_beaten(u["map"]) >= int(u["difficulty"])
+	return u.is_empty() or all_maps_open or bought_towers.has(tower_id)
+
+
+## Beating the tower's map on its difficulty (or a harder one) puts it up for sale in the Armory.
+func is_tower_for_sale(tower_id: String) -> bool:
+	var u: Dictionary = Defs.TOWERS[tower_id]["unlock"]
+	return not is_tower_unlocked(tower_id) and best_beaten(u["map"]) >= int(u["difficulty"])
+
+
+func tower_price(tower_id: String) -> int:
+	return int(Defs.TOWERS[tower_id]["unlock"].get("price", 0))
+
+
+func buy_tower(tower_id: String) -> bool:
+	if not is_tower_for_sale(tower_id) or paper_maps < tower_price(tower_id):
+		return false
+	paper_maps -= tower_price(tower_id)
+	bought_towers.append(tower_id)
+	save_progress()
+	return true
 
 
 func unlock_text(tower_id: String) -> String:
 	var u: Dictionary = Defs.TOWERS[tower_id]["unlock"]
 	if u.is_empty():
 		return ""
-	return "Beat %s on %s" % [MapsData.MAPS[u["map"]]["name"], Defs.DIFFICULTIES[u["difficulty"]]["name"]]
+	return "Beat %s on %s, then buy it for %d paper maps" % [MapsData.MAPS[u["map"]]["name"],
+		Defs.DIFFICULTIES[u["difficulty"]]["name"], tower_price(tower_id)]
 
 
 func tier_of(map_id: String) -> int:
@@ -212,11 +232,11 @@ func record_loss(map_id: String, diff: int, waves_survived: int, total_waves: in
 	save_progress()
 
 
-## Records a victory, pays its paper maps (see last_reward) and returns the tower ids that just became unlocked.
+## Records a victory, pays its paper maps (see last_reward) and returns the tower ids that just went on sale.
 func record_win(map_id: String, diff: int) -> Array:
 	var before := {}
 	for t in Defs.TOWER_ORDER:
-		before[t] = is_tower_unlocked(t)
+		before[t] = is_tower_for_sale(t)
 	last_reward = win_reward(map_id, diff)
 	paper_maps += last_reward
 	if not unlocked_maps.has(map_id):
@@ -228,7 +248,7 @@ func record_win(map_id: String, diff: int) -> Array:
 	save_progress()
 	var newly := []
 	for t in Defs.TOWER_ORDER:
-		if not before[t] and is_tower_unlocked(t):
+		if not before[t] and is_tower_for_sale(t):
 			newly.append(t)
 	return newly
 
@@ -242,9 +262,10 @@ func save_progress() -> void:
 	if f:
 		var real: Dictionary = _cheat_snapshot if not _cheat_snapshot.is_empty() else {
 			"beaten": beaten if _real_beaten == null else _real_beaten, "unlocked_maps": unlocked_maps,
-			"paper_maps": paper_maps}
+			"paper_maps": paper_maps, "bought_towers": bought_towers}
 		f.store_string(JSON.stringify({"beaten": real["beaten"], "sfx_volume": sfx_volume, "music_volume": music_volume, "fullscreen": fullscreen,
-			"keys": keys, "unlocked_maps": real["unlocked_maps"], "paper_maps": real["paper_maps"]}))
+			"keys": keys, "unlocked_maps": real["unlocked_maps"], "paper_maps": real["paper_maps"],
+			"bought_towers": real["bought_towers"]}))
 
 
 # ---------------------------------------------------------------- cheats (dev flag --cheats)
@@ -254,7 +275,7 @@ func _cheat_begin() -> void:
 	if save_fake or not _cheat_snapshot.is_empty():
 		return
 	_cheat_snapshot = {"beaten": (beaten if _real_beaten == null else _real_beaten).duplicate(true),
-		"unlocked_maps": unlocked_maps.duplicate(), "paper_maps": paper_maps}
+		"unlocked_maps": unlocked_maps.duplicate(), "paper_maps": paper_maps, "bought_towers": bought_towers.duplicate()}
 
 
 func cheat_paper_maps(amount: int) -> void:
@@ -319,6 +340,15 @@ func load_progress() -> void:
 					unlocked_maps.append(m)
 				for d in beaten[m]:
 					paper_maps += win_reward(m, int(d))
+	if data.has("bought_towers"):
+		for t in data["bought_towers"]:
+			if Defs.TOWERS.has(t) and not bought_towers.has(t):
+				bought_towers.append(t)
+	else:
+		# save from before towers were bought: everything its wins unlocked stays unlocked
+		for t in Defs.TOWER_ORDER:
+			if is_tower_for_sale(t):
+				bought_towers.append(t)
 	sfx_volume = float(data.get("sfx_volume", 0.8))
 	music_volume = float(data.get("music_volume", 0.6))
 	fullscreen = bool(data.get("fullscreen", false))

@@ -826,8 +826,9 @@ func _on_ended(win: bool, newly: Array) -> void:
 		h.add_child(UI.sprite_rect("res://assets/sprites/towers/%s.png" % Defs.TOWERS[t]["sprite"], 2))
 		var tv := VBoxContainer.new()
 		h.add_child(tv)
-		tv.add_child(UI.label("NEW TOWER UNLOCKED!", 10, Color("fee761")))
-		tv.add_child(UI.label(Defs.TOWERS[t]["name"], 10, Color.WHITE))
+		tv.add_child(UI.label("NEW TOWER FOR SALE!", 10, Color("fee761")))
+		tv.add_child(UI.label("%s: buy it in the Armory for %d paper maps" % [Defs.TOWERS[t]["name"],
+			Game.tower_price(t)], 10, Color.WHITE))
 		tv.add_child(UI.label(Defs.TOWERS[t]["role"], 10, Color("c0cbdc")))
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER

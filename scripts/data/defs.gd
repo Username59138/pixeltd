@@ -86,7 +86,7 @@ const TOWERS := {
 	"soldier": {
 		"name": "Soldier", "role": "Ranged - bursts, anti-armor", "cost": 650, "sprite": "soldier",
 		"desc": "Assault rifle firing 3-round bursts from long range.",
-		"unlock": {"map": "meadow", "difficulty": 1},
+		"unlock": {"map": "meadow", "difficulty": 1, "price": 25},
 		"base": {"damage": 4, "rate": 0.8, "burst": 3, "burst_gap": 0.09, "range": 92, "armor_pierce": 0.0,
 			"grenade_every": 0, "grenade_dmg": 0, "grenade_radius": 0, "kind": "physical",
 			"camo": false, "air": true},
@@ -115,7 +115,7 @@ const TOWERS := {
 	"garage": {
 		"name": "Garage", "role": "Road - friendly cars", "cost": 900, "sprite": "garage",
 		"desc": "Build next to a road. Sends cars that drive INTO the enemies, invisible and LEAD ones too. On a crash both lose the HP of the weaker one.",
-		"unlock": {"map": "gas_station", "difficulty": 2},
+		"unlock": {"map": "gas_station", "difficulty": 2, "price": 75},
 		"base": {"interval": 6.0, "car_hp": 22, "car_speed": 70, "vehicle": "car",
 			"gun_dmg": 0, "gun_rate": 0.0, "range": 0, "lead": true,
 			"camo": true, "air": false},
@@ -141,7 +141,7 @@ const TOWERS := {
 	"flamer": {
 		"name": "Flamethrower", "role": "Close - area burn", "cost": 1000, "sprite": "flamer",
 		"desc": "Sprays fire in a cone and sets enemies ablaze. Fire ignores armor and melts LEAD. Can't aim at invisible enemies, but the flames still burn them.",
-		"unlock": {"map": "volcano", "difficulty": 1},
+		"unlock": {"map": "volcano", "difficulty": 1, "price": 140},
 		"base": {"damage": 1.1, "range": 46, "cone": 56.0, "burn": 2.0, "burn_time": 2.0, "fire_pierce": 0.0,
 			"kind": "fire", "camo": false, "air": false, "lead": true},
 		"upgrades": [
@@ -163,7 +163,7 @@ const TOWERS := {
 	"sniper": {
 		"name": "Sniper", "role": "Ranged - huge range, sees all", "cost": 1200, "sprite": "sniper",
 		"desc": "Slow, heavy shots from across the map. Sees INVISIBLE and hits FLYING enemies.",
-		"unlock": {"map": "meadow", "difficulty": 2},
+		"unlock": {"map": "meadow", "difficulty": 2, "price": 40},
 		"base": {"damage": 18, "rate": 0.45, "range": 170, "armor_pierce": 0.3, "headshot": 0.0,
 			"kind": "physical", "camo": true, "air": true},
 		"upgrades": [
@@ -190,7 +190,7 @@ const TOWERS := {
 	"necro": {
 		"name": "Necromancer", "role": "Magic - raises the dead", "cost": 850, "sprite": "necro",
 		"desc": "Dark bolts that ignore most armor. Enemies it finishes off rise as FRIENDLY undead somewhere on the road in its range, walk back and crash into enemies. Never raises flyers or bosses.",
-		"unlock": {"map": "graveyard", "difficulty": 2},
+		"unlock": {"map": "graveyard", "difficulty": 2, "price": 130},
 		"base": {"damage": 10, "rate": 1.0, "range": 80, "armor_pierce": 0.6, "raise_hp": 0.2, "raise_class": 1,
 			"kind": "physical", "camo": false, "air": true},
 		"upgrades": [
@@ -217,7 +217,7 @@ const TOWERS := {
 	"freezer": {
 		"name": "Freezer", "role": "Close - chills and freezes", "cost": 650, "sprite": "freezer",
 		"desc": "Hoses enemies in a cone with ice water. Soaked enemies slow down more and more, then freeze solid in a block of ice. Higher classes chill slower and thaw faster. Water puts out burning enemies, and fire melts the ice.",
-		"unlock": {"map": "frozen_lake", "difficulty": 2},
+		"unlock": {"map": "frozen_lake", "difficulty": 2, "price": 130},
 		"base": {"damage": 0.0, "range": 44, "cone": 60.0, "chill": 0.45, "chill_slow": 0.35, "freeze": 1.0,
 			"brittle": 0.0, "kind": "cold", "camo": false, "air": false},
 		"upgrades": [
@@ -245,7 +245,7 @@ const TOWERS := {
 	"toxic": {
 		"name": "Toxic Gunner", "role": "Ranged - acid", "cost": 550, "sprite": "toxic",
 		"desc": "Shoots globs of acid. Acid burns through armor and LEAD over time and eats some of the armor while it lasts, so every other tower hits harder too.",
-		"unlock": {"map": "refinery", "difficulty": 2},
+		"unlock": {"map": "refinery", "difficulty": 2, "price": 130},
 		"base": {"damage": 3, "rate": 1.2, "range": 80, "acid_dps": 3.0, "acid_time": 3.0, "acid_shred": 1.0,
 			"splash": 0.0, "kind": "physical", "camo": false, "air": true, "lead": true},
 		"upgrades": [
@@ -272,7 +272,7 @@ const TOWERS := {
 	"assassin": {
 		"name": "Toxic Assassin", "role": "Melee - fast, acid, daggers", "cost": 1500, "sprite": "assassin",
 		"desc": "Quick poisoned blades up close, they cut LEAD too. From level 4 the Assassin also throws daggers at range, and the daggers reach FLYING enemies.",
-		"unlock": {"map": "refinery", "difficulty": 3},
+		"unlock": {"map": "refinery", "difficulty": 3, "price": 200},
 		"base": {"damage": 7, "rate": 2.0, "range": 28, "armor_pierce": 0.25, "acid_dps": 5.0, "acid_time": 2.0,
 			"acid_shred": 1.0, "dagger_dmg": 0, "dagger_rate": 0.0, "dagger_range": 0, "daggers": 0, "lead": true,
 			"kind": "physical", "camo": false, "air": false},

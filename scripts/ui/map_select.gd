@@ -154,10 +154,11 @@ func _map_card(id: String) -> Button:
 			h.add_theme_constant_override("separation", 2)
 			v.add_child(h)
 			var unlocked := Game.is_tower_unlocked(t)
+			var for_sale := Game.is_tower_for_sale(t)
 			h.add_child(UI.icon("trophy" if unlocked else "lock"))
-			var txt := "%s %s" % [Defs.TOWERS[t]["name"], "unlocked" if unlocked else
-				"on " + Defs.DIFFICULTIES[u["difficulty"]]["name"]]
-			h.add_child(UI.label(txt, 10, Color("63c74d") if unlocked else Color("feae34")))
+			var txt := "%s %s" % [Defs.TOWERS[t]["name"], "unlocked" if unlocked else ("for sale" if for_sale else
+				"on " + Defs.DIFFICULTIES[u["difficulty"]]["name"])]
+			h.add_child(UI.label(txt, 10, Color("63c74d") if unlocked else (Color("fee761") if for_sale else Color("feae34"))))
 	return b
 
 
@@ -238,8 +239,9 @@ func _open_difficulty(id: String) -> void:
 		# reward note
 		for t in Defs.TOWER_ORDER:
 			var u: Dictionary = Defs.TOWERS[t]["unlock"]
-			if not u.is_empty() and u["map"] == id and int(u["difficulty"]) <= d and not Game.is_tower_unlocked(t):
-				bv.add_child(UI.label("Reward: unlocks " + Defs.TOWERS[t]["name"], 10, Color("fee761")))
+			if not u.is_empty() and u["map"] == id and int(u["difficulty"]) <= d and not Game.is_tower_unlocked(t) \
+					and not Game.is_tower_for_sale(t):
+				bv.add_child(UI.label("Reward: %s goes on sale" % Defs.TOWERS[t]["name"], 10, Color("fee761")))
 	var back := UI.button("Back", "gray", Vector2(0, 18))
 	back.pressed.connect(func(): popup.queue_free())
 	right.add_child(back)
