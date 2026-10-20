@@ -93,7 +93,11 @@ func _ready() -> void:
 			for k in 12:
 				battle.spawn_enemy(["goblin", "ironclad", "wolf", "ogre"][k % 4], 0, 30.0 + k * 12.0)
 			battle.spawn_enemy("golem", 0, 5.0)
-		if args.has("--healtest"):   # a shaman healing hurt goblins (first heal 2.5s in)
+		if args.has("--statustest"):   # shaman heals (first one 2.5s in), enraged berserkers, Dual Pistols slow
+			battle.cash = 99999
+			var gs = battle.place_tower("gunner", Vector2i(9, 3))
+			for k in 3:
+				battle.upgrade_tower(gs)
 			for k in 12:
 				battle.start_wave()
 				battle.spawning = false

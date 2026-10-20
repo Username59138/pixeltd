@@ -264,13 +264,8 @@ func update_visual(dir: Vector2) -> void:
 	sprite.rotation = PI * 0.5 if downed_t > 0.0 else 0.0
 	if downed_t > 0.0:
 		sprite.position = Vector2(-sprite.offset.y, -2.0)
+	# statuses are shown with particles, never by tinting the sprite
 	var m := Color.WHITE
-	if slow_t > 0.0:
-		m = Color(0.7, 0.85, 1.0)
-	elif is_enraged():
-		m = Color(1.0, 0.6 + 0.2 * sin(anim_t * 12.0), 0.6)
-	if downed_t > 0.0:
-		m = Color(0.7, 0.7, 0.75)
 	if undead:
 		m = Color(0.55, 1.0, 0.6, 0.85)   # ghostly green
 	if invisible:

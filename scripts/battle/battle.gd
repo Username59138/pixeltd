@@ -417,6 +417,15 @@ func _tick_enemies(dt: float) -> void:
 			elif not headless and randf() < dt * 10.0:
 				_spawn_particle(e.position + Vector2(randf_range(-4, 4), -randf_range(2, 10)), Vector2(0, -14),
 					0.45, Color("f77622") if randf() < 0.6 else Color("fee761"), 1)
+		# slowed: grey specks dropping off like dead weight
+		if not headless and e.slow_t > 0.0 and randf() < dt * 10.0:
+			_spawn_particle(e.position + Vector2(randf_range(-4, 4), -randf_range(4, 10)),
+				Vector2(0, 14), 0.45, Color("c0cbdc"), 1)
+		# enraged berserker: angry red sparks shooting up
+		if not headless and e.is_enraged() and randf() < dt * 16.0:
+			_spawn_particle(e.position + Vector2(randf_range(-4, 4), -randf_range(8, 14)),
+				Vector2(randf_range(-6, 6), -30), 0.35, Color("e43b44") if randf() < 0.7 else Color("fee761"),
+				2 if randf() < 0.4 else 1)
 		# frost drifting off chilled and frozen enemies
 		if not headless and (e.chill > 0.0 or e.frozen_t > 0.0) and randf() < dt * (3.0 + 12.0 * e.chill + (6.0 if e.frozen_t > 0.0 else 0.0)):
 			_spawn_particle(e.position + Vector2(randf_range(-5, 5), -randf_range(0, 12)),
