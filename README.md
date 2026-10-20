@@ -51,10 +51,12 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
   - Freezer: Frozen Lake on Difficult, 130
   - Toxic Gunner: Acid Refinery on Difficult, 130
   - Toxic Assassin: Acid Refinery on Hardcore, 200
+  - Farm: Farmlands on Difficult, 75
 - **Halloween event (Oct 10 - Nov 7):** Green Meadow gets an autumn look with jack-o'-lanterns. Only the looks change, the layout stays the same.
 - **Volcano:** two short roads, lava on the best spots and an eruption every second wave. Tiles next to the lava flash orange, then towers on them stop shooting for 6 seconds.
 - **Murky Swamp:** the boardwalk crosses itself, so towers near the crossing hit enemies twice. The bog eats the best spots.
 - **Old Graveyard:** a second road starts at the crypt in the middle of the map. Grave plots take some of the space.
+- **Farmlands:** a winding country road between fenced crop fields and a big red barn, which take some of the space.
 - **Acid Refinery:** two roads, from the top left and the bottom left, join in the middle. Acid lakes, storage tanks and huge hazard barrels take some of the space.
 - **Acid** hurts over time through armor and, while it lasts, eats some of the enemy's armor, so physical towers hit harder too. The strongest acid on an enemy wins; class doesn't weaken it (it's damage, not control).
 - **Lead enemies** (from Difficult up) are cast in grey lead: only towers that pierce lead can aim at and hurt them. Fire melts lead and acid eats through it, so the Flamethrower, Toxic Gunner and Toxic Assassin always can; so do Garage cars, the Soldier from AP Rounds and the Sniper from Full Metal Jacket. Gunslinger, Knight, Necromancer and Freezer can't, and undead just bounce off.
@@ -75,6 +77,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 - **Toxic Gunner:** shoots globs of acid, hits flying enemies. Corrosive Mix → Scope (sees invisible) → Acid Splash (acid on everyone around the target) → Toxic Overload → Biohazard → Plague.
 - **Toxic Assassin:** fast melee with poisoned blades that ignore 25% of armor, ground only. Poisoned Blades → Swift Strikes → Throwing Daggers (a ranged second attack whose daggers hit flying enemies, flyers first) → Twin Daggers (2 at once, sees invisible) → Master Assassin → Shadow Blade (3 daggers).
 - **Freezer:** sprays a cone of ice water. Every enemy in it builds up chill (scaled by class like any control effect): the more chill, the slower it walks, and at 100% it freezes solid in a block of ice for a while (also scaled by class, so bosses freeze rarely and briefly). Water puts out burning enemies, and the Flamethrower's fire melts the chill and the ice. Ground only; it can't aim at invisible enemies but soaks them anyway. Cold Water → Pressure Hose → Ice Water (cold damage that ignores armor) → Liquid Nitrogen → Cryo Cannon → Absolute Zero (enemies it freezes take 25% more damage from everything).
+- **Farm:** doesn't fight, pays money at the end of every wave: $60, then $110 → $230 → $500 → $1000 → $2000 → $4000 with Bigger Fields → Barn → Tractor → Irrigation → Greenhouses → Agro Empire. At most 8 farms in a battle.
 - **Sniper:** slow, heavy shots from almost across the map, sees invisible and hits flying enemies. Optics → Full Metal Jacket (ignores all armor, pierces lead) → Headshot (15% chance to kill any non-boss outright) → Elite Sniper → Anti-Material Rifle → Deadeye (25%).
 
 Open **Towers** in the main menu and click a portrait to see every tower's full stats and upgrade path.

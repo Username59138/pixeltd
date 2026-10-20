@@ -593,6 +593,25 @@ func _mech_test() -> void:
 	Game.paper_maps = keep["paper"]
 	Game.all_maps_open = keep["all"]
 	Game._no_save = keep["no_save"]
+	# farm: pays its income at the end of every wave, at most 8 of them
+	for tw in b.towers.values():
+		b.sell_tower(tw)
+	b.cash = 999999
+	var farm_tiles: Array = []
+	for y in Battle.ROWS:
+		for x in Battle.COLS:
+			if b.can_place(Vector2i(x, y)):
+				farm_tiles.append(Vector2i(x, y))
+	var farm = b.place_tower("farm", farm_tiles[0])
+	b.upgrade_tower(farm)
+	var before_cash: int = b.cash
+	b.bonus_pending = true
+	b._award_bonus()
+	var bonus := roundi(Defs.wave_bonus(b.wave) * b.diff["bonus_multi"])
+	check.call("farm pays $110 at the end of the wave", b.cash - before_cash == bonus + 110 and farm.earned == 110)
+	for k in range(1, 9):
+		b.place_tower("farm", farm_tiles[k])
+	check.call("at most 8 farms", b.tower_count("farm") == 8)
 	# tower limits: 10 of a type, 50 in all
 	for tw in b.towers.values():
 		b.sell_tower(tw)

@@ -634,7 +634,43 @@ TANK = [
 TANK_C = {'L': 'dgray', 's': 'gray', 'S': 'lgray', 'd': 'dgray', 'y': 'gold', 'k': 'black', 'G': 'lgreen',
           'r': 'xdgray'}
 
+# farmlands
+HAYSTACK = [
+    "....yyy....",
+    "..yyYyyy...",
+    ".yYyyYyyy..",
+    ".yyyYyyYy..",
+    "yYyyyyYyyy.",
+    "yyyYyyyyYy.",
+    "ddddddddddd",
+]
+HAYSTACK_C = {'y': 'gold', 'Y': 'yellow', 'd': 'lorange'}
+HAY_BALE = [
+    "yyyyyyyy",
+    "yYyyYyyY",
+    "rrrrrrrr",
+    "yyYyyyYy",
+    "dddddddd",
+]
+HAY_BALE_C = {'y': 'gold', 'Y': 'yellow', 'r': 'red', 'd': 'lorange'}
+SCARECROW = [
+    "...hhh...",
+    "..hhhhh..",
+    "...sss...",
+    "...sks...",
+    "ttttttttt",
+    "y.tRRRt.y",
+    "..tRRRt..",
+    "...RRR...",
+    "...yby...",
+    "....b....",
+    "....b....",
+    "....b....",
+]
+SCARECROW_C = {'h': 'hat', 's': 'sand', 'k': 'black', 't': 'tan', 'y': 'gold', 'R': 'red', 'b': 'wd_d'}
+
 DECOR_SPRITES = {
+    'haystack': (HAYSTACK, HAYSTACK_C), 'hay_bale': (HAY_BALE, HAY_BALE_C), 'scarecrow': (SCARECROW, SCARECROW_C),
     'toxic_barrel': (TOXIC_BARREL, TOXIC_BARREL_C), 'acid_barrel': (ACID_BARREL, ACID_BARREL_C),
     'pipe': (PIPE, PIPE_C), 'tank': (TANK, TANK_C), 'big_barrel': (BIG_BARREL, BIG_BARREL_C),
     'swamp_tree': (TREE, SWAMP_TREE_C), 'autumn_tree': (TREE, AUTUMN_TREE_C),
@@ -1042,7 +1078,72 @@ GARAGE = [
 GARAGE_C = {'R': 'red', 'r': 'dred', 'W': 'lgray', 'y': 'gold', 'D': 'gray', 'd': 'dgray', 'g': 'xdgray'}
 GARAGE_ELITE = dict(GARAGE_C, R='dblue', r='navy', W='sand', y='cyan', D='gold', d='lorange')
 
+# FARM: a red barn and a patch of wheat (pays money every wave)
+FARM = [
+    "......rRRRRr........",
+    ".....rRRRRRRr.......",
+    "....rRRRwwRRRr......",
+    "...rRRRRwwRRRRr.....",
+    "..rRRRRRRRRRRRRr....",
+    "..WWWWWWWWWWWWWW....",
+    "..WRRRRRRRRRRRRW....",
+    "..WRRRWWWWWWRRRW.y.y",
+    "..WRRRWdWWdWRRRWyYyY",
+    "..WRRRWWdWdWRRRWyYyY",
+    "..WRRRWWWdWWRRRW.y.y",
+    "..WRRRWWdWdWRRRWyYyY",
+    "..WRRRWdWWdWRRRWyYyY",
+    "..WRRRWWWWWWRRRWgggg",
+    "gggggggggggggggggggg",
+]
+FARM_C = {'R': 'red', 'r': 'dred', 'W': 'white', 'w': 'sand', 'd': 'dbrown', 'y': 'gold', 'Y': 'yellow',
+          'g': 'dgreen'}
+FARM_ELITE = dict(FARM_C, R='gld', r='gld_d', W='white', w='white', d='red', y='yellow', Y='white')
+
 UP_ICONS = {
+    # farm
+    'bigger_fields': ([
+        "y.y.y.y",
+        "YyYyYyY",
+        "y.y.y.y",
+        "YyYyYyY",
+        "ggggggg",
+    ], {'y': 'gold', 'Y': 'yellow', 'g': 'dgreen'}),
+    'barn': ([
+        "..rrr..",
+        ".rRRRr.",
+        "rRRRRRr",
+        "WRWWWRW",
+        "WRWdWRW",
+    ], {'r': 'dred', 'R': 'red', 'W': 'white', 'd': 'dbrown'}),
+    'tractor': ([
+        "...gg..",
+        "...gGg.",
+        "gGGGGGG",
+        "kKk.kKk",
+        ".k...k.",
+    ], {'g': 'dgreen', 'G': 'lgreen', 'k': 'black', 'K': 'gray'}),
+    'irrigation': ([
+        "...b...",
+        "..bBb..",
+        ".bBBBb.",
+        ".bBwBb.",
+        "..bbb..",
+    ], {'b': 'dblue', 'B': 'blue', 'w': 'white'}),
+    'greenhouse': ([
+        "..ccc..",
+        ".cCcCc.",
+        "cCcCcCc",
+        "cgCgCgc",
+        "ggggggg",
+    ], {'c': 'glass_d', 'C': 'glass', 'g': 'lgreen'}),
+    'agro_empire': ([
+        "y.y.y.y",
+        "yyyyyyy",
+        ".YYYYY.",
+        "yyyyyyy",
+        ".YYYYY.",
+    ], {'y': 'gld_d', 'Y': 'gld_l'}),
     # v0.2 top tiers
     'fan_hammer': ([
         ".kkkkkk",

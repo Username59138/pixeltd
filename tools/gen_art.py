@@ -46,7 +46,8 @@ def gen_sprites():
                            ('necro', NECRO, NECRO_C), ('necro_elite', NECRO, NECRO_ELITE),
                            ('freezer', FREEZER, FREEZER_C), ('freezer_elite', FREEZER, FREEZER_ELITE),
                            ('toxic', TOXIC, TOXIC_C), ('toxic_elite', TOXIC, TOXIC_ELITE),
-                           ('assassin', ASSASSIN, ASSASSIN_C), ('assassin_elite', ASSASSIN, ASSASSIN_ELITE)]:
+                           ('assassin', ASSASSIN, ASSASSIN_C), ('assassin_elite', ASSASSIN, ASSASSIN_ELITE),
+                           ('farm', FARM, FARM_C), ('farm_elite', FARM, FARM_ELITE)]:
         make(rows, cm).save(out(f'sprites/towers/{name}.png'))
     # enemies and friendly vehicles: side view (name.png), front (name_down.png), back (name_up.png)
     for name, u in U.UNITS.items():
@@ -328,6 +329,10 @@ THEMES = {
     'toxic': dict(ground=[(56, 62, 58), (66, 72, 64), (78, 84, 72)], path=[(96, 102, 112), (108, 114, 124), (88, 94, 104)],
                   path_edge=C['black'], ground_edge=(40, 46, 44), speck=[(96, 104, 84), (44, 50, 48)],
                   pebble=[(70, 76, 86)], details='toxic', path_style='plates'),
+    # farmlands: warm grass, dirt road, fenced crop fields
+    'farm': dict(ground=[(78, 142, 66), (92, 160, 72), (108, 174, 82)], path=[(176, 126, 80), (160, 110, 70), (190, 142, 94)],
+                 path_edge=C['dbrown'], ground_edge=(54, 106, 54), speck=[C['lgreen'], C['dgreen']],
+                 pebble=[C['brown'], C['sand']], details='flowers'),
     'volcano': dict(ground=[C['navy'], (48, 46, 72), C['xdgray']], path=[(92, 60, 58), C['dbrown'], (100, 70, 62)],
                     path_edge=C['xdbrown'], ground_edge=C['black'], speck=[C['xdgray'], C['dred']],
                     pebble=[C['dred'], C['orange']], details='embers'),
@@ -384,6 +389,11 @@ def gas_zone(tx, ty):
 
 ZONES = {'gas_station': gas_zone}
 
+# farmlands: fenced crop fields (x0, y0, x1, y1 in tiles, inclusive) and the barn
+FARM_FIELDS = [((7, 13, 11, 17), 'wheat'), ((15, 1, 19, 4), 'cabbage'), ((23, 16, 30, 20), 'wheat'),
+               ((0, 15, 3, 20), 'corn'), ((23, 0, 30, 4), 'cabbage')]
+FARM_BARN = (15, 9, 18, 11)
+
 # graveyard plots: (x0, y0, x1, y1) in tiles, grave columns / rows, chance of a grave
 GRAVE_PLOTS = [
     ((1, 5, 7, 9), (2, 4, 6), (6, 8), 0.8),
@@ -412,6 +422,10 @@ MAPS = [
          paths=[[(14, -1), (14, 15), (25, 15), (25, 9), (8, 9), (8, 23)]],
          decor=['swamp_tree', 'swamp_tree', 'dead_tree', 'reeds', 'mushroom', 'log'], density=0.05,
          desc='The boardwalk crosses itself. Guard the crossing!'),
+    dict(id='farmlands', name='Farmlands', theme='farm', tier='Intermediate', seed=41, seed_idx=8,
+         paths=[[(-1, 11), (5, 11), (5, 3), (13, 3), (13, 18), (21, 18), (21, 7), (28, 7), (28, 14), (33, 14)]],
+         decor=['tree', 'bush', 'haystack', 'hay_bale', 'hay_bale', 'scarecrow', 'rock'], density=0.05,
+         desc='Quiet country roads between the fields. Crops and the barn take some of the space.'),
     dict(id='frozen_lake', name='Frozen Lake', theme='snow', tier='Advanced', seed=7, seed_idx=3,
          paths=[[(3, -1), (3, 7), (14, 7), (14, 11), (20, 11), (20, 3), (27, 3), (27, 18), (33, 18)],
                 [(3, 23), (3, 15), (14, 15), (14, 11), (20, 11), (20, 3), (27, 3), (27, 18), (33, 18)]],
@@ -524,6 +538,8 @@ def bake_map(m, cols=32, rows=23, variant=None):
         buildings += [(9, 0, 22, 4), (14, 10, 18, 13), (23, 12, 25, 14), (25, 1, 26, 2)]
     if m['id'] == 'graveyard':
         buildings += [(20, 0, 24, 2)]
+    if m['id'] == 'farmlands':
+        buildings += [r for r, _ in FARM_FIELDS] + [FARM_BARN]
     for (x0, y0, x1, y1) in buildings:
         for x in range(x0, x1 + 1):
             for y in range(y0, y1 + 1):
@@ -776,6 +792,11 @@ def bake_map(m, cols=32, rows=23, variant=None):
         place('tank', 23, 18, 2, 2)
         for (x, y) in ((2, 5), (8, 14), (29, 0), (14, 14), (23, 13)):
             place('big_barrel', x, y, 2, 3)
+    if m['id'] == 'farmlands':
+        for rect, kind in FARM_FIELDS:
+            draw_field(img, rect, kind, rnd)
+        x0, y0, x1, y1 = FARM_BARN
+        draw_barn(img, x0 * T, y0 * T, (x1 - x0 + 1) * T, (y1 - y0 + 1) * T)
     if m['id'] == 'graveyard':
         draw_crypt(img, 20 * T, 0, 5 * T, 3 * T)
         for (rect, xs, ys, chance) in GRAVE_PLOTS:
@@ -1120,6 +1141,83 @@ def draw_fence(img, rect):
         for y in range(Y1 - 4, Y1 + 1):
             px[gx, y] = C['black'] + (255,)
         px[gx, Y1 - 5] = C['gray'] + (255,)
+
+
+def draw_field(img, rect, kind, rnd):
+    """A plowed field in rows of wheat, cabbage or corn behind a wooden fence."""
+    px = img.load()
+    tx0, ty0, tx1, ty1 = rect
+    X0, Y0, X1, Y1 = tx0 * T + 2, ty0 * T + 3, (tx1 + 1) * T - 3, (ty1 + 1) * T - 2
+    soil = [(110, 72, 50), (98, 62, 46), (122, 82, 56)]
+    for y in range(Y0 + 1, Y1):
+        for x in range(X0 + 1, X1):
+            px[x, y] = soil[(x * 7 + y * 3) % 3] + (255,)
+    for y in range(Y0 + 3, Y1 - 1, 4):   # a crop row every 4 pixels
+        for x in range(X0 + 2, X1 - 1):
+            if kind == 'wheat':
+                px[x, y] = (C['yellow'] if (x + y) % 3 == 0 else C['gold']) + (255,)
+                px[x, y - 1] = (C['gold'] if x % 2 else C['lorange']) + (255,)
+                if x % 2 == 0:
+                    px[x, y - 2] = C['yellow'] + (255,)
+            elif kind == 'cabbage':
+                if (x - X0) % 4 in (0, 1, 2):
+                    px[x, y] = C['green'] + (255,)
+                    px[x, y - 1] = (C['lgreen'] if (x - X0) % 4 == 1 else C['green']) + (255,)
+            else:   # corn: tall stalks with a cob here and there
+                if (x - X0) % 3 == 0:
+                    for k in range(4):
+                        px[x, y - k] = (C['lgreen'] if k % 2 else C['green']) + (255,)
+                    if rnd.random() < 0.3:
+                        px[x + 1, y - 2] = C['yellow'] + (255,)
+    wood, dark = C['brown'], C['dbrown']
+    for x in range(X0, X1 + 1):
+        for y in (Y0, Y1):
+            px[x, y] = wood + (255,)
+            px[x, y + 1 if y < Y1 else y - 1] = px[x, y + 1 if y < Y1 else y - 1] if (x - X0) % 5 else dark + (255,)
+            if (x - X0) % 5 == 0:
+                px[x, y - 1] = dark + (255,)
+    for y in range(Y0, Y1 + 1):
+        for x in (X0, X1):
+            px[x, y] = (dark if (y - Y0) % 5 == 0 else wood) + (255,)
+
+
+def draw_barn(img, x0, y0, w, h):
+    """Big red barn: gambrel roof, white trim, a hay loft and a big door with a white X."""
+    px = img.load()
+    red, dred, white, dark = C['red'], C['dred'], C['white'], C['black']
+    roof_h = h * 2 // 5
+    for y in range(roof_h):
+        k = y / max(1, roof_h - 1)
+        inset = int((1 - k) * w * 0.32) if k < 0.5 else int((1 - k) * w * 0.12)
+        for x in range(x0 + inset, x0 + w - inset):
+            px[x, y0 + y] = (dred if (x - x0) % 6 == 0 or y == 0 else (130, 34, 44)) + (255,)
+    for y in range(y0 + roof_h, y0 + h - 2):
+        for x in range(x0 + 2, x0 + w - 2):
+            px[x, y] = (dred if (x - x0) % 4 == 0 else red) + (255,)
+    for x in range(x0 + 1, x0 + w - 1):   # trim under the roof and along the ground
+        px[x, y0 + roof_h] = white + (255,)
+        px[x, y0 + h - 2] = dark + (255,)
+    for y in range(y0 + roof_h, y0 + h - 2):
+        px[x0 + 2, y] = white + (255,)
+        px[x0 + w - 3, y] = white + (255,)
+    # hay loft
+    lx, ly = x0 + w // 2 - 4, y0 + roof_h - 7
+    for y in range(ly, ly + 6):
+        for x in range(lx, lx + 8):
+            edge = y in (ly, ly + 5) or x in (lx, lx + 7)
+            px[x, y] = (white if edge else (C['gold'] if (x + y) % 2 else C['yellow'])) + (255,)
+    # door with the white X
+    dw, dh = w // 2, (h - roof_h) - 6
+    dx, dy = x0 + (w - dw) // 2, y0 + h - 2 - dh
+    for y in range(dy, dy + dh):
+        for x in range(dx, dx + dw):
+            edge = y == dy or x in (dx, dx + dw - 1)
+            px[x, y] = (white if edge else (C['dbrown'] if (x - dx) % 3 else C['xdbrown'])) + (255,)
+    for i in range(min(dw, dh)):
+        for ox, oy in ((dx + i * dw // min(dw, dh), dy + i * dh // min(dw, dh)),
+                       (dx + dw - 1 - i * dw // min(dw, dh), dy + i * dh // min(dw, dh))):
+            px[ox, oy] = white + (255,)
+    px[x0 + w // 2, y0 + h - 2 - dh // 2] = white + (255,)
 
 
 def draw_crypt(img, x0, y0, w, h):

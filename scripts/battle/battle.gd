@@ -342,6 +342,13 @@ func _award_bonus() -> void:
 	var b := roundi(Defs.wave_bonus(wave) * diff["bonus_multi"])
 	cash += b
 	add_text(Vector2(256, 40), "+$%d wave bonus" % b, Color("fee761"))
+	# farms pay at the end of every wave
+	for tw in towers.values():
+		var inc := int(tw.stats.get("income", 0))
+		if inc > 0:
+			cash += inc
+			tw.earned += inc
+			add_text(tw.position + Vector2(0, -18), "+$%d" % inc, Color("63c74d"))
 	stats_changed.emit()
 
 

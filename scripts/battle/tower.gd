@@ -13,6 +13,7 @@ var target_mode := Target.FIRST
 var cooldown := 0.0
 var hit_count := 0
 var damage_dealt := 0.0
+var earned := 0              # farm: money paid out so far
 var kills := 0
 var tile := Vector2i.ZERO
 var battle: Node
@@ -417,7 +418,7 @@ func _update_garage(enemies: Array) -> void:
 func _update_visual() -> void:
 	if battle.headless:
 		return
-	if type != "garage":
+	if type not in ["garage", "farm"]:
 		sprite.flip_h = aim.x < -0.05
 	var off := Vector2(0, base_offset_y(sprite.texture))
 	if attack_anim > 0.0:

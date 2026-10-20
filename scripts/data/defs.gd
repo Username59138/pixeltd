@@ -34,7 +34,7 @@ const DIFFICULTIES := [
 # ---------------------------------------------------------------- towers
 # "base" holds level-0 stats; each upgrade overrides some of them ("set"). Upgrades are a single line.
 const TOWER_ORDER := ["gunner", "knight", "soldier", "garage", "flamer", "sniper", "necro", "freezer", "toxic",
-	"assassin"]
+	"assassin", "farm"]
 const TOWERS := {
 	"gunner": {
 		"name": "Gunslinger", "role": "Ranged - single target", "cost": 250, "sprite": "gunner",
@@ -299,6 +299,24 @@ const TOWERS := {
 					"daggers": 3, "dagger_rate": 2.0}},
 		],
 	},
+	"farm": {
+		"name": "Farm", "role": "Economy - money every wave", "cost": 450, "sprite": "farm", "limit": 8,
+		"desc": "Doesn't fight: pays money at the end of every wave. The upgrades pay more and more. At most 8 farms in a battle.",
+		"unlock": {"map": "farmlands", "difficulty": 2, "price": 75},
+		"base": {"income": 60, "range": 0},
+		"upgrades": [
+			{"name": "Bigger Fields", "icon": "bigger_fields", "cost": 350, "desc": "Pays $110 a wave instead of $60.",
+				"set": {"income": 110}},
+			{"name": "Barn", "icon": "barn", "cost": 900, "desc": "Pays $230 a wave.", "set": {"income": 230}},
+			{"name": "Tractor", "icon": "tractor", "cost": 2200, "desc": "Pays $500 a wave.", "set": {"income": 500}},
+			{"name": "Irrigation", "icon": "irrigation", "cost": 4500, "desc": "Pays $1000 a wave.",
+				"set": {"income": 1000}},
+			{"name": "Greenhouses", "icon": "greenhouse", "cost": 9000, "desc": "Pays $2000 a wave.",
+				"set": {"income": 2000}},
+			{"name": "Agro Empire", "icon": "agro_empire", "cost": 18000, "desc": "Pays $4000 a wave.",
+				"set": {"income": 4000}},
+		],
+	},
 }
 
 # ---------------------------------------------------------------- enemies
@@ -393,7 +411,8 @@ const STAT_LABELS := {"damage": "Damage", "rate": "Attacks/s", "range": "Range",
 	"chill": "Chill /s", "chill_slow": "Max slow", "freeze": "Freeze time",
 	"acid_dps": "Acid dps", "acid_time": "Acid time", "acid_shred": "Armor eaten", "splash": "Acid splash",
 	"dagger_dmg": "Dagger dmg", "dagger_rate": "Daggers/s", "dagger_range": "Dagger range", "daggers": "Daggers",
-	"aura": "Aura dmg bonus", "brittle": "Frozen take extra", "lead": "Pierces lead"}
+	"aura": "Aura dmg bonus", "brittle": "Frozen take extra", "lead": "Pierces lead",
+	"income": "Money per wave"}
 const PERCENT_STATS := ["slow", "armor_pierce", "fire_pierce", "headshot", "raise_hp", "chill", "chill_slow", "aura",
 	"brittle"]
 # level colors: red, yellow, green, blue, purple, pink, and gold for the top level

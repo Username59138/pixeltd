@@ -238,9 +238,10 @@ func _refresh_selection() -> void:
 	info_icon.texture = tw.sprite.texture
 	info_title.text = tw.def["name"]
 	info_level.text = "Level %d/%d" % [tw.level + 1, tw.max_level() + 1]
-	info_level.add_theme_color_override("font_color", Defs.RAINBOW[clampi(tw.level, 0, 3)])
+	info_level.add_theme_color_override("font_color", Defs.RAINBOW[clampi(tw.level, 0, Defs.RAINBOW.size() - 1)])
 	info_stats.text = _stats_text(tw.type, tw.stats)
-	info_dealt.text = "Dmg %s  Kills %d" % [_short(tw.damage_dealt), tw.kills]
+	info_dealt.text = ("Earned $%s" % _short(tw.earned)) if tw.type == "farm" else \
+		"Dmg %s  Kills %d" % [_short(tw.damage_dealt), tw.kills]
 	var up: Dictionary = tw.next_upgrade()
 	if up.is_empty():
 		up_btn.text = "MAX LEVEL"
@@ -252,6 +253,7 @@ func _refresh_selection() -> void:
 		up_btn.disabled = battle.cash < c
 		up_desc.text = up["desc"]
 	target_btn.text = "Target: %s" % tw.TARGET_NAMES[tw.target_mode]
+	target_btn.visible = tw.type != "farm"   # a farm doesn't aim at anything
 	if float(battle.diff["sell"]) > 0.0:
 		sell_btn.text = "Sell $%d" % battle.sell_value(tw)
 		sell_btn.disabled = false
@@ -281,6 +283,8 @@ static func _stats_text(t: String, s: Dictionary) -> String:
 		txt += "\nBlades: ground" + (" + invisible" if s.get("camo", false) else "")
 		if int(s["daggers"]) > 0:
 			txt += "\nDaggers: ground + flying" + (" + invisible" if s.get("camo", false) else "")
+	elif t == "farm":
+		return txt
 	elif t == "garage":
 		txt += "\nRuns over invisible, not flying"
 	elif t != "garage":
@@ -319,6 +323,8 @@ static func _stats_core(t: String, s: Dictionary) -> String:
 			if int(s["grenade_every"]) > 0:
 				txt += "\nGrenade %d dmg every %d bursts" % [s["grenade_dmg"], s["grenade_every"]]
 			return txt
+		"farm":
+			return "Pays $%d at the end\nof every wave" % s["income"]
 		"garage":
 			var txt := "%s every %ss\nCar HP %d (crash: both lose\nthe weaker one's HP)" % [
 				String(s["vehicle"]).capitalize(), UI.fmt_num(s["interval"]), s["car_hp"]]
