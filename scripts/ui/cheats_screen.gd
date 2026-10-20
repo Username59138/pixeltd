@@ -7,6 +7,9 @@ signal closed
 
 const MapsData := preload("res://scripts/data/maps_data.gd")
 const DIFF_SHORT := ["Light", "Medium", "Difficult", "Hardcore", "Ultra"]
+# the table has to fit the panel's 500 px inside: map name + (Open + one column per difficulty), 3 px apart
+const NAME_W := 104
+const COL_W := 63
 
 var body: VBoxContainer
 
@@ -16,7 +19,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(UI.dim_rect(0.7))
 	var p := UI.panel("panel", 10)
-	p.position = Vector2(60, 24)
+	p.position = Vector2(60, 14)
 	p.size = Vector2(520, 0)
 	add_child(p)
 	var root := VBoxContainer.new()
@@ -51,23 +54,23 @@ func _rebuild() -> void:
 	# map table: open / beaten per difficulty
 	var head := _row()
 	var hl := UI.label("Map", 10, Color("8b9bb4"))
-	hl.custom_minimum_size.x = 120
+	hl.custom_minimum_size.x = NAME_W
 	head.add_child(hl)
 	for t in ["Open"] + DIFF_SHORT:
 		var l := UI.label(t, 10, Color("8b9bb4"), HORIZONTAL_ALIGNMENT_CENTER)
-		l.custom_minimum_size.x = 70
+		l.custom_minimum_size.x = COL_W
 		head.add_child(l)
 	for id in MapsData.ORDER:
 		var r := _row()
 		var nl := UI.label(MapsData.MAPS[id]["name"], 10, Color.WHITE)
-		nl.custom_minimum_size.x = 120
+		nl.custom_minimum_size.x = NAME_W
 		r.add_child(nl)
 		var open: bool = Game.is_map_unlocked(id)   # a beaten map stays open even when not bought
-		_btn(r, "Open" if open else "Locked", "green" if open else "gray", 70,
+		_btn(r, "Open" if open else "Locked", "green" if open else "gray", COL_W,
 			func(): Game.cheat_set_map_open(id, not open))
 		for d in DIFF_SHORT.size():
 			var done := Game.is_beaten(id, d)
-			_btn(r, "Beaten" if done else "-", "green" if done else "gray", 70,
+			_btn(r, "Beaten" if done else "-", "green" if done else "gray", COL_W,
 				func(): Game.cheat_set_beaten(id, d, not done))
 	# everything at once
 	body.add_child(Control.new())
