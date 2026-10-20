@@ -1232,6 +1232,91 @@ UNITS['bone_dragon'] = dict(colors=BD_C, side=[
 ]))
 
 
+# VOID TITAN (class IV, Ultracore boss)
+P.update({'vd_l': (96, 74, 146), 'vd': (62, 46, 104), 'vd_d': (38, 28, 66)})
+TITAN_C = {'V': 'vd', 'v': 'vd_l', 'd': 'vd_d', 'h': 'stl', 'H': 'stl_d', 'A': 'gun_d', 'a': 'gun', 'c': 'cyan',
+           'm': 'magenta', 's': 'white', 'g': 'magenta', 'G': 'pink'}
+UNITS['titan'] = dict(colors=TITAN_C, side=[
+    "...........h..............",
+    "...........hH.............",
+    "............hvvVV.........",
+    "...........vVVVVVV........",
+    "...........vVVVVVVV.......",
+    "...........VVVVVVcV.......",
+    "...........VVVVVVVVV......",
+    "............dVVVVmm.......",
+    "......aaaaaaadVVVa........",
+    ".....aAAAAAAAAAAAAa.......",
+    "....aAAAAAAAAAAAAAAa......",
+    "....vVVVVVVVVVVVVVAAa.....",
+    "....vVVVsVVVVVVVVVVAAv....",
+    "....vVVVVVVVGVVVVVVVVVV...",
+    "....vVVVVVVggVVVVVV.vVV...",
+    "....VVVVVVVVgVVVVVV.vVV...",
+    "....dVVVVVVVVVVVVVd.vVV...",
+    ".....AAAAAAAAAAAAAA.vVVV..",
+    "......vVVVVVVVVVVV..vVVVV.",
+    "......vVVVV..vVVVV..dVVVd.",
+    "......vVVsV..vVVVV........",
+    "......vVVVV..vVVVV........",
+    "......VVVVd..VVVVd........",
+    ".....aAAAAA.aAAAAA........",
+    ".....AAAAAA.AAAAAA........",
+], down=sym([
+    "..........h.....",
+    "..........hH....",
+    "...........hvvVV",
+    "..........vVVVVV",
+    "..........vVVVVV",
+    "..........VVcVVV",
+    "..........VVVVVV",
+    "...........dVmmm",
+    "......aaaaadVVVV",
+    "....aAAAAAAaVVVV",
+    "...aAAAAAAAAVVsV",
+    "..aAAAavVVVVVVVV",
+    "..AAAa.vVVsVVVVV",
+    "..vVV..vVVVVVGVV",
+    "..vVV..vVVVVggVV",
+    "..vVV..vVVVVVgVV",
+    "..vVs..dVVVVVVVV",
+    ".vVVVV.dAAAAAAAA",
+    ".vVVVV..vVVVV...",
+    ".dVVVd..vVVVV...",
+    "........vVVsV...",
+    "........vVVVV...",
+    "........VVVVd...",
+    ".......aAAAAA...",
+    ".......AAAAAA...",
+]), up=sym([
+    "..........h.....",
+    "..........hH....",
+    "...........hvvVV",
+    "..........vVVVVV",
+    "..........vVVVVV",
+    "..........VVVVVV",
+    "..........VVVVVV",
+    "...........dVVVV",
+    "......aaaaadVVVV",
+    "....aAAAAAAaVVVV",
+    "...aAAAAAAAAVVVg",
+    "..aAAAavVVVVVVVg",
+    "..AAAa.vVsVVVVVG",
+    "..vVV..vVVVVVVVg",
+    "..vVV..vVVVVVsVg",
+    "..vVV..vVVVVVVVg",
+    "..vVs..dVVVVVVVV",
+    ".vVVVV.dAAAAAAAA",
+    ".vVVVV..vVVVV...",
+    ".dVVVd..vVVVV...",
+    "........vVVsV...",
+    "........vVVVV...",
+    "........VVVVd...",
+    ".......aAAAAA...",
+    ".......AAAAAA...",
+]))
+
+
 def bloat_rows(rows, view):
     """Bloated look: wider through the middle, a taller belly and a few swollen blotches on it."""
     w = max(len(r) for r in rows)
@@ -1264,6 +1349,17 @@ def bloat_rows(rows, view):
 
 
 BLOAT_C = {'%': (181, 80, 136), '&': (246, 117, 122)}   # swollen blotches of Bloated enemies
+
+LEAD_TONES = [(46, 52, 68), (70, 78, 98), (98, 108, 130), (130, 140, 162), (166, 176, 196), (206, 214, 228)]
+
+
+def lead_colors(cmap):
+    """Lead enemies: the same sprite cast in dull blue-grey lead, light and dark parts kept apart."""
+    rgb = {k: P[v] if isinstance(v, str) else v for k, v in cmap.items()}
+    lum = {k: 0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2] for k, c in rgb.items()}
+    lo, hi = min(lum.values()), max(lum.values())
+    span = max(1.0, hi - lo)
+    return {k: LEAD_TONES[round((lum[k] - lo) / span * (len(LEAD_TONES) - 1))] for k in cmap}
 
 # ------------------------------------------------------------------ FRIENDLY VEHICLES (garage)
 CAR_C = {'r': 'red_l', 'R': 'red_m', 'D': 'red_d', 'c': 'glass', 'd': 'glass_d', 'y': 'yellow', 'k': 'black',

@@ -285,6 +285,7 @@ static func _stats_text(t: String, s: Dictionary) -> String:
 		txt += "\nRuns over invisible, not flying"
 	elif t != "garage":
 		txt += "\nHits: " + ("ground" if sees.is_empty() else "ground + " + ", ".join(sees).to_lower())
+	txt += "\nPierces LEAD" if s.get("lead", false) else "\nCan't hurt LEAD"
 	return txt
 
 
@@ -537,6 +538,9 @@ static func enemy_lines(e) -> Array:
 		"rc": Defs.CLASS_COLORS[cls]})
 	if e.bloated:
 		lines.append({"t": "+ BLOATED: x%s HP" % UI.fmt_num(Defs.BLOATED_HP), "c": Color("b55088")})
+	if e.lead:
+		lines.append({"t": "+ LEAD: only lead-piercing towers,", "c": Color("c0cbdc")})
+		lines.append({"t": "  fire and acid hurt it", "c": Color("c0cbdc")})
 	if e.flying:
 		lines.append({"t": "+ FLYING", "c": Color("c0cbdc")})
 	if e.invisible:

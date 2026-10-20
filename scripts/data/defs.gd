@@ -21,10 +21,14 @@ const DIFFICULTIES := [
 		"sell": 0.7, "color": Color("f77622"), "btn": "gold",
 		"desc": "40 waves. Tougher enemies, pricier towers, 100 lives.",
 		"bonus_multi": 0.95},
-	{"id": "hardcore", "name": "Hardcore", "lives": 1, "cash": 1300, "hp": 1.12, "cost": 1.08, "waves": 40,
+	{"id": "hardcore", "name": "Hardcore", "lives": 50, "cash": 1300, "hp": 1.12, "cost": 1.08, "waves": 40,
 		"sell": 0.0, "color": Color("e43b44"), "btn": "red",
-		"desc": "40 waves. ONE life. Towers can't be sold.",
+		"desc": "40 waves. 50 lives. Towers can't be sold.",
 		"bonus_multi": 0.7},
+	{"id": "ultracore", "name": "Ultracore", "lives": 1, "cash": 1500, "hp": 1.25, "cost": 1.1, "waves": 40,
+		"sell": 0.0, "color": Color("b25aff"), "btn": "purple",
+		"desc": "40 waves. ONE life, no selling. Beat Hardcore here first.",
+		"bonus_multi": 0.8, "needs": 3},
 ]
 
 # ---------------------------------------------------------------- towers
@@ -88,8 +92,8 @@ const TOWERS := {
 			"camo": false, "air": true},
 		"upgrades": [
 			{"name": "AP Rounds", "icon": "ap_rounds", "cost": 360,
-				"desc": "Bullets ignore 75% of armor. Damage 4 > 5. Spots INVISIBLE enemies.",
-				"set": {"armor_pierce": 0.75, "damage": 5, "camo": true}},
+				"desc": "Bullets ignore 75% of armor and pierce LEAD. Damage 4 > 5. Spots INVISIBLE enemies.",
+				"set": {"armor_pierce": 0.75, "damage": 5, "camo": true, "lead": true}},
 			{"name": "Grenades", "icon": "grenades", "cost": 790,
 				"desc": "Every 3rd burst also throws a grenade (35 dmg) that hits a whole area.",
 				"set": {"grenade_every": 3, "grenade_dmg": 35, "grenade_radius": 24}},
@@ -110,10 +114,10 @@ const TOWERS := {
 	},
 	"garage": {
 		"name": "Garage", "role": "Road - friendly cars", "cost": 900, "sprite": "garage",
-		"desc": "Build next to a road. Sends cars that drive INTO the enemies, invisible ones too. On a crash both lose the HP of the weaker one.",
+		"desc": "Build next to a road. Sends cars that drive INTO the enemies, invisible and LEAD ones too. On a crash both lose the HP of the weaker one.",
 		"unlock": {"map": "gas_station", "difficulty": 2},
 		"base": {"interval": 6.0, "car_hp": 22, "car_speed": 70, "vehicle": "car",
-			"gun_dmg": 0, "gun_rate": 0.0, "range": 0,
+			"gun_dmg": 0, "gun_rate": 0.0, "range": 0, "lead": true,
 			"camo": true, "air": false},
 		"upgrades": [
 			{"name": "Pickup", "icon": "pickup", "cost": 390, "desc": "Sturdier car (45 HP), comes out more often.",
@@ -136,10 +140,10 @@ const TOWERS := {
 	},
 	"flamer": {
 		"name": "Flamethrower", "role": "Close - area burn", "cost": 1000, "sprite": "flamer",
-		"desc": "Sprays fire in a cone and sets enemies ablaze. Fire ignores armor. Can't aim at invisible enemies, but the flames still burn them.",
+		"desc": "Sprays fire in a cone and sets enemies ablaze. Fire ignores armor and melts LEAD. Can't aim at invisible enemies, but the flames still burn them.",
 		"unlock": {"map": "volcano", "difficulty": 1},
 		"base": {"damage": 1.1, "range": 46, "cone": 56.0, "burn": 2.0, "burn_time": 2.0, "fire_pierce": 0.0,
-			"kind": "fire", "camo": false, "air": false},
+			"kind": "fire", "camo": false, "air": false, "lead": true},
 		"upgrades": [
 			{"name": "Bigger Tank", "icon": "bigger_tank", "cost": 470, "desc": "Range 46 > 58. Wider cone.",
 				"set": {"range": 58, "cone": 72.0}},
@@ -166,8 +170,8 @@ const TOWERS := {
 			{"name": "Optics", "icon": "optics", "cost": 420, "desc": "Range 170 > 240. Damage 18 > 26.",
 				"set": {"range": 240, "damage": 26}},
 			{"name": "Full Metal Jacket", "icon": "fmj", "cost": 830,
-				"desc": "Ignores ALL armor. Damage 26 > 50, shoots faster.",
-				"set": {"armor_pierce": 1.0, "damage": 50, "rate": 0.55}},
+				"desc": "Ignores ALL armor and pierces LEAD. Damage 26 > 50, shoots faster.",
+				"set": {"armor_pierce": 1.0, "damage": 50, "rate": 0.55, "lead": true}},
 			{"name": "Headshot", "icon": "headshot", "cost": 2300,
 				"desc": "Damage 95. 15% chance to kill any non-boss enemy outright.",
 				"set": {"damage": 95, "rate": 0.65, "headshot": 0.15}},
@@ -240,10 +244,10 @@ const TOWERS := {
 	# acid towers: acid hurts over time through armor and eats some armor while it lasts
 	"toxic": {
 		"name": "Toxic Gunner", "role": "Ranged - acid", "cost": 550, "sprite": "toxic",
-		"desc": "Shoots globs of acid. Acid burns through armor over time and eats some of the armor while it lasts, so every other tower hits harder too.",
+		"desc": "Shoots globs of acid. Acid burns through armor and LEAD over time and eats some of the armor while it lasts, so every other tower hits harder too.",
 		"unlock": {"map": "refinery", "difficulty": 2},
 		"base": {"damage": 3, "rate": 1.2, "range": 80, "acid_dps": 3.0, "acid_time": 3.0, "acid_shred": 1.0,
-			"splash": 0.0, "kind": "physical", "camo": false, "air": true},
+			"splash": 0.0, "kind": "physical", "camo": false, "air": true, "lead": true},
 		"upgrades": [
 			{"name": "Corrosive Mix", "icon": "corrosive_mix", "cost": 280,
 				"desc": "Stronger acid: 3 > 6 dps, eats 2 armor.",
@@ -267,10 +271,10 @@ const TOWERS := {
 	},
 	"assassin": {
 		"name": "Toxic Assassin", "role": "Melee - fast, acid, daggers", "cost": 1500, "sprite": "assassin",
-		"desc": "Quick poisoned blades up close. From level 4 the Assassin also throws daggers at range, and the daggers reach FLYING enemies.",
+		"desc": "Quick poisoned blades up close, they cut LEAD too. From level 4 the Assassin also throws daggers at range, and the daggers reach FLYING enemies.",
 		"unlock": {"map": "refinery", "difficulty": 3},
 		"base": {"damage": 7, "rate": 2.0, "range": 28, "armor_pierce": 0.25, "acid_dps": 5.0, "acid_time": 2.0,
-			"acid_shred": 1.0, "dagger_dmg": 0, "dagger_rate": 0.0, "dagger_range": 0, "daggers": 0,
+			"acid_shred": 1.0, "dagger_dmg": 0, "dagger_rate": 0.0, "dagger_range": 0, "daggers": 0, "lead": true,
 			"kind": "physical", "camo": false, "air": false},
 		"upgrades": [
 			{"name": "Poisoned Blades", "icon": "poisoned_blades", "cost": 470,
@@ -300,9 +304,10 @@ const TOWERS := {
 # ---------------------------------------------------------------- enemies
 const ENEMY_ORDER := ["slime", "rat", "bat", "goblin", "skeleton", "wolf", "ironclad", "imp", "ghost",
 	"berserker", "shaman", "slime_king", "harpy", "ogre", "troll", "wraith", "gargoyle", "dark_knight", "mammoth",
-	"golem", "bone_dragon", "demon"]
+	"golem", "bone_dragon", "demon", "titan"]
 # Every enemy type has fixed HP (like TDS): later waves get harder with tougher types, bigger groups and
 # Bloated enemies (BLOATED_HP times the HP), not by inflating the HP of the same enemy.
+# Waves can also send any enemy as Lead: only towers with "lead" in their stats hurt it.
 const BLOATED_HP := 2.0
 const ENEMIES := {
 	"slime": {"name": "Slime", "class": 1, "hp": 12, "speed": 28, "bounty": 2, "radius": 6,
@@ -349,6 +354,8 @@ const ENEMIES := {
 		"armor": 3, "revive": 0.3, "desc": "BOSS. Falls apart, then gets back up once with 30% HP."},
 	"demon": {"name": "Demon Lord", "class": 4, "hp": 50000, "speed": 17, "bounty": 560, "radius": 13,
 		"armor": 4, "fire_res": 0.5, "desc": "FINAL BOSS. Lord of the burning pit."},
+	"titan": {"name": "Void Titan", "class": 4, "hp": 1000000, "speed": 12, "bounty": 2000, "radius": 15,
+		"armor": 6, "fire_res": 0.5, "desc": "ULTRACORE BOSS. A giant from the void between the stars."},
 }
 
 # ---------------------------------------------------------------- friendly units (sent by the Garage)
@@ -386,7 +393,7 @@ const STAT_LABELS := {"damage": "Damage", "rate": "Attacks/s", "range": "Range",
 	"chill": "Chill /s", "chill_slow": "Max slow", "freeze": "Freeze time",
 	"acid_dps": "Acid dps", "acid_time": "Acid time", "acid_shred": "Armor eaten", "splash": "Acid splash",
 	"dagger_dmg": "Dagger dmg", "dagger_rate": "Daggers/s", "dagger_range": "Dagger range", "daggers": "Daggers",
-	"aura": "Aura dmg bonus", "brittle": "Frozen take extra"}
+	"aura": "Aura dmg bonus", "brittle": "Frozen take extra", "lead": "Pierces lead"}
 const PERCENT_STATS := ["slow", "armor_pierce", "fire_pierce", "headshot", "raise_hp", "chill", "chill_slow", "aura",
 	"brittle"]
 # level colors: red, yellow, green, blue, purple, pink, and gold for the top level
@@ -397,11 +404,11 @@ const RAINBOW := [Color("e43b44"), Color("fee761"), Color("63c74d"), Color("2c9a
 static var BUDGET_MULT := 1.0
 static var HP_GROWTH := 1.0
 static var BOUNTY_MULT := 3.5
-const BOSS_TYPES := ["golem", "bone_dragon", "demon"]
+const BOSS_TYPES := ["golem", "bone_dragon", "demon", "titan"]
 const SPACING := {"slime": 0.55, "rat": 0.35, "goblin": 0.6, "wolf": 0.45, "ironclad": 0.9, "imp": 0.6,
 	"shaman": 1.4, "slime_king": 1.8, "ogre": 2.2, "golem": 6.0, "demon": 6.0,
 	"bat": 0.3, "skeleton": 0.6, "ghost": 0.8, "berserker": 1.1, "harpy": 2.0, "troll": 1.8, "wraith": 1.2,
-	"gargoyle": 1.6, "dark_knight": 2.0, "mammoth": 3.0, "bone_dragon": 6.0}
+	"gargoyle": 1.6, "dark_knight": 2.0, "mammoth": 3.0, "bone_dragon": 6.0, "titan": 6.0}
 
 
 static func enemy_hp_scale(wave: int) -> float:

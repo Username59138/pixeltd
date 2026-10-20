@@ -169,8 +169,8 @@ func _open_difficulty(id: String) -> void:
 	popup.add_child(UI.dim_rect(0.6))
 	add_child(popup)
 	var p := UI.panel("panel", 8)
-	p.position = Vector2(40, 30)
-	p.size = Vector2(560, 300)
+	p.position = Vector2(40, 8)
+	p.size = Vector2(560, 344)
 	popup.add_child(p)
 	var h := HBoxContainer.new()
 	h.add_theme_constant_override("separation", 10)
@@ -199,7 +199,9 @@ func _open_difficulty(id: String) -> void:
 	right.add_child(UI.title("DIFFICULTY", 8, Color.WHITE))
 	for d in Defs.DIFFICULTIES.size():
 		var dd: Dictionary = Defs.DIFFICULTIES[d]
-		var b := UI.button("", dd["btn"], Vector2(0, 50))
+		var open := Game.is_diff_open(id, d)
+		var b := UI.button("", dd["btn"] if open else "gray", Vector2(0, 50))
+		b.disabled = not open
 		b.pressed.connect(func(): Sfx.play("click"); main.start_battle(id, d))
 		right.add_child(b)
 		var bv := VBoxContainer.new()

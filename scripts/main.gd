@@ -528,10 +528,10 @@ func _mech_test() -> void:
 	for d in Defs.DIFFICULTIES:
 		for w in range(1, Waves.count(d["id"]) + 1):
 			for sp in Waves.build(d["id"], w)["spawns"]:
-				fixed = fixed and float(sp[2]) == (Defs.BLOATED_HP if sp[3] else 1.0)
-	check.call("handmade waves: fixed HP, Bloated x2", fixed and Waves.count("light") == 20 and Waves.count("hardcore") == 40)
+				fixed = fixed and float(sp[2]) == (Defs.BLOATED_HP if sp[3].has("bloated") else 1.0)
+	check.call("handmade waves: fixed HP, Bloated x2", fixed and Waves.count("light") == 20 and Waves.count("ultracore") == 40)
 	b.enemies.clear()
-	var fat = b.spawn_enemy("ogre", 0, 120.0, Defs.BLOATED_HP, false, {}, true)
+	var fat = b.spawn_enemy("ogre", 0, 120.0, Defs.BLOATED_HP, false, {}, ["bloated"])
 	check.call("Bloated Ogre: x2 HP, own sprite", fat.max_hp == 1040.0 and fat.display_name() == "Bloated Ogre"
 		and fat.tex_normal.resource_path.ends_with("ogre_bloated.png"))
 	var troll = b.spawn_enemy("troll", 0, 120.0, 1.0)
@@ -544,6 +544,35 @@ func _mech_test() -> void:
 	var dragon = b.spawn_enemy("bone_dragon", 0, 120.0, 1.0)
 	b.damage_enemy(dragon, 40000.0, "pure", null)
 	check.call("Bone Dragon gets back up with 30%", dragon.alive and absf(dragon.hp - 9000.0) < 0.01)
+	# lead: only towers that pierce lead hurt it; fire and acid always do; cars crash into it, undead don't
+	b.enemies.clear()
+	var lg = b.spawn_enemy("goblin", 0, 120.0, 1.0, false, {}, ["lead"])
+	check.call("Lead Goblin: own sprite", lg.display_name() == "Lead Goblin"
+		and lg.tex_normal.resource_path.ends_with("goblin_lead.png"))
+	check.call("gunslinger and knight can't aim at lead", not buddy.can_target(lg) and not holy.can_target(lg))
+	b.damage_enemy(lg, 5.0, "physical", buddy)
+	check.call("lead shrugs off bullets", lg.hp == lg.max_hp)
+	b.damage_enemy(lg, 5.0, "fire", null)
+	b.damage_enemy(lg, 5.0, "acid", null)
+	check.call("fire and acid hurt lead", lg.hp == lg.max_hp - 10.0)
+	var free_t := Vector2i(-1, -1)
+	for y in Battle.ROWS:
+		for x in Battle.COLS:
+			if free_t.x < 0 and b.can_place(Vector2i(x, y)):
+				free_t = Vector2i(x, y)
+	var ap = b.place_tower("soldier", free_t)
+	check.call("soldier lv0 can't hurt lead", not ap.can_target(lg))
+	b.upgrade_tower(ap)
+	check.call("AP Rounds pierce lead", ap.can_target(lg))
+	var lh: float = lg.hp
+	b.damage_enemy(lg, 5.0, "physical", ap)
+	check.call("AP bullets hurt lead", lg.hp < lh)
+	var bouncer = b.spawn_enemy("ogre", 0, lg.dist, 1.0, true, {"undead": true, "car_hp": 500, "car_speed": 0})
+	bouncer.owner_tower = buddy
+	lh = lg.hp
+	b._tick_friendly(bouncer, Battle.STEP)
+	check.call("undead bounce off lead", bouncer.alive and lg.hp == lh)
+	check.call("Ultracore needs Hardcore beaten on the map", not Game.is_diff_open("nope", 4) and Game.is_diff_open("nope", 3))
 	# tower limits: 10 of a type, 50 in all
 	for tw in b.towers.values():
 		b.sell_tower(tw)

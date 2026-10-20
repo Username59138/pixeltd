@@ -361,7 +361,7 @@ func start_wave(skip_wave := false) -> void:
 	if w.is_empty():   # past the handmade list (Continue): the generator takes over
 		w = Defs.build_wave(wave, total_waves, wave_seed)
 		for sp in w["spawns"]:
-			sp.append_array([-1.0, false])
+			sp.append_array([-1.0, []])
 	if spawning:
 		# skipped mid-wave: the rest of the current wave still comes, the new one starts now
 		for sp in w["spawns"]:
@@ -375,7 +375,7 @@ func start_wave(skip_wave := false) -> void:
 	auto_t = -1.0
 	if not lava_tiles.is_empty() and wave % 2 == 0:
 		eruption_t = randf_range(4.0, 9.0)
-	# warn about the first invisible / flying enemies of the run
+	# warn about the first invisible / flying enemies of the run, and the first lead ones
 	var warn := ""
 	for sp in spawn_queue:
 		var d: Dictionary = Defs.ENEMIES[sp[1]]
@@ -383,6 +383,9 @@ func start_wave(skip_wave := false) -> void:
 		if tag != "" and not seen_types.has(sp[1]):
 			warn = "%s: %s!" % [String(d["name"]).to_upper(), tag]
 		seen_types[sp[1]] = true
+		if (sp[3] as Array).has("lead") and not seen_types.has("*lead"):
+			warn = "LEAD ENEMIES!"
+			seen_types["*lead"] = true
 	if w["boss"]:
 		announce.emit("BOSS WAVE %d!" % wave, Color("e43b44"))
 		if not headless:
@@ -395,12 +398,14 @@ func start_wave(skip_wave := false) -> void:
 	stats_changed.emit()
 
 
+## mods: wave modifiers, "bloated" and / or "lead".
 func spawn_enemy(t: String, pi: int, at_dist := 0.0, mult := -1.0, is_friendly := false, stats := {},
-		bloated := false) -> Node2D:
+		mods := []) -> Node2D:
 	var e := EnemyScript.new()
 	e.is_friendly = is_friendly
 	e.stats = stats
-	e.bloated = bloated
+	e.bloated = mods.has("bloated")
+	e.lead = mods.has("lead")
 	if mult < 0.0:
 		mult = hp_mult()
 		if Defs.BOSS_TYPES.has(t):
@@ -581,6 +586,10 @@ func _finish(win: bool) -> void:
 func damage_enemy(e: Node2D, amount: float, kind: String, src: Node, pierce := 0.0, flash := true) -> void:
 	if not e.alive or amount <= 0.0 or e.downed_t > 0.0:
 		return
+	if not hurts(e, src, kind):
+		if flash and not headless and randf() < 0.15:
+			add_text(e.position + Vector2(0, -12), "LEAD", Color("8b9bb4"))
+		return
 	if src and is_instance_valid(src) and "buff" in src:
 		amount *= src.buff
 	if e.frozen_t > 0.0 and e.brittle > 0.0:
@@ -607,6 +616,13 @@ func damage_enemy(e: Node2D, amount: float, kind: String, src: Node, pierce := 0
 			_fall_apart(e)
 		else:
 			_kill(e, src)
+
+
+## Lead enemies only take damage from towers that pierce lead; fire melts it and acid eats through it anyway.
+func hurts(e: Node2D, src: Node, kind := "physical") -> bool:
+	if not e.lead or kind == "fire" or kind == "acid":
+		return true
+	return src != null and is_instance_valid(src) and "stats" in src and bool(src.stats.get("lead", false))
 
 
 ## Skeleton: collapses into a pile of bones and gets back up with part of its HP.
@@ -657,7 +673,7 @@ func _kill(e: Node2D, src: Node) -> void:
 	if e.def.has("split"):
 		for i in int(e.def["split"]):
 			var child := spawn_enemy("slime", e.path_i, maxf(0.0, e.dist - i * 5.0), e.spawn_mult * 2.0, false, {},
-				e.bloated)
+				e.mods())
 			child.bounty = 1
 
 
@@ -827,7 +843,7 @@ func _tick_bullets(dt: float) -> void:
 			damage_enemy(hit, b["dmg"], "physical", src, b["pierce"])
 			if not hit.alive and src and src.type == "necro":
 				raise_dead(src, hit)
-			if hit.alive and b["slow"] > 0.0:
+			if hit.alive and b["slow"] > 0.0 and hurts(hit, src):
 				hit.apply_slow(b["slow"], b["slow_t"])
 			if not (b["acid"] as Dictionary).is_empty():
 				splash_acid(hit, b["acid"], src)
@@ -903,7 +919,7 @@ func raise_dead(src: Node, e: Node2D) -> void:
 	var at: Array = spots[rng.randi() % spots.size()] if not spots.is_empty() else [e.path_i, e.dist]
 	var u := spawn_enemy(e.type, at[0], at[1], 1.0, true,
 		{"undead": true, "car_hp": roundf(e.max_hp * float(st["raise_hp"])), "car_speed": float(e.def["speed"])},
-		e.bloated)
+		e.mods())
 	u.owner_tower = src
 	if not headless:
 		Sfx.play("rattle", 0.1)
@@ -946,7 +962,7 @@ func _tick_friendly(f: Node2D, dt: float) -> void:
 	var src = f.owner_tower if is_instance_valid(f.owner_tower) else null
 	# crashes
 	for e in enemies:
-		if not e.targetable() or e.flying:
+		if not e.targetable() or e.flying or not hurts(e, src, "pure"):   # undead bounce off lead, cars don't
 			continue
 		if e.position.distance_to(f.position) > e.radius + f.radius:
 			continue

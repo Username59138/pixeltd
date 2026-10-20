@@ -6,7 +6,7 @@ extends Control
 signal closed
 
 const MapsData := preload("res://scripts/data/maps_data.gd")
-const DIFF_SHORT := ["Light", "Medium", "Difficult", "Hardcore"]
+const DIFF_SHORT := ["Light", "Medium", "Difficult", "Hardcore", "Ultra"]
 
 var body: VBoxContainer
 
@@ -65,7 +65,7 @@ func _rebuild() -> void:
 		var open: bool = Game.is_map_unlocked(id)   # a beaten map stays open even when not bought
 		_btn(r, "Open" if open else "Locked", "green" if open else "gray", 70,
 			func(): Game.cheat_set_map_open(id, not open))
-		for d in 4:
+		for d in DIFF_SHORT.size():
 			var done := Game.is_beaten(id, d)
 			_btn(r, "Beaten" if done else "-", "green" if done else "gray", 70,
 				func(): Game.cheat_set_beaten(id, d, not done))
@@ -77,12 +77,12 @@ func _rebuild() -> void:
 			Game.cheat_set_map_open(id, true))
 	_btn(ar, "Beat everything", "blue", 100, func():
 		for id in MapsData.ORDER:
-			for d in 4:
+			for d in DIFF_SHORT.size():
 				Game.cheat_set_beaten(id, d, true))
 	_btn(ar, "Reset progress", "red", 100, func():
 		for id in MapsData.ORDER:
 			Game.cheat_set_map_open(id, Game.START_MAPS.has(id))
-			for d in 4:
+			for d in DIFF_SHORT.size():
 				Game.cheat_set_beaten(id, d, false))
 
 

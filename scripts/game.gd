@@ -28,7 +28,7 @@ var selected_difficulty := 1
 const TIERS := ["Beginner", "Intermediate", "Advanced", "Expert"]
 const START_MAPS := ["meadow"]
 const TIER_REWARD := [10, 20, 35, 60]          # paper maps for a win, by map tier
-const DIFF_REWARD_MULT := [1.0, 1.5, 2.5, 4.0]  # Light, Medium, Difficult, Hardcore
+const DIFF_REWARD_MULT := [1.0, 1.5, 2.5, 4.0, 6.0]  # Light, Medium, Difficult, Hardcore, Ultracore
 const LOSS_SHARE := 0.4                        # a loss pays this share of a win, scaled by waves survived
 const MAP_PRICE := [30, 60, 150, 300]          # by map tier
 var unlocked_maps: Array = START_MAPS.duplicate()
@@ -77,7 +77,7 @@ func _ready() -> void:
 		if not save_fake:
 			_real_beaten = beaten.duplicate(true)   # dev flag: never written to the save file
 		for m in MapsData.ORDER:
-			beaten[m] = [0, 1, 2, 3]
+			beaten[m] = range(Defs.DIFFICULTIES.size())
 		all_maps_open = true
 		if save_fake:
 			unlocked_maps = MapsData.ORDER.duplicate()
@@ -127,6 +127,12 @@ func tex(path: String) -> Texture2D:
 
 
 # ---------------------------------------------------------------- progress
+## Ultracore opens on a map once Hardcore is beaten there.
+func is_diff_open(map_id: String, diff: int) -> bool:
+	var needs := int(Defs.DIFFICULTIES[diff].get("needs", -1))
+	return needs < 0 or is_beaten(map_id, needs)
+
+
 func is_beaten(map_id: String, diff: int) -> bool:
 	return beaten.has(map_id) and (beaten[map_id] as Array).has(diff)
 

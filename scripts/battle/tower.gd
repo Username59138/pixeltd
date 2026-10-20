@@ -96,6 +96,8 @@ func can_target(e) -> bool:
 		return false
 	if e.invisible and not stats.get("camo", false):
 		return false
+	if e.lead and not stats.get("lead", false):
+		return false
 	return true
 
 
@@ -287,8 +289,8 @@ func _update_freezer(dt: float, enemies: Array) -> void:
 	var origin := position + Vector2(0, -2)
 	var dmg := float(stats["damage"])
 	for e in enemies:
-		# water can't reach flyers, but it does soak invisible enemies standing in it
-		if not e.targetable() or e.flying:
+		# water can't reach flyers or lead, but it does soak invisible enemies standing in it
+		if not e.targetable() or e.flying or e.lead:
 			continue
 		var d: Vector2 = e.position - origin
 		if d.length() > r + e.radius:
@@ -372,6 +374,7 @@ func _update_assassin(dt: float, enemies: Array) -> void:
 	if int(stats["daggers"]) > 0 and dagger_cd <= 0.0:
 		var r2 := float(stats["dagger_range"]) * float(stats["dagger_range"])
 		var cands: Array = enemies.filter(func(e): return e.targetable() and (stats["camo"] or not e.invisible) \
+			and (stats.get("lead", false) or not e.lead) \
 			and e.position.distance_squared_to(position) <= r2 and e.hp - e.incoming > 0.0)
 		# flyers first: the blades can't reach them
 		cands.sort_custom(func(a, b): return a.flying and not b.flying if a.flying != b.flying \

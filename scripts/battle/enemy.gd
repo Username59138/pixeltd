@@ -21,6 +21,7 @@ var owner_tower: Node = null
 var gun_cd := 0.0
 var undead := false        # friendly unit raised by a Necromancer (an enemy body, no abilities)
 var bloated := false       # Bloated enemy: Defs.BLOATED_HP times the HP and its own puffed-up sprite
+var lead := false          # Lead enemy: only towers that pierce lead hurt it (Battle.hurts), own grey sprite
 
 # statuses
 var stun_t := 0.0
@@ -91,7 +92,7 @@ func setup(t: String, hp_mult: float, p_i: int, p_len: float) -> void:
 	path_len = p_len
 	heal_cd = 2.5
 	anim_t = randf() * 10.0
-	_make_sprite("res://assets/sprites/enemies/%s%s" % [t, "_bloated" if bloated else ""])
+	_make_sprite("res://assets/sprites/enemies/" + t + _variant())
 
 
 func _setup_friendly(t: String, p_i: int, p_len: float) -> void:
@@ -108,8 +109,7 @@ func _setup_friendly(t: String, p_i: int, p_len: float) -> void:
 	path_i = p_i
 	path_len = p_len
 	anim_t = randf() * 10.0
-	_make_sprite("res://assets/sprites/%s/%s%s" % ["enemies" if undead else "vehicles", t,
-		"_bloated" if bloated else ""])
+	_make_sprite("res://assets/sprites/%s/%s" % ["enemies" if undead else "vehicles", t + _variant()])
 
 
 func _make_sprite(base: String) -> void:
@@ -140,7 +140,21 @@ func _set_view(v: String) -> void:
 
 
 func display_name() -> String:
-	return ("Bloated " if bloated else "") + String(def["name"])
+	return ("Bloated " if bloated else "") + ("Lead " if lead else "") + String(def["name"])
+
+
+## The wave modifiers, as spawn_enemy() takes them (slime king children and undead keep them).
+func mods() -> Array:
+	var m: Array = []
+	if bloated:
+		m.append("bloated")
+	if lead:
+		m.append("lead")
+	return m
+
+
+func _variant() -> String:
+	return ("_bloated" if bloated else "") + ("_lead" if lead else "")
 
 
 func remaining() -> float:
