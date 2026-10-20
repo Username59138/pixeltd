@@ -12,6 +12,7 @@ const NAME_W := 104
 const COL_W := 63
 
 var body: VBoxContainer
+var panel: PanelContainer
 
 
 func _ready() -> void:
@@ -19,24 +20,31 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(UI.dim_rect(0.7))
 	var p := UI.panel("panel", 10)
-	p.position = Vector2(60, 14)
 	p.size = Vector2(520, 0)
 	add_child(p)
+	panel = p
 	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 6)
+	root.add_theme_constant_override("separation", 4)
 	p.add_child(root)
 	root.add_child(UI.title("CHEATS", 16))
 	var note := "Saved to your save file (--save-fake)" if Game.save_fake else \
 		"This session only: your save keeps the real progress (run with --save-fake to keep this)"
 	root.add_child(UI.label(note, 10, Color("8b9bb4"), HORIZONTAL_ALIGNMENT_CENTER))
 	body = VBoxContainer.new()
-	body.add_theme_constant_override("separation", 3)
+	body.add_theme_constant_override("separation", 2)
 	root.add_child(body)
 	var close := UI.button("Close", "red", Vector2(90, 20))
 	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	close.pressed.connect(func(): closed.emit())
 	root.add_child(close)
 	_rebuild()
+	_center.call_deferred()
+
+
+## In the middle of the screen, once the table has its size.
+func _center() -> void:
+	panel.reset_size()
+	panel.position = ((Vector2(640, 360) - panel.size) / 2.0).round()
 
 
 func _rebuild() -> void:
