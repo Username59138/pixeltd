@@ -1,4 +1,4 @@
-# Pixel TD v0.11
+# Pixel TD v0.12
 
 A pixel art tower defense game made with Godot 4.7.2 (GL Compatibility renderer, runs on pretty much any Linux machine with OpenGL 3.3).
 
