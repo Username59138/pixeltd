@@ -434,6 +434,31 @@ static func enemy_hp_scale(wave: int) -> float:
 	return 1.0 + (0.03 * float(wave - 1) + 0.0006 * float((wave - 1) * (wave - 1))) * HP_GROWTH
 
 
+## Damage per second a tower deals with these stats, all its attacks together (several targets, daggers,
+## burn and acid included); 0 for towers that don't attack (Farm, Freezer before Ice Water).
+static func tower_dps(t: String, s: Dictionary) -> float:
+	match t:
+		"gunner":
+			return float(s["damage"]) * float(s["rate"]) * float(s["targets"])
+		"knight", "sniper", "necro":
+			return float(s["damage"]) * float(s["rate"])
+		"soldier":
+			var g := float(s["grenade_dmg"]) * float(s["rate"]) / float(s["grenade_every"]) if int(s["grenade_every"]) > 0 else 0.0
+			return float(s["damage"]) * float(s["burst"]) * float(s["rate"]) + g
+		"garage":   # a car crashes for its HP once per interval, plus the armored car's turret
+			return float(s["car_hp"]) / float(s["interval"]) + float(s["gun_dmg"]) * float(s["gun_rate"])
+		"flamer":   # the cone hits 10 times a second, then the burn
+			return float(s["damage"]) * 10.0 + float(s["burn"])
+		"freezer":
+			return float(s["damage"]) * 10.0
+		"toxic":
+			return float(s["damage"]) * float(s["rate"]) + float(s["acid_dps"])
+		"assassin":
+			return float(s["damage"]) * float(s["rate"]) + float(s["acid_dps"]) + \
+				float(s["dagger_dmg"]) * float(s["dagger_rate"]) * float(s["daggers"])
+	return 0.0
+
+
 ## Money for clearing a wave: grows fast, late waves pay for the expensive top upgrades (BTD6-style).
 static func wave_bonus(wave: int) -> int:
 	return roundi(25.0 * pow(float(wave), 1.5) + 100.0 * wave)

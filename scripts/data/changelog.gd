@@ -13,6 +13,7 @@ const ENTRIES := [
 		"LEAD enemies, from Difficult up: cast in grey lead, only towers that pierce lead can hurt them. Fire melts lead and acid eats through it, so the Flamethrower, Toxic Gunner and Toxic Assassin always can; so do Garage cars, the Soldier from AP Rounds and the Sniper from Full Metal Jacket. Gunslinger, Knight, Necromancer and Freezer can't.",
 		"NEW DIFFICULTY: Ultracore. 40 waves, one life, no selling, the toughest waves with lots of lead, and the Void Titan (1,000,000 HP) at the end. Opens on a map once you beat Hardcore there.",
 		"Hardcore now has 50 lives instead of 1.",
+		"Every tower that fights shows its DPS (damage per second of all its attacks together) in the shop, the selected tower panel and the Armory.",
 		"Toxic Assassin buffed: about twice the damage on levels 1-6 (42 dps right away instead of 19), as befits the priciest melee tower.",
 		"NEW TOWER: the Farm. Doesn't fight, pays money at the end of every wave, from $60 up to $4000 a wave with Agro Empire. At most 8 farms in a battle. Beat Farmlands on Difficult to put it on sale.",
 		"NEW MAP: Farmlands (Intermediate). A winding country road between fenced fields of wheat, cabbage and corn, with a big red barn in the middle.",

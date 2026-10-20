@@ -270,6 +270,16 @@ func _short(v: float) -> String:
 
 static func _stats_text(t: String, s: Dictionary) -> String:
 	var txt := _stats_core(t, s)
+	var dps := Defs.tower_dps(t, s)
+	if dps > 0.0:
+		var note := ""
+		if t in ["flamer", "freezer"] or (t == "knight" and s["cleave"]):
+			note = " (each enemy hit)"
+		elif t == "gunner" and int(s["targets"]) > 1:
+			note = " (%d targets)" % s["targets"]
+		elif t == "garage":
+			note = " (crashes + turret)" if float(s["gun_dmg"]) > 0.0 else " (crashes)"
+		txt = "DPS %s%s\n%s" % [UI.fmt_num(snappedf(dps, 0.1) if dps < 10.0 else roundf(dps)), note, txt]
 	var sees: Array = []
 	if s.get("camo", false) and t != "garage":
 		sees.append("Invisible")
