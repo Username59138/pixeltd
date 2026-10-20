@@ -307,6 +307,8 @@ static func _stats_core(t: String, s: Dictionary) -> String:
 			txt += "\nStun %ss every %d hits" % [UI.fmt_num(s["stun"]), s["stun_every"]]
 			if s["cleave"]:
 				txt += "\nCleave: hits all in range"
+			if s["aura"] > 0.0:
+				txt += "\nAura: towers nearby +%d%% dmg" % int(s["aura"] * 100)
 			return txt
 		"soldier":
 			var txt := "Dmg %s x%d burst  %s/s\nRange %d" % [UI.fmt_num(s["damage"]), s["burst"],
@@ -333,6 +335,8 @@ static func _stats_core(t: String, s: Dictionary) -> String:
 				int(s["chill_slow"] * 100), UI.fmt_num(s["freeze"])]
 			if s["damage"] > 0.0:
 				txt += "\nCold %s dps, ignores armor" % UI.fmt_num(s["damage"] * 10.0)
+			if s["brittle"] > 0.0:
+				txt += "\nFrozen take +%d%% damage" % int(s["brittle"] * 100)
 			txt += "\nPuts out fire, fire melts ice"
 			return txt
 		"toxic":

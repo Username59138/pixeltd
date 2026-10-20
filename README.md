@@ -60,20 +60,20 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 - **Flying enemies** (Bat, Harpy) follow the road in the air. Gunslinger, Soldier and Sniper can shoot them. Knight, Flamethrower, grenades and cars can't reach them.
 - **Skeletons** fall apart when killed and get back up once with half HP. **Orc Berserkers** run twice as fast below half HP.
 - The final boss of a run gets a big HP bar at the top of the screen. Hover other enemies to see their HP.
-- The bar under a tower shows its level by color: red → yellow → green → blue → purple, and pink for a 6th level (Toxic Assassin).
+- The bar under a tower shows its level by color: red → yellow → green → blue → purple → pink → gold (top level).
 
 ## Towers
 
-- **Gunslinger:** single shots; armor reduces bullet damage. Quick Draw → Hollow Points → Dual Pistols (2 targets + slow).
-- **Knight:** melee, ignores 50% of armor, every 3rd hit stuns. Sharpened Blade → Cleave → Champion.
-- **Soldier:** long range rifle bursts. AP Rounds (armor piercing) → Grenades → Machine Gun.
-- **Garage:** must be built next to a road. Sends friendly cars (`is_friendly` enemies) that drive along the road towards the enemies. On a crash both sides lose `min(car HP, enemy HP)`. Pickup → Truck → Armored Car (with a turret).
-- **Flamethrower:** fire cone and burning, ignores armor, but the Fire Imp is immune. Bigger Tank → Napalm → Blue Flame.
-- **Necromancer:** dark bolts that ignore 60% of armor. An enemy his bolt kills rises as a friendly undead (Garage-style crash) with part of its max HP: 20% → 35% → 50% → 70%. They rise at a random spot of road inside his range. No flyers, no bosses, and undead never raise more undead. Dark Pact → Bone Army (sees invisible) → Lich.
-- **Toxic Gunner:** shoots globs of acid, hits flying enemies. Corrosive Mix → Scope (sees invisible) → Acid Splash (acid on everyone around the target) → Toxic Overload.
-- **Toxic Assassin:** fast melee with poisoned blades that ignore 25% of armor, ground only. Poisoned Blades → Swift Strikes → Throwing Daggers (a ranged second attack whose daggers hit flying enemies, flyers first) → Twin Daggers (2 at once, sees invisible) → Master Assassin.
-- **Freezer:** sprays a cone of ice water. Every enemy in it builds up chill (scaled by class like any control effect): the more chill, the slower it walks, and at 100% it freezes solid in a block of ice for a while (also scaled by class, so bosses freeze rarely and briefly). Water puts out burning enemies, and the Flamethrower's fire melts the chill and the ice. Ground only; it can't aim at invisible enemies but soaks them anyway. Cold Water → Pressure Hose → Ice Water (cold damage that ignores armor) → Liquid Nitrogen.
-- **Sniper:** slow, heavy shots from almost across the map, sees invisible and hits flying enemies. Optics → Full Metal Jacket (ignores all armor) → Headshot (15% chance to kill any non-boss outright).
+- **Gunslinger:** single shots; armor reduces bullet damage. Quick Draw → Hollow Points → Dual Pistols (2 targets + slow) → Fan the Hammer → Sharpshooter (3 targets) → Legend of the West (4 targets).
+- **Knight:** melee, ignores 50% of armor, every 3rd hit stuns. Sharpened Blade → Cleave → Champion → Templar → Paladin (ignores all armor) → Holy Champion (towers within 48 px deal 15% more damage; auras don't stack).
+- **Soldier:** long range rifle bursts. AP Rounds (armor piercing) → Grenades → Machine Gun → Elite Soldier → Heavy Gunner → Commando.
+- **Garage:** must be built next to a road. Sends friendly cars (`is_friendly` enemies) that drive along the road towards the enemies. On a crash both sides lose `min(car HP, enemy HP)`. Pickup → Truck → Armored Car (with a turret) → Reinforced Plating → Twin Turret → Armored Convoy.
+- **Flamethrower:** fire cone and burning, ignores armor, but the Fire Imp is immune. Bigger Tank → Napalm → Blue Flame → Pyromania → Inferno → Dragon's Breath (burns through any fire resistance).
+- **Necromancer:** dark bolts that ignore 60% of armor. An enemy his bolt kills rises as a friendly undead (Garage-style crash) with part of its max HP: 20% → 35% → 50% → 70% → 85% → 100% → 130%. They rise at a random spot of road inside his range. No flyers, no bosses, and undead never raise more undead. Dark Pact → Bone Army (sees invisible) → Lich → Soul Harvest → Lord of Bones → Lich King.
+- **Toxic Gunner:** shoots globs of acid, hits flying enemies. Corrosive Mix → Scope (sees invisible) → Acid Splash (acid on everyone around the target) → Toxic Overload → Biohazard → Plague.
+- **Toxic Assassin:** fast melee with poisoned blades that ignore 25% of armor, ground only. Poisoned Blades → Swift Strikes → Throwing Daggers (a ranged second attack whose daggers hit flying enemies, flyers first) → Twin Daggers (2 at once, sees invisible) → Master Assassin → Shadow Blade (3 daggers).
+- **Freezer:** sprays a cone of ice water. Every enemy in it builds up chill (scaled by class like any control effect): the more chill, the slower it walks, and at 100% it freezes solid in a block of ice for a while (also scaled by class, so bosses freeze rarely and briefly). Water puts out burning enemies, and the Flamethrower's fire melts the chill and the ice. Ground only; it can't aim at invisible enemies but soaks them anyway. Cold Water → Pressure Hose → Ice Water (cold damage that ignores armor) → Liquid Nitrogen → Cryo Cannon → Absolute Zero (enemies it freezes take 25% more damage from everything).
+- **Sniper:** slow, heavy shots from almost across the map, sees invisible and hits flying enemies. Optics → Full Metal Jacket (ignores all armor) → Headshot (15% chance to kill any non-boss outright) → Elite Sniper → Anti-Material Rifle → Deadeye (25%).
 
 Open **Towers** in the main menu and click a portrait to see every tower's full stats and upgrade path.
 

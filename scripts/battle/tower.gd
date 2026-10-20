@@ -18,6 +18,7 @@ var tile := Vector2i.ZERO
 var battle: Node
 var selected := false
 var disabled_t := 0.0   # > 0 while buried by a volcano eruption
+var buff := 1.0         # damage multiplier from a Holy Champion's aura (Battle.recompute_buffs)
 
 var sprite: Sprite2D
 var anim_t := 0.0
@@ -302,7 +303,8 @@ func _update_freezer(dt: float, enemies: Array) -> void:
 			battle.damage_enemy(e, dmg, "cold", self)
 			if not e.alive:
 				continue
-		if e.apply_chill(float(stats["chill"]), 0.1, float(stats["chill_slow"]), float(stats["freeze"])):
+		if e.apply_chill(float(stats["chill"]), 0.1, float(stats["chill_slow"]), float(stats["freeze"]),
+				float(stats.get("brittle", 0.0))):
 			battle.fx_freeze(e)
 	battle.fx_spray(position + Vector2(6 * (1.0 if aim.x >= 0 else -1.0), -3), aim, r, half_cone,
 		level >= max_level())
@@ -440,6 +442,8 @@ func _draw() -> void:
 	var col: Color = Defs.RAINBOW[clampi(level, 0, Defs.RAINBOW.size() - 1)]
 	draw_rect(Rect2(-6, 6, 12, 3), Color("181425"))
 	draw_rect(Rect2(-5, 7, 10, 1), col)
+	if float(stats.get("aura", 0.0)) > 0.0:   # Holy Champion: faint golden ring where the aura reaches
+		draw_arc(Vector2(0, 2), Battle.AURA_RANGE, 0.0, TAU, 48, Color(1.0, 0.85, 0.35, 0.25), 1.0)
 	if disabled_t > 0.0:
 		var blink := int(anim_t * 6.0) % 2 == 0
 		draw_rect(Rect2(-8, -14, 16, 1), Color("f77622") if blink else Color("a22633"))

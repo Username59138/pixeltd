@@ -334,7 +334,7 @@ func _mech_test() -> void:
 	b.sell_tower(fl)
 	b.enemies.clear()
 	# cars: run over ghosts, drive under bats
-	var car = b.spawn_enemy("car", 0, 200.0, 1.0, true, {"car_hp": 500, "car_speed": 70})
+	var car = b.spawn_enemy("car", 0, 200.0, 1.0, true, {"car_hp": 50000, "car_speed": 70})
 	var g3 = b.spawn_enemy("ghost", 0, 196.0)
 	var b3 = b.spawn_enemy("bat", 0, 198.0)
 	b.stats_changed.connect(func(): pass)
@@ -451,7 +451,7 @@ func _mech_test() -> void:
 	var ih: float = iron.hp
 	fz.flame_tick = 0.0
 	fz.update(Battle.STEP, b.enemies)
-	check.call("liquid nitrogen ignores armor", absf(ih - iron.hp - 3.0) < 0.01)
+	check.call("liquid nitrogen ignores armor", absf(ih - iron.hp - float(fz.stats["damage"])) < 0.01)
 	# acid: damage over time through armor, eats armor while it lasts
 	for tw in b.towers.values():
 		b.sell_tower(tw)
@@ -494,6 +494,35 @@ func _mech_test() -> void:
 		asn.update(Battle.STEP, b.enemies)
 		b._tick_bullets(Battle.STEP)
 	check.call("level 4 daggers hit flyers", abat.hp < abat.max_hp or not abat.alive)
+	# Holy Champion aura: towers nearby deal 15% more; Absolute Zero: its frozen enemies take 25% more
+	for tw in b.towers.values():
+		b.sell_tower(tw)
+	for e in b.enemies:
+		e.alive = false
+	b.enemies.clear()
+	b.cash = 999999
+	var near: Array = []
+	for y in Battle.ROWS:
+		for x in Battle.COLS:
+			var tt := Vector2i(x, y)
+			if b.can_place(tt) and b.tile_center(tt).distance_to(b.tile_center(spot)) <= Battle.AURA_RANGE:
+				near.append(tt)
+	var holy = b.place_tower("knight", near[0])
+	var buddy = b.place_tower("gunner", near[1])
+	check.call("no aura before Holy Champion", is_equal_approx(buddy.buff, 1.0))
+	for k in 6:
+		b.upgrade_tower(holy)
+	check.call("Holy Champion aura +15%", is_equal_approx(buddy.buff, 1.15))
+	var holy2 = b.place_tower("knight", near[2])
+	for k in 6:
+		b.upgrade_tower(holy2)
+	check.call("auras don't stack", is_equal_approx(buddy.buff, 1.15))
+	var bz = b.spawn_enemy("goblin", 0, 120.0)
+	bz.frozen_t = 2.0
+	bz.brittle = 0.25
+	var bh: float = bz.hp
+	b.damage_enemy(bz, 100.0, "pure", null)
+	check.call("brittle ice: +25% damage while frozen", absf(bh - bz.hp - 125.0) < 0.01)
 	# tower limits: 10 of a type, 50 in all
 	for tw in b.towers.values():
 		b.sell_tower(tw)

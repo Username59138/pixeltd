@@ -40,6 +40,7 @@ var chill_slow := 0.0     # slow at full chill (from the strongest Freezer that 
 var chill_hold := 0.0     # chill only starts melting once nobody sprays it for a moment
 var frozen_t := 0.0       # > 0 while stuck in a block of ice
 var freeze_immune_t := 0.0
+var brittle := 0.0        # extra damage taken while frozen (Absolute Zero)
 var heal_cd := 0.0
 var flash_t := 0.0
 var heal_lock := 0.0
@@ -78,8 +79,8 @@ func setup(t: String, hp_mult: float, p_i: int, p_len: float) -> void:
 	speed = float(def["speed"])
 	armor = float(def.get("armor", 0))
 	fire_res = float(def.get("fire_res", 0.0))
-	# reward grows with toughness so the economy keeps up with later waves
-	bounty = maxi(1, int(roundf(float(def["bounty"]) * Defs.BOUNTY_MULT * (1.0 + 0.5 * maxf(0.0, hp_mult - 1.0)))))
+	# reward grows with HP: twice as tough pays twice as much
+	bounty = maxi(1, int(roundf(float(def["bounty"]) * Defs.BOUNTY_MULT * hp_mult)))
 	radius = float(def.get("radius", 6))
 	flying = bool(def.get("flying", false))
 	invisible = bool(def.get("invisible", false))
@@ -187,7 +188,7 @@ func apply_slow(amount: float, duration: float) -> void:
 
 ## Freezer water. Chill is a control effect: it builds slower on higher classes, and the ice holds shorter.
 ## Returns true when this spray froze the enemy solid.
-func apply_chill(rate: float, dt: float, max_slow: float, freeze_time: float) -> bool:
+func apply_chill(rate: float, dt: float, max_slow: float, freeze_time: float, brittle_ice := 0.0) -> bool:
 	chill_hold = 0.3
 	chill_slow = maxf(chill_slow, max_slow)
 	if frozen_t > 0.0 or freeze_immune_t > 0.0:
@@ -198,6 +199,7 @@ func apply_chill(rate: float, dt: float, max_slow: float, freeze_time: float) ->
 	chill = 0.0
 	frozen_t = freeze_time * effect_mult
 	freeze_immune_t = frozen_t + 1.0
+	brittle = brittle_ice
 	return true
 
 

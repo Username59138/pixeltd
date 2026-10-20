@@ -12,6 +12,7 @@ const TILE := 16
 const COLS := 32
 const ROWS := 22
 const BULLET_SPEED := 320.0
+const AURA_RANGE := 48.0   # Holy Champion's damage aura
 
 signal stats_changed
 signal ended(win: bool, newly_unlocked: Array)
@@ -572,6 +573,10 @@ func _finish(win: bool) -> void:
 func damage_enemy(e: Node2D, amount: float, kind: String, src: Node, pierce := 0.0, flash := true) -> void:
 	if not e.alive or amount <= 0.0 or e.downed_t > 0.0:
 		return
+	if src and is_instance_valid(src) and "buff" in src:
+		amount *= src.buff
+	if e.frozen_t > 0.0 and e.brittle > 0.0:
+		amount *= 1.0 + e.brittle
 	var dmg := amount   # kind "pure" (car crashes) ignores armor and resistances
 	if kind == "physical":
 		var arm: float = e.cur_armor() * (1.0 - pierce)
@@ -648,6 +653,17 @@ func _kill(e: Node2D, src: Node) -> void:
 
 
 # ---------------------------------------------------------------- towers
+## Holy Champion aura: every tower within AURA_RANGE of one deals that much more damage (auras don't stack).
+func recompute_buffs() -> void:
+	var holy: Array = towers.values().filter(func(tw): return float(tw.stats.get("aura", 0.0)) > 0.0)
+	for tw in towers.values():
+		var best := 0.0
+		for h in holy:
+			if h.position.distance_to(tw.position) <= AURA_RANGE:
+				best = maxf(best, float(h.stats["aura"]))
+		tw.buff = 1.0 + best
+
+
 ## How many towers of this type stand on the field.
 func tower_count(t: String) -> int:
 	return towers.values().filter(func(tw): return tw.type == t).size()
@@ -680,6 +696,7 @@ func place_tower(t: String, tile: Vector2i, free := false) -> Node2D:
 		ents.add_child(tw)
 	tw.setup(t, self, cost)
 	towers[tile] = tw
+	recompute_buffs()
 	if not headless and not demo:
 		Sfx.play("place")
 		for i in 10:
@@ -701,6 +718,7 @@ func upgrade_tower(tw: Node2D) -> bool:
 	tw.spent += c
 	tw.level += 1
 	tw.recompute()
+	recompute_buffs()
 	if not headless:
 		Sfx.play("upgrade")
 		for i in 14:
@@ -715,6 +733,7 @@ func sell_tower(tw: Node2D) -> void:
 		return
 	cash += sell_value(tw)
 	towers.erase(tw.tile)
+	recompute_buffs()
 	if selected == tw:
 		select(null)
 	if not headless:
