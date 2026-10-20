@@ -2,6 +2,12 @@ extends RefCounted
 ## What's new, shown from the main menu. Newest version first.
 
 const ENTRIES := [
+	{"version": "0.21", "title": "Easier", "date": "October 2026", "items": [
+		"Every difficulty is easier: all enemies and bosses have 40% less HP (the Stone Golem 4500, the Bone Dragon 18k, the Demon Lord 30k, the Void Titan 600k) and pay the same.",
+		"The Stone Golem's armor is 2 instead of 4, so Medium can be beaten with Gunslingers alone again.",
+		"Bloated enemies look like any other now; hover one to see that it's Bloated and has twice the HP.",
+		"Fixed the tower panel in battle: with long stats or a long upgrade text the buttons slid off the screen. The text scrolls now and the buttons stay put.",
+	]},
 	{"version": "0.2", "title": "The Big Rebalance", "date": "October 2026", "items": [
 		"BIG REBALANCE: every tower now has 7 levels. Early levels deal small damage, the top upgrades cost thousands and deal dozens of times more, so a run is about saving up for big towers instead of building more and more cheap ones.",
 		"New top upgrades include Holy Champion (towers around the Knight deal 15% more damage), Absolute Zero (frozen enemies take 25% more damage), Legend of the West, Commando, Dragon's Breath, Deadeye, Lich King, Plague and Shadow Blade.",

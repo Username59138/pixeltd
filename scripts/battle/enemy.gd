@@ -20,7 +20,7 @@ var stats := {}             # for friendly units: the stats of the garage that s
 var owner_tower: Node = null
 var gun_cd := 0.0
 var undead := false        # friendly unit raised by a Necromancer (an enemy body, no abilities)
-var bloated := false       # Bloated enemy: Defs.BLOATED_HP times the HP and its own puffed-up sprite
+var bloated := false       # Bloated enemy: Defs.BLOATED_HP times the HP (looks the same, the tooltip tells)
 var lead := false          # Lead enemy: only towers that pierce lead hurt it (Battle.hurts), own grey sprite
 
 # statuses
@@ -154,7 +154,7 @@ func mods() -> Array:
 
 
 func _variant() -> String:
-	return ("_bloated" if bloated else "") + ("_lead" if lead else "")
+	return "_lead" if lead else ""
 
 
 func remaining() -> float:

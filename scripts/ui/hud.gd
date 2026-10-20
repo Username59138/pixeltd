@@ -138,6 +138,8 @@ func _build_sidebar() -> void:
 	info_box = VBoxContainer.new()
 	info_box.add_theme_constant_override("separation", 2)
 	info_box.visible = false
+	info_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	info_box.size_flags_stretch_ratio = 1000.0   # like the shop: takes the spacer's room while shown
 	v.add_child(info_box)
 	var head := HBoxContainer.new()
 	info_box.add_child(head)
@@ -157,20 +159,29 @@ func _build_sidebar() -> void:
 	close.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	close.pressed.connect(func(): battle.select(null))
 	head.add_child(close)
+	# stats and the next upgrade's text scroll when they're long; the buttons below always stay on screen
+	var info_scroll := ScrollContainer.new()
+	info_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	info_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	UI.style_scrollbar(info_scroll.get_v_scroll_bar(), 12)   # an arrow click moves one line
+	info_box.add_child(info_scroll)
+	var info_text := VBoxContainer.new()
+	info_text.add_theme_constant_override("separation", 2)
+	info_scroll.add_child(info_text)
 	info_stats = UI.label("", 10, Color("c0cbdc"))
 	info_stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	info_stats.custom_minimum_size = Vector2(116, 0)
-	info_box.add_child(info_stats)
+	info_stats.custom_minimum_size = Vector2(108, 0)   # room for the scrollbar
+	info_text.add_child(info_stats)
 	info_dealt = UI.label("", 10, Color("8b9bb4"))
-	info_box.add_child(info_dealt)
+	info_text.add_child(info_dealt)
+	up_desc = UI.label("", 10, Color.WHITE)
+	up_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	up_desc.custom_minimum_size = Vector2(108, 0)
+	info_text.add_child(up_desc)
 	up_btn = UI.button("", "green", Vector2(118, 18))
 	up_btn.icon = load("res://assets/ui/icons/up.png")
 	up_btn.pressed.connect(_on_upgrade)
 	info_box.add_child(up_btn)
-	up_desc = UI.label("", 10, Color.WHITE)
-	up_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	up_desc.custom_minimum_size = Vector2(116, 0)
-	info_box.add_child(up_desc)
 	target_btn = UI.button("", "purple", Vector2(118, 16))
 	target_btn.pressed.connect(_on_target)
 	info_box.add_child(target_btn)
@@ -251,7 +262,7 @@ func _refresh_selection() -> void:
 		var c: int = battle.upgrade_cost(tw)
 		up_btn.text = "%s $%d" % [up["name"], c]
 		up_btn.disabled = battle.cash < c
-		up_desc.text = up["desc"]
+		up_desc.text = "Next: " + String(up["desc"])
 	target_btn.text = "Target: %s" % tw.TARGET_NAMES[tw.target_mode]
 	target_btn.visible = tw.type != "farm"   # a farm doesn't aim at anything
 	if float(battle.diff["sell"]) > 0.0:

@@ -532,18 +532,19 @@ func _mech_test() -> void:
 	check.call("handmade waves: fixed HP, Bloated x2", fixed and Waves.count("light") == 20 and Waves.count("ultracore") == 40)
 	b.enemies.clear()
 	var fat = b.spawn_enemy("ogre", 0, 120.0, Defs.BLOATED_HP, false, {}, ["bloated"])
-	check.call("Bloated Ogre: x2 HP, own sprite", fat.max_hp == 1040.0 and fat.display_name() == "Bloated Ogre"
-		and fat.tex_normal.resource_path.ends_with("ogre_bloated.png"))
+	check.call("Bloated Ogre: x2 HP, same sprite", fat.max_hp == Defs.ENEMIES["ogre"]["hp"] * Defs.BLOATED_HP
+		and fat.display_name() == "Bloated Ogre" and fat.tex_normal.resource_path.ends_with("ogre.png"))
 	var troll = b.spawn_enemy("troll", 0, 120.0, 1.0)
-	troll.hp = 500.0
+	troll.hp = troll.max_hp * 0.5
+	var regen: float = troll.max_hp * float(Defs.ENEMIES["troll"]["regen"])
 	b._tick_enemies(1.0)
-	check.call("troll regenerates", absf(troll.hp - 520.0) < 0.01)
+	check.call("troll regenerates", absf(troll.hp - (troll.max_hp * 0.5 + regen)) < 0.01)
 	troll.apply_burn(0.0, 3.0, 0.0, null)
 	b._tick_enemies(1.0)
-	check.call("no regen while burning", absf(troll.hp - 520.0) < 0.01)
+	check.call("no regen while burning", absf(troll.hp - (troll.max_hp * 0.5 + regen)) < 0.01)
 	var dragon = b.spawn_enemy("bone_dragon", 0, 120.0, 1.0)
-	b.damage_enemy(dragon, 40000.0, "pure", null)
-	check.call("Bone Dragon gets back up with 30%", dragon.alive and absf(dragon.hp - 9000.0) < 0.01)
+	b.damage_enemy(dragon, dragon.max_hp + 1.0, "pure", null)
+	check.call("Bone Dragon gets back up with 30%", dragon.alive and absf(dragon.hp - dragon.max_hp * 0.3) < 0.01)
 	# lead: only towers that pierce lead hurt it; fire and acid always do; cars crash into it, undead don't
 	b.enemies.clear()
 	var lg = b.spawn_enemy("goblin", 0, 120.0, 1.0, false, {}, ["lead"])

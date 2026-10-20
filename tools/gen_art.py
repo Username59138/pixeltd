@@ -57,14 +57,10 @@ def gen_sprites():
             img = U.render(u[view], u['colors'])
             img.save(out(f'sprites/{folder}/{name}{suffix}.png'))
             flash(img).save(out(f'sprites/{folder}/{name}{suffix}_flash.png'))
-            if folder == 'enemies':   # wave modifiers: Bloated, Lead and both
-                lead = U.lead_colors(u['colors'])
-                for var, rows, cm in (('_bloated', U.bloat_rows(u[view], view), {**u['colors'], **U.BLOAT_C}),
-                                      ('_lead', u[view], lead),
-                                      ('_bloated_lead', U.bloat_rows(u[view], view), {**lead, **U.BLOAT_C})):
-                    img = U.render(rows, cm)
-                    img.save(out(f'sprites/enemies/{name}{var}{suffix}.png'))
-                    flash(img).save(out(f'sprites/enemies/{name}{var}{suffix}_flash.png'))
+            if folder == 'enemies':   # Lead enemies are cast in lead (Bloated ones look like any other)
+                img = U.render(u[view], U.lead_colors(u['colors']))
+                img.save(out(f'sprites/enemies/{name}_lead{suffix}.png'))
+                flash(img).save(out(f'sprites/enemies/{name}_lead{suffix}_flash.png'))
             if folder == 'vehicles' and view == 'side':
                 img.save(out(f'ui/upgrades/{name}.png'))
     for name, (rows, cm) in ICONS.items():

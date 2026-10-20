@@ -1317,39 +1317,6 @@ UNITS['titan'] = dict(colors=TITAN_C, side=[
 ]))
 
 
-def bloat_rows(rows, view):
-    """Bloated look: wider through the middle, a taller belly and a few swollen blotches on it."""
-    w = max(len(r) for r in rows)
-    rows = [r.ljust(w, '.') for r in rows]
-    h = len(rows)
-    if view == 'side':
-        cols = [x for x in range(w) for y in range(h) if rows[y][x] != '.']
-        cx = round(sum(cols) / len(cols))
-    else:
-        cx = w // 2
-    n = 2 if w < 20 else 3
-    rows = [r[:cx] + r[cx] * n + r[cx:] for r in rows]
-    w += n
-    # the widest row in the lower middle is the belly: it gets doubled
-    by = max(range(h // 3, h - h // 5), key=lambda y: sum(c != '.' for c in rows[y]))
-    rows = rows[:by] + [rows[by]] + rows[by:]
-    h += 1
-    spots = [(x, y) for y in range(by - 3, by + 2) for x in range(w - 1)
-             if all(0 <= y + dy < h and 0 <= x + dx < w and rows[y + dy][x + dx] != '.'
-                    for dx in (-1, 0, 1, 2) for dy in (-1, 0, 1, 2))]
-    out = [list(r) for r in rows]
-    if spots:
-        picks = [spots[len(spots) // 6]]
-        far = max(spots, key=lambda p: abs(p[0] - picks[0][0]) + abs(p[1] - picks[0][1]))
-        if abs(far[0] - picks[0][0]) > 2:
-            picks.append(far)
-        for x, y in picks:
-            out[y][x], out[y][x + 1], out[y + 1][x], out[y + 1][x + 1] = '&', '%', '%', '%'
-    return [''.join(r) for r in out]
-
-
-BLOAT_C = {'%': (181, 80, 136), '&': (246, 117, 122)}   # swollen blotches of Bloated enemies
-
 LEAD_TONES = [(46, 52, 68), (70, 78, 98), (98, 108, 130), (130, 140, 162), (166, 176, 196), (206, 214, 228)]
 
 
