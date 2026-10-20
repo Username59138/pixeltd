@@ -5,6 +5,8 @@ const ENTRIES := [
 	{"version": "0.21", "title": "Easier", "date": "October 2026", "items": [
 		"Every difficulty is easier: all enemies and bosses have 40% less HP (the Stone Golem 4500, the Bone Dragon 18k, the Demon Lord 30k, the Void Titan 600k) and pay the same.",
 		"The Stone Golem's armor is 2 instead of 4, so Medium can be beaten with Gunslingers alone again.",
+		"Not every tower goes to level 7 any more, like in TDS. Early game towers are cheap and stop at level 5: the Gunslinger tops out at Fan the Hammer, the Toxic Gunner at Toxic Overload. Mid game towers stop at level 6: Garage (Twin Turret), Necromancer (Lord of Bones) and Freezer (Cryo Cannon, which now makes frozen enemies take 25% more damage). The pricey end game towers keep all 7 levels.",
+		"The Gunslinger's DPS shows per target now (\"DPS 42 x2 targets\"): the sum over all its targets looked like it hit a boss that hard.",
 		"Bloated enemies look like any other now; hover one to see that it's Bloated and has twice the HP.",
 		"Fixed the tower panel in battle: with long stats, a long upgrade text or a long upgrade name the buttons slid off the screen. The text scrolls now, the upgrade button just says \"Upgrade $cost\" (the name is in the text above it) and the buttons stay put.",
 	]},

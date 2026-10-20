@@ -315,7 +315,7 @@ func _open_tower(t: String) -> void:
 			var b := Vector2(cx0 + (i + 1) * step - 17, path_y)
 			line.draw_rect(Rect2(a - Vector2(0, 2), Vector2(b.x - a.x, 4)), Color("181425"))
 			line.draw_rect(Rect2(a - Vector2(0, 1), Vector2(b.x - a.x, 2)),
-				Defs.RAINBOW[i + 1] if i < cur_level else Color("3a4466")))
+				Defs.level_color(i + 1, n - 1) if i < cur_level else Color("3a4466")))
 	circles.clear()
 	for i in n:
 		var c := Button.new()
@@ -333,7 +333,7 @@ func _open_tower(t: String) -> void:
 		c.draw.connect(func():
 			var center := Vector2(18, 18)
 			var sel := idx == cur_level
-			var col: Color = Defs.RAINBOW[idx]
+			var col: Color = Defs.level_color(idx, n - 1)
 			c.draw_circle(center, 17, Color("181425"), true, -1.0, false)
 			c.draw_circle(center, 15, col if sel else col.darkened(0.45), true, -1.0, false)
 			c.draw_circle(center, 12, Color("262b44") if not sel else Color("3a4466"), true, -1.0, false)
@@ -346,7 +346,8 @@ func _open_tower(t: String) -> void:
 		c.pressed.connect(func(): _select_level(idx))
 		root.add_child(c)
 		circles.append(c)
-		var cap := UI.label("Base" if i == 0 else "Lv%d" % (i + 1), 10, Defs.RAINBOW[i], HORIZONTAL_ALIGNMENT_CENTER)
+		var cap := UI.label("Base" if i == 0 else "Lv%d" % (i + 1), 10, Defs.level_color(i, n - 1),
+			HORIZONTAL_ALIGNMENT_CENTER)
 		cap.position = Vector2(cx0 + i * step - 30, path_y + 20)
 		cap.size = Vector2(60, 12)
 		root.add_child(cap)

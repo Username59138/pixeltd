@@ -53,12 +53,6 @@ const TOWERS := {
 			{"name": "Fan the Hammer", "icon": "fan_hammer", "cost": 2700,
 				"desc": "Damage 7 > 10, fires faster.",
 				"set": {"damage": 10, "rate": 4.2}},
-			{"name": "Sharpshooter", "icon": "sharpshooter", "cost": 6700,
-				"desc": "Shoots 3 targets, damage 18. Bullets ignore half of armor, slow by 45%.",
-				"set": {"targets": 3, "damage": 18, "rate": 4.5, "armor_pierce": 0.5, "slow": 0.45}},
-			{"name": "Legend of the West", "icon": "legend_west", "cost": 15700,
-				"desc": "Shoots 4 targets at once, damage 36. Ignores 3/4 of armor, slows by 50%.",
-				"set": {"targets": 4, "damage": 36, "rate": 5.0, "armor_pierce": 0.75, "slow": 0.5, "slow_time": 0.9}},
 		],
 	},
 	"knight": {
@@ -133,9 +127,6 @@ const TOWERS := {
 			{"name": "Twin Turret", "icon": "twin_turret", "cost": 10500,
 				"desc": "675 HP. Two turrets: 22 dmg, faster.",
 				"set": {"car_hp": 675, "gun_dmg": 22, "gun_rate": 4.0}},
-			{"name": "Armored Convoy", "icon": "convoy", "cost": 24000,
-				"desc": "1700 HP, turret 45 dmg, a car every 3 seconds.",
-				"set": {"car_hp": 1700, "gun_dmg": 45, "gun_rate": 4.0, "interval": 3.0}},
 		],
 	},
 	"flamer": {
@@ -209,9 +200,6 @@ const TOWERS := {
 			{"name": "Lord of Bones", "icon": "lord_bones", "cost": 10300,
 				"desc": "Undead keep ALL their HP. Damage 110.",
 				"set": {"raise_hp": 1.0, "damage": 110, "rate": 1.5}},
-			{"name": "Lich King", "icon": "lich_king", "cost": 22000,
-				"desc": "Undead come back STRONGER: 130% of their HP. Damage 165.",
-				"set": {"raise_hp": 1.3, "damage": 165, "rate": 1.6}},
 		],
 	},
 	"freezer": {
@@ -234,11 +222,8 @@ const TOWERS := {
 				"desc": "Swaps water for liquid nitrogen: 16 dps, freezes very fast, frozen for 2.5s.",
 				"set": {"damage": 1.6, "chill": 1.4, "chill_slow": 0.65, "freeze": 2.5}},
 			{"name": "Cryo Cannon", "icon": "cryo_cannon", "cost": 8900,
-				"desc": "65 dps, range 64, frozen for 3s.",
-				"set": {"damage": 6.5, "chill": 1.8, "range": 64, "freeze": 3.0}},
-			{"name": "Absolute Zero", "icon": "absolute_zero", "cost": 20400,
-				"desc": "165 dps, slows up to 75%. Enemies it freezes take 25% more damage from everything.",
-				"set": {"damage": 16.5, "chill": 2.4, "chill_slow": 0.75, "freeze": 3.5, "brittle": 0.25}},
+				"desc": "65 dps, range 64, frozen for 3s. Enemies it freezes take 25% more damage from everything.",
+				"set": {"damage": 6.5, "chill": 1.8, "range": 64, "freeze": 3.0, "brittle": 0.25}},
 		],
 	},
 	# acid towers: acid hurts over time through armor and eats some armor while it lasts
@@ -261,12 +246,6 @@ const TOWERS := {
 			{"name": "Toxic Overload", "icon": "toxic_overload", "cost": 2000,
 				"desc": "Acid 16 dps for 4s, eats 4 armor. Damage 7, faster, bigger splash.",
 				"set": {"damage": 7, "rate": 1.8, "acid_dps": 16.0, "acid_time": 4.0, "acid_shred": 4.0, "splash": 24.0}},
-			{"name": "Biohazard", "icon": "biohazard", "cost": 7500,
-				"desc": "Acid 48 dps, eats 8 armor. Damage 13, bigger splash.",
-				"set": {"damage": 13, "acid_dps": 48.0, "acid_shred": 8.0, "splash": 30.0}},
-			{"name": "Plague", "icon": "plague", "cost": 17500,
-				"desc": "Acid 125 dps for 5s, eats 15 armor. Damage 26, huge splash.",
-				"set": {"damage": 26, "rate": 2.0, "acid_dps": 125.0, "acid_time": 5.0, "acid_shred": 15.0, "splash": 36.0}},
 		],
 	},
 	"assassin": {
@@ -458,6 +437,14 @@ const SPACING := {"slime": 0.55, "rat": 0.35, "goblin": 0.6, "wolf": 0.45, "iron
 
 static func enemy_hp_scale(wave: int) -> float:
 	return 1.0 + (0.03 * float(wave - 1) + 0.0006 * float((wave - 1) * (wave - 1))) * HP_GROWTH
+
+
+## Colour of a tower level: red, yellow, green, blue, purple, pink ... and gold for the tower's top level,
+## however many levels it has (early towers stop at 5, mid ones at 6).
+static func level_color(level: int, top: int) -> Color:
+	if level >= top:
+		return RAINBOW[RAINBOW.size() - 1]
+	return RAINBOW[clampi(level, 0, RAINBOW.size() - 2)]
 
 
 ## Damage per second a tower deals with these stats, all its attacks together (several targets, daggers,

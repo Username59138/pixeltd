@@ -252,7 +252,7 @@ func _refresh_selection() -> void:
 	info_icon.texture = tw.sprite.texture
 	info_title.text = tw.def["name"]
 	info_level.text = "Level %d/%d" % [tw.level + 1, tw.max_level() + 1]
-	info_level.add_theme_color_override("font_color", Defs.RAINBOW[clampi(tw.level, 0, Defs.RAINBOW.size() - 1)])
+	info_level.add_theme_color_override("font_color", Defs.level_color(tw.level, tw.max_level()))
 	info_stats.text = _stats_text(tw.type, tw.stats)
 	info_dealt.text = ("Earned $%s" % _short(tw.earned)) if tw.type == "farm" else \
 		"Dmg %s  Kills %d" % [_short(tw.damage_dealt), tw.kills]
@@ -291,8 +291,9 @@ static func _stats_text(t: String, s: Dictionary) -> String:
 			note = " (each enemy hit)"
 		elif t == "minigun":
 			note = " (spun up)"
-		elif t == "gunner" and int(s["targets"]) > 1:
-			note = " (%d targets)" % s["targets"]
+		elif t == "gunner" and int(s["targets"]) > 1:   # per target: the sum read like boss damage
+			dps /= float(s["targets"])
+			note = " x%d targets" % s["targets"]
 		elif t == "garage":
 			note = " (crashes + turret)" if float(s["gun_dmg"]) > 0.0 else " (crashes)"
 		txt = "DPS %s%s\n%s" % [UI.fmt_num(snappedf(dps, 0.1) if dps < 10.0 else roundf(dps)), note, txt]

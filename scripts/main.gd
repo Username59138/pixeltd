@@ -494,7 +494,7 @@ func _mech_test() -> void:
 		asn.update(Battle.STEP, b.enemies)
 		b._tick_bullets(Battle.STEP)
 	check.call("level 4 daggers hit flyers", abat.hp < abat.max_hp or not abat.alive)
-	# Holy Champion aura: towers nearby deal 15% more; Absolute Zero: its frozen enemies take 25% more
+	# Holy Champion aura: towers nearby deal 15% more; Cryo Cannon: its frozen enemies take 25% more
 	for tw in b.towers.values():
 		b.sell_tower(tw)
 	for e in b.enemies:
