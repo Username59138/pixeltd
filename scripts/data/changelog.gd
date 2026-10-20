@@ -6,7 +6,7 @@ const ENTRIES := [
 		"Every difficulty is easier: all enemies and bosses have 40% less HP (the Stone Golem 4500, the Bone Dragon 18k, the Demon Lord 30k, the Void Titan 600k) and pay the same.",
 		"The Stone Golem's armor is 2 instead of 4, so Medium can be beaten with Gunslingers alone again.",
 		"Bloated enemies look like any other now; hover one to see that it's Bloated and has twice the HP.",
-		"Fixed the tower panel in battle: with long stats or a long upgrade text the buttons slid off the screen. The text scrolls now and the buttons stay put.",
+		"Fixed the tower panel in battle: with long stats, a long upgrade text or a long upgrade name the buttons slid off the screen. The text scrolls now, the upgrade button just says \"Upgrade $cost\" (the name is in the text above it) and the buttons stay put.",
 	]},
 	{"version": "0.2", "title": "The Big Rebalance", "date": "October 2026", "items": [
 		"BIG REBALANCE: every tower now has 7 levels. Early levels deal small damage, the top upgrades cost thousands and deal dozens of times more, so a run is about saving up for big towers instead of building more and more cheap ones.",

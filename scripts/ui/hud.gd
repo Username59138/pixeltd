@@ -188,6 +188,9 @@ func _build_sidebar() -> void:
 	sell_btn = UI.button("", "red", Vector2(118, 16))
 	sell_btn.pressed.connect(_on_sell)
 	info_box.add_child(sell_btn)
+	for b in [up_btn, target_btn, sell_btn]:   # never wider than the sidebar, whatever the text
+		b.clip_text = true
+		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -260,9 +263,9 @@ func _refresh_selection() -> void:
 		up_desc.text = "Fully upgraded."
 	else:
 		var c: int = battle.upgrade_cost(tw)
-		up_btn.text = "%s $%d" % [up["name"], c]
+		up_btn.text = "Upgrade $%d" % c   # the name goes in the text above: long ones widened the panel
 		up_btn.disabled = battle.cash < c
-		up_desc.text = "Next: " + String(up["desc"])
+		up_desc.text = "Next: %s. %s" % [up["name"], up["desc"]]
 	target_btn.text = "Target: %s" % tw.TARGET_NAMES[tw.target_mode]
 	target_btn.visible = tw.type != "farm"   # a farm doesn't aim at anything
 	if float(battle.diff["sell"]) > 0.0:
