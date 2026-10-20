@@ -3,11 +3,10 @@ extends RefCounted
 
 const ENTRIES := [
 	{"version": "0.2", "title": "In progress", "date": "October 2026", "items": [
-		"BIG REBALANCE: every tower now has 7 levels. The new top upgrades cost thousands and are worth saving up for, instead of building more and more cheap towers. Early levels are a bit weaker so the climb feels like one.",
+		"BIG REBALANCE: every tower now has 7 levels. Early levels deal small damage, the top upgrades cost thousands and deal dozens of times more, so a run is about saving up for big towers instead of building more and more cheap ones.",
 		"New top upgrades include Holy Champion (towers around the Knight deal 15% more damage), Absolute Zero (frozen enemies take 25% more damage), Legend of the West, Commando, Dragon's Breath, Deadeye, Lich King, Plague and Shadow Blade.",
-		"All the numbers are 10 times bigger: enemies have 10x HP and armor, towers deal 10x damage. Prices stay the same.",
-		"Difficult has brand new waves: fewer, much tougher enemies, a 15k Golem on wave 20 and a 50k Demon Lord at the end. The other difficulties get theirs next.",
-		"Money: enemies pay in proportion to their HP, and clearing a wave pays more and more as the waves go on.",
+		"Difficult has brand new waves: they start tiny (8 slimes of 9 HP) and end huge (5000 HP goblins, 20k ogres), with a 10k Golem on wave 20, two 20k Golems on wave 30 and a 50k Demon Lord at the end. The other difficulties get theirs next.",
+		"Money: tougher enemies pay more, and clearing a wave pays more and more as the waves go on.",
 		"Every difficulty now has its own handmade waves. After a win, Continue goes on with generated waves that start from the strength of the last one.",
 		"Tower limits: at most 50 towers in a battle and 10 of each type. The shop shows how many you've built.",
 		"MUSIC! Chiptune tracks by Juhani Junkala play across the menu and the battles, boss waves get their own track and a win plays a little fanfare. Settings has a music volume and a player: see what's playing, skip to the previous or next track.",

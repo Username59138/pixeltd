@@ -79,8 +79,8 @@ func setup(t: String, hp_mult: float, p_i: int, p_len: float) -> void:
 	speed = float(def["speed"])
 	armor = float(def.get("armor", 0))
 	fire_res = float(def.get("fire_res", 0.0))
-	# reward grows with HP: twice as tough pays twice as much
-	bounty = maxi(1, int(roundf(float(def["bounty"]) * Defs.BOUNTY_MULT * hp_mult)))
+	# reward grows with HP, a bit slower than it (late enemies have hundreds of times the base HP)
+	bounty = maxi(1, int(roundf(float(def["bounty"]) * Defs.BOUNTY_MULT * pow(hp_mult, 0.55))))
 	radius = float(def.get("radius", 6))
 	flying = bool(def.get("flying", false))
 	invisible = bool(def.get("invisible", false))
