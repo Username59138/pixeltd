@@ -55,6 +55,10 @@ def gen_sprites():
             img = U.render(u[view], u['colors'])
             img.save(out(f'sprites/{folder}/{name}{suffix}.png'))
             flash(img).save(out(f'sprites/{folder}/{name}{suffix}_flash.png'))
+            if folder == 'enemies':
+                fat = U.render(U.bloat_rows(u[view], view), {**u['colors'], **U.BLOAT_C})
+                fat.save(out(f'sprites/enemies/{name}_bloated{suffix}.png'))
+                flash(fat).save(out(f'sprites/enemies/{name}_bloated{suffix}_flash.png'))
             if folder == 'vehicles' and view == 'side':
                 img.save(out(f'ui/upgrades/{name}.png'))
     for name, (rows, cm) in ICONS.items():
@@ -386,46 +390,46 @@ GRAVE_PLOTS = [
 ]
 
 MAPS = [
-    dict(id='meadow', name='Green Meadow', theme='meadow', tier='Beginner', hp_mult=1.0, seed=11, seed_idx=0,
+    dict(id='meadow', name='Green Meadow', theme='meadow', tier='Beginner', seed=11, seed_idx=0,
          paths=[[(-1, 4), (8, 4), (8, 15), (16, 15), (16, 6), (24, 6), (24, 17), (33, 17)]],
          decor=['tree', 'tree', 'bush', 'bush', 'rock'], density=0.07, variants=['halloween'],
          desc='A calm field. Perfect for learning the ropes.'),
-    dict(id='canyon', name='Dusty Canyon', theme='desert', tier='Beginner', hp_mult=1.05, seed=23, seed_idx=1,
+    dict(id='canyon', name='Dusty Canyon', theme='desert', tier='Beginner', seed=23, seed_idx=1,
          paths=[[(-1, 17), (5, 17), (5, 4), (12, 4), (12, 13), (19, 13), (19, 3), (27, 3), (27, 18), (14, 18),
                  (14, 23)]],
          decor=['cactus', 'cactus', 'rock', 'skull', 'dead_tree'], density=0.06,
          desc='Long dusty road through the badlands.'),
-    dict(id='gas_station', name='Gas Station', theme='gas', tier='Intermediate', hp_mult=1.1, seed=5, seed_idx=2,
+    dict(id='gas_station', name='Gas Station', theme='gas', tier='Intermediate', seed=5, seed_idx=2,
          paths=[[(-1, 2), (4, 2), (4, 18), (12, 18), (12, 8), (20, 8), (20, 18), (28, 18), (28, 4), (33, 4)]],
          decor={'grass': ['tree', 'bush', 'bush', 'rock'], 'concrete': ['cone', 'barrel', 'tires'], 'asphalt': []},
          density=0.03,
          desc='Something is leaking. Fuel for a new recruit?'),
-    dict(id='swamp', name='Murky Swamp', theme='swamp', tier='Intermediate', hp_mult=1.35, seed=17, seed_idx=5,
+    dict(id='swamp', name='Murky Swamp', theme='swamp', tier='Intermediate', seed=17, seed_idx=5,
          paths=[[(14, -1), (14, 15), (25, 15), (25, 9), (8, 9), (8, 23)]],
          decor=['swamp_tree', 'swamp_tree', 'dead_tree', 'reeds', 'mushroom', 'log'], density=0.05,
          desc='The boardwalk crosses itself. Guard the crossing!'),
-    dict(id='frozen_lake', name='Frozen Lake', theme='snow', tier='Advanced', hp_mult=1.15, seed=7, seed_idx=3,
+    dict(id='frozen_lake', name='Frozen Lake', theme='snow', tier='Advanced', seed=7, seed_idx=3,
          paths=[[(3, -1), (3, 7), (14, 7), (14, 11), (20, 11), (20, 3), (27, 3), (27, 18), (33, 18)],
                 [(3, 23), (3, 15), (14, 15), (14, 11), (20, 11), (20, 3), (27, 3), (27, 18), (33, 18)]],
          decor=['snow_pine', 'snow_pine', 'snow_pine', 'snowman', 'ice_block', 'rock'], density=0.06,
          desc='Two trails meet on the ice. Watch both flanks.'),
-    dict(id='graveyard', name='Old Graveyard', theme='grave', tier='Advanced', hp_mult=1.15, seed=13, seed_idx=6,
+    dict(id='graveyard', name='Old Graveyard', theme='grave', tier='Advanced', seed=13, seed_idx=6,
          paths=[[(-1, 3), (9, 3), (9, 12), (16, 12), (16, 18), (27, 18), (27, 10), (33, 10)],
                 [(22, 3), (22, 7), (16, 7), (16, 12), (16, 18), (27, 18), (27, 10), (33, 10)]],
          decor=['dead_tree', 'tomb', 'tomb_cross', 'skull', 'pumpkin', 'rock'], density=0.035,
          desc='The dead crawl out of the crypt. Short roads, no rest.'),
-    dict(id='refinery', name='Acid Refinery', theme='toxic', tier='Advanced', hp_mult=1.2, seed=31, seed_idx=7,
+    dict(id='refinery', name='Acid Refinery', theme='toxic', tier='Advanced', seed=31, seed_idx=7,
          paths=[[(-1, 3), (6, 3), (6, 9), (13, 9), (13, 13), (20, 13), (20, 4), (27, 4), (27, 17), (33, 17)],
                 [(-1, 19), (10, 19), (10, 13), (13, 13), (20, 13), (20, 4), (27, 4), (27, 17), (33, 17)]],
          decor=['toxic_barrel', 'toxic_barrel', 'acid_barrel', 'pipe', 'tires', 'rock'], density=0.05,
          desc='Two roads through a leaking chemical plant. They join in the middle.'),
-    dict(id='volcano', name='Volcano', theme='volcano', tier='Expert', hp_mult=1.45, seed=3, seed_idx=4,
+    dict(id='volcano', name='Volcano', theme='volcano', tier='Expert', seed=3, seed_idx=4,
          paths=[[(5, -1), (5, 6), (27, 6), (27, 23)],
                 [(-1, 17), (14, 17), (14, 12), (27, 12), (27, 23)]],
          decor=['lava_rock', 'lava_rock', 'crystal', 'dead_tree', 'skull'], density=0.04,
          desc='Two short roads, lava eats the best spots. It erupts!'),
 ]
-MENU_MAP = dict(id='menu', name='Menu', theme='meadow', tier='', hp_mult=1.0, seed=99, seed_idx=-1,
+MENU_MAP = dict(id='menu', name='Menu', theme='meadow', tier='', seed=99, seed_idx=-1,
                 paths=[[(-1, 9), (7, 9), (7, 18), (15, 18), (15, 13), (25, 13), (25, 18), (33, 18), (33, 8),
                         (41, 8)]],
                 decor=['tree', 'tree', 'bush', 'rock', 'bush'], density=0.08, variants=['halloween'], desc='')
@@ -1201,8 +1205,8 @@ def gen_maps():
         for p in m['paths']:
             paths_txt.append('[' + ', '.join('Vector2(%d, %d)' % (x * T + 8, y * T + 8) for x, y in p) + ']')
         lines.append('\t"%s": {' % m['id'])
-        lines.append('\t\t"name": "%s", "tier": "%s", "hp_mult": %s, "theme": "%s", "seed_idx": %d,' % (
-            m['name'], m['tier'], m['hp_mult'], m['theme'], m['seed_idx']))
+        lines.append('\t\t"name": "%s", "tier": "%s", "theme": "%s", "seed_idx": %d,' % (
+            m['name'], m['tier'], m['theme'], m['seed_idx']))
         lines.append('\t\t"desc": "%s",' % m['desc'])
         lines.append('\t\t"bg": "res://assets/maps/%s.png", "thumb": "res://assets/maps/%s_thumb.png",' % (
             m['id'], m['id']))

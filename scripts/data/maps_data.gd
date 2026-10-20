@@ -6,7 +6,7 @@ const ORDER = ["meadow", "canyon", "gas_station", "swamp", "frozen_lake", "grave
 
 const MAPS = {
 	"meadow": {
-		"name": "Green Meadow", "tier": "Beginner", "hp_mult": 1.0, "theme": "meadow", "seed_idx": 0,
+		"name": "Green Meadow", "tier": "Beginner", "theme": "meadow", "seed_idx": 0,
 		"desc": "A calm field. Perfect for learning the ropes.",
 		"bg": "res://assets/maps/meadow.png", "thumb": "res://assets/maps/meadow_thumb.png",
 		"variants": {"halloween": {"bg": "res://assets/maps/meadow_halloween.png", "thumb": "res://assets/maps/meadow_halloween_thumb.png"}},
@@ -15,7 +15,7 @@ const MAPS = {
 		"lava": [],
 	},
 	"canyon": {
-		"name": "Dusty Canyon", "tier": "Beginner", "hp_mult": 1.05, "theme": "desert", "seed_idx": 1,
+		"name": "Dusty Canyon", "tier": "Beginner", "theme": "desert", "seed_idx": 1,
 		"desc": "Long dusty road through the badlands.",
 		"bg": "res://assets/maps/canyon.png", "thumb": "res://assets/maps/canyon_thumb.png",
 		"variants": {},
@@ -24,7 +24,7 @@ const MAPS = {
 		"lava": [],
 	},
 	"gas_station": {
-		"name": "Gas Station", "tier": "Intermediate", "hp_mult": 1.1, "theme": "gas", "seed_idx": 2,
+		"name": "Gas Station", "tier": "Intermediate", "theme": "gas", "seed_idx": 2,
 		"desc": "Something is leaking. Fuel for a new recruit?",
 		"bg": "res://assets/maps/gas_station.png", "thumb": "res://assets/maps/gas_station_thumb.png",
 		"variants": {},
@@ -33,7 +33,7 @@ const MAPS = {
 		"lava": [],
 	},
 	"swamp": {
-		"name": "Murky Swamp", "tier": "Intermediate", "hp_mult": 1.35, "theme": "swamp", "seed_idx": 5,
+		"name": "Murky Swamp", "tier": "Intermediate", "theme": "swamp", "seed_idx": 5,
 		"desc": "The boardwalk crosses itself. Guard the crossing!",
 		"bg": "res://assets/maps/swamp.png", "thumb": "res://assets/maps/swamp_thumb.png",
 		"variants": {},
@@ -42,7 +42,7 @@ const MAPS = {
 		"lava": [],
 	},
 	"frozen_lake": {
-		"name": "Frozen Lake", "tier": "Advanced", "hp_mult": 1.15, "theme": "snow", "seed_idx": 3,
+		"name": "Frozen Lake", "tier": "Advanced", "theme": "snow", "seed_idx": 3,
 		"desc": "Two trails meet on the ice. Watch both flanks.",
 		"bg": "res://assets/maps/frozen_lake.png", "thumb": "res://assets/maps/frozen_lake_thumb.png",
 		"variants": {},
@@ -51,7 +51,7 @@ const MAPS = {
 		"lava": [],
 	},
 	"graveyard": {
-		"name": "Old Graveyard", "tier": "Advanced", "hp_mult": 1.15, "theme": "grave", "seed_idx": 6,
+		"name": "Old Graveyard", "tier": "Advanced", "theme": "grave", "seed_idx": 6,
 		"desc": "The dead crawl out of the crypt. Short roads, no rest.",
 		"bg": "res://assets/maps/graveyard.png", "thumb": "res://assets/maps/graveyard_thumb.png",
 		"variants": {},
@@ -60,7 +60,7 @@ const MAPS = {
 		"lava": [],
 	},
 	"refinery": {
-		"name": "Acid Refinery", "tier": "Advanced", "hp_mult": 1.2, "theme": "toxic", "seed_idx": 7,
+		"name": "Acid Refinery", "tier": "Advanced", "theme": "toxic", "seed_idx": 7,
 		"desc": "Two roads through a leaking chemical plant. They join in the middle.",
 		"bg": "res://assets/maps/refinery.png", "thumb": "res://assets/maps/refinery_thumb.png",
 		"variants": {},
@@ -69,7 +69,7 @@ const MAPS = {
 		"lava": [],
 	},
 	"volcano": {
-		"name": "Volcano", "tier": "Expert", "hp_mult": 1.45, "theme": "volcano", "seed_idx": 4,
+		"name": "Volcano", "tier": "Expert", "theme": "volcano", "seed_idx": 4,
 		"desc": "Two short roads, lava eats the best spots. It erupts!",
 		"bg": "res://assets/maps/volcano.png", "thumb": "res://assets/maps/volcano_thumb.png",
 		"variants": {},
@@ -78,7 +78,7 @@ const MAPS = {
 		"lava": [Vector2i(0, 2), Vector2i(0, 3), Vector2i(1, 1), Vector2i(1, 2), Vector2i(1, 3), Vector2i(1, 4), Vector2i(2, 0), Vector2i(2, 1), Vector2i(2, 2), Vector2i(2, 3), Vector2i(2, 4), Vector2i(2, 5), Vector2i(3, 1), Vector2i(3, 2), Vector2i(3, 3), Vector2i(3, 4), Vector2i(4, 2), Vector2i(4, 3), Vector2i(5, 10), Vector2i(5, 19), Vector2i(5, 20), Vector2i(5, 21), Vector2i(6, 9), Vector2i(6, 10), Vector2i(6, 11), Vector2i(6, 19), Vector2i(6, 20), Vector2i(6, 21), Vector2i(7, 8), Vector2i(7, 9), Vector2i(7, 10), Vector2i(7, 11), Vector2i(7, 12), Vector2i(7, 19), Vector2i(7, 20), Vector2i(7, 21), Vector2i(8, 8), Vector2i(8, 9), Vector2i(8, 10), Vector2i(8, 11), Vector2i(8, 12), Vector2i(8, 19), Vector2i(8, 20), Vector2i(8, 21), Vector2i(9, 8), Vector2i(9, 9), Vector2i(9, 10), Vector2i(9, 11), Vector2i(9, 12), Vector2i(9, 19), Vector2i(9, 20), Vector2i(9, 21), Vector2i(10, 8), Vector2i(10, 9), Vector2i(10, 10), Vector2i(10, 11), Vector2i(10, 12), Vector2i(10, 19), Vector2i(10, 20), Vector2i(10, 21), Vector2i(11, 9), Vector2i(11, 10), Vector2i(11, 11), Vector2i(11, 19), Vector2i(11, 20), Vector2i(11, 21), Vector2i(12, 10), Vector2i(16, 8), Vector2i(16, 9), Vector2i(16, 15), Vector2i(16, 16), Vector2i(16, 17), Vector2i(16, 18), Vector2i(17, 8), Vector2i(17, 9), Vector2i(17, 15), Vector2i(17, 16), Vector2i(17, 17), Vector2i(17, 18), Vector2i(18, 7), Vector2i(18, 8), Vector2i(18, 9), Vector2i(18, 10), Vector2i(18, 14), Vector2i(18, 15), Vector2i(18, 16), Vector2i(18, 17), Vector2i(18, 18), Vector2i(18, 19), Vector2i(19, 7), Vector2i(19, 8), Vector2i(19, 9), Vector2i(19, 10), Vector2i(19, 14), Vector2i(19, 15), Vector2i(19, 16), Vector2i(19, 17), Vector2i(19, 18), Vector2i(19, 19), Vector2i(20, 7), Vector2i(20, 8), Vector2i(20, 9), Vector2i(20, 10), Vector2i(20, 14), Vector2i(20, 15), Vector2i(20, 16), Vector2i(20, 17), Vector2i(20, 18), Vector2i(20, 19), Vector2i(21, 7), Vector2i(21, 8), Vector2i(21, 9), Vector2i(21, 10), Vector2i(21, 14), Vector2i(21, 15), Vector2i(21, 16), Vector2i(21, 17), Vector2i(21, 18), Vector2i(21, 19), Vector2i(22, 7), Vector2i(22, 8), Vector2i(22, 9), Vector2i(22, 10), Vector2i(22, 15), Vector2i(22, 16), Vector2i(22, 17), Vector2i(22, 18), Vector2i(23, 8), Vector2i(23, 9), Vector2i(23, 15), Vector2i(23, 16), Vector2i(23, 17), Vector2i(23, 18), Vector2i(24, 8), Vector2i(24, 9), Vector2i(29, 7), Vector2i(29, 8), Vector2i(29, 9), Vector2i(29, 10), Vector2i(30, 6), Vector2i(30, 7), Vector2i(30, 8), Vector2i(30, 9), Vector2i(30, 10), Vector2i(30, 11), Vector2i(31, 6), Vector2i(31, 7), Vector2i(31, 8), Vector2i(31, 9), Vector2i(31, 10), Vector2i(31, 11)],
 	},
 	"menu": {
-		"name": "Menu", "tier": "", "hp_mult": 1.0, "theme": "meadow", "seed_idx": -1,
+		"name": "Menu", "tier": "", "theme": "meadow", "seed_idx": -1,
 		"desc": "",
 		"bg": "res://assets/maps/menu.png", "thumb": "res://assets/maps/menu_thumb.png",
 		"variants": {"halloween": {"bg": "res://assets/maps/menu_halloween.png", "thumb": "res://assets/maps/menu_halloween_thumb.png"}},

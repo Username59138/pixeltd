@@ -5,7 +5,11 @@ const ENTRIES := [
 	{"version": "0.2", "title": "In progress", "date": "October 2026", "items": [
 		"BIG REBALANCE: every tower now has 7 levels. Early levels deal small damage, the top upgrades cost thousands and deal dozens of times more, so a run is about saving up for big towers instead of building more and more cheap ones.",
 		"New top upgrades include Holy Champion (towers around the Knight deal 15% more damage), Absolute Zero (frozen enemies take 25% more damage), Legend of the West, Commando, Dragon's Breath, Deadeye, Lich King, Plague and Shadow Blade.",
-		"Difficult has brand new waves: they start tiny (8 slimes of 9 HP) and end huge (5000 HP goblins, 20k ogres), with a 10k Golem on wave 20, two 20k Golems on wave 30 and a 50k Demon Lord at the end. The other difficulties get theirs next.",
+		"Every enemy has the same HP everywhere, like in TDS: later waves get harder with tougher enemies and bigger crowds, not by blowing up the HP of the same goblin. Maps no longer change enemy HP either.",
+		"BLOATED enemies: any enemy can come Bloated, puffed up with pink blotches and twice the HP (and a bigger bounty).",
+		"NEW ENEMIES: Cave Troll (regenerates unless it burns or acid eats it), Wraith (invisible and quick), Gargoyle (armored flyer), Dark Knight (armor 8) and War Mammoth (6000 HP).",
+		"NEW BOSS: the Bone Dragon (30k HP), falls apart and gets back up once with 30% HP. The Stone Golem now has 7500 HP and the Demon Lord 50k.",
+		"New waves on every difficulty: they start small and grow into crowds of small enemies mixed with heavies. Light ends with two Golems, Medium with the Bone Dragon, Difficult with the Demon Lord, and Hardcore with two Bloated Demon Lords.",
 		"Towers are priced by how strong they are: from 250 for the Gunslinger up to 1500 for the Toxic Assassin. The towers that got much pricier hit a bit harder.",
 		"More money: twice the starting cash, tougher enemies pay more, and clearing a wave pays more and more as the waves go on.",
 		"Every difficulty now has its own handmade waves. After a win, Continue goes on with generated waves that start from the strength of the last one.",

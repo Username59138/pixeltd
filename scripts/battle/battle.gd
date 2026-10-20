@@ -23,7 +23,8 @@ const FX_COLORS := {"slime": Color("63c74d"), "rat": Color("8b9bb4"), "goblin": 
 	"wolf": Color("5a6988"), "ironclad": Color("c0cbdc"), "imp": Color("e43b44"), "shaman": Color("68386c"),
 	"slime_king": Color("0099db"), "ogre": Color("e4a672"), "golem": Color("8b9bb4"), "demon": Color("a22633"),
 	"bat": Color("68386c"), "ghost": Color("e8eef8"), "harpy": Color("8a4e3e"), "skeleton": Color("ead4aa"),
-	"berserker": Color("647d3c")}
+	"berserker": Color("647d3c"), "troll": Color("5c8c74"), "wraith": Color("483c6c"), "gargoyle": Color("7c748e"),
+	"dark_knight": Color("42405a"), "mammoth": Color("86543c"), "bone_dragon": Color("ead4aa")}
 
 var continued := false
 var cheated := false   # a cheat was used: a win is not written to the save (unless --save-fake)
@@ -94,8 +95,8 @@ func setup(p_map_id: String, p_diff: int, p_demo := false) -> void:
 	cash = int(diff["cash"])
 	lives = int(diff["lives"])
 	total_waves = Waves.count(diff["id"])
-	endless_mult = Waves.endless_factor(diff)
 	wave_seed = int(map["seed_idx"]) * 10 + diff_idx + 3   # fixed per map, so adding maps never changes waves
+	endless_mult = Waves.endless_factor(diff, wave_seed)
 	rng.seed = wave_seed
 	for pts in map["paths"]:
 		var cum := PackedFloat32Array([0.0])
@@ -162,7 +163,7 @@ func sell_value(tw: Node2D) -> int:
 
 ## HP multiplier of the generated waves (after Continue) and of the menu diorama.
 func hp_mult() -> float:
-	return float(diff["hp"]) * float(map["hp_mult"]) * Defs.enemy_hp_scale(maxi(wave, 1)) * \
+	return float(diff["hp"]) * Defs.enemy_hp_scale(maxi(wave, 1)) * \
 		(endless_mult if wave > total_waves else 1.0)
 
 
@@ -310,9 +311,8 @@ func _tick_waves(dt: float) -> void:
 		wave_t += dt
 		while not spawn_queue.is_empty() and spawn_queue[0][0] <= wave_t:
 			var s: Array = spawn_queue.pop_front()
-			var hp: float = s[2]   # handmade waves set the HP, generated ones (-1) use hp_mult()
-			var mult := -1.0 if hp < 0.0 else hp / float(Defs.ENEMIES[s[1]]["hp"]) * float(map["hp_mult"])
-			var e := spawn_enemy(s[1], _spawn_counter % paths.size(), 0.0, mult)
+			# handmade waves: 1 or BLOATED_HP; generated ones (-1) use hp_mult()
+			var e := spawn_enemy(s[1], _spawn_counter % paths.size(), 0.0, s[2], false, {}, s[3])
 			if wave == total_waves and Defs.BOSS_TYPES.has(s[1]):
 				e.final_boss = true
 			_spawn_counter += 1
@@ -361,11 +361,11 @@ func start_wave(skip_wave := false) -> void:
 	if w.is_empty():   # past the handmade list (Continue): the generator takes over
 		w = Defs.build_wave(wave, total_waves, wave_seed)
 		for sp in w["spawns"]:
-			sp.append(-1.0)
+			sp.append_array([-1.0, false])
 	if spawning:
 		# skipped mid-wave: the rest of the current wave still comes, the new one starts now
 		for sp in w["spawns"]:
-			spawn_queue.append([sp[0] + wave_t, sp[1], sp[2]])
+			spawn_queue.append([sp[0] + wave_t, sp[1], sp[2], sp[3]])
 		spawn_queue.sort_custom(func(a, b): return a[0] < b[0])
 	else:
 		spawn_queue = w["spawns"]
@@ -395,14 +395,16 @@ func start_wave(skip_wave := false) -> void:
 	stats_changed.emit()
 
 
-func spawn_enemy(t: String, pi: int, at_dist := 0.0, mult := -1.0, is_friendly := false, stats := {}) -> Node2D:
+func spawn_enemy(t: String, pi: int, at_dist := 0.0, mult := -1.0, is_friendly := false, stats := {},
+		bloated := false) -> Node2D:
 	var e := EnemyScript.new()
 	e.is_friendly = is_friendly
 	e.stats = stats
+	e.bloated = bloated
 	if mult < 0.0:
 		mult = hp_mult()
 		if Defs.BOSS_TYPES.has(t):
-			mult = float(diff["hp"]) * float(map["hp_mult"])
+			mult = float(diff["hp"])
 	e.setup(t, mult, pi, paths[pi]["len"])
 	e.dist = at_dist
 	var pp := path_point(pi, at_dist)
@@ -457,6 +459,12 @@ func _tick_enemies(dt: float) -> void:
 		if not headless and (e.chill > 0.0 or e.frozen_t > 0.0) and randf() < dt * (3.0 + 12.0 * e.chill + (6.0 if e.frozen_t > 0.0 else 0.0)):
 			_spawn_particle(e.position + Vector2(randf_range(-5, 5), -randf_range(0, 12)),
 				Vector2(randf_range(-4, 4), 6), 0.6, Color("e8f8ff") if randf() < 0.5 else Color("8bd8f0"), 1)
+		# troll: grows back, except while fire or acid keeps the wounds open
+		if e.def.has("regen") and e.hp < e.max_hp and e.downed_t <= 0.0 and e.burn_t <= 0.0 and e.acid_t <= 0.0:
+			e.hp = minf(e.max_hp, e.hp + e.max_hp * float(e.def["regen"]) * dt)
+			if not headless and randf() < dt * 4.0:
+				_spawn_particle(e.position + Vector2(randf_range(-5, 5), -randf_range(2, 12)), Vector2(0, -12), 0.5,
+					Color("63c74d") if randf() < 0.5 else Color("b6f08c"), 1)
 		if e.def.has("heal"):
 			e.heal_cd -= dt
 			if e.heal_cd <= 0.0:
@@ -641,14 +649,15 @@ func _kill(e: Node2D, src: Node) -> void:
 				col if i % 3 else Color.WHITE, 1 if i % 2 else 2, 120.0)
 		if e.cls >= 4:
 			Sfx.play("boss_die")
-			announce.emit("%s DEFEATED!" % String(e.def["name"]).to_upper(), Color("fee761"))
+			announce.emit("%s DEFEATED!" % e.display_name().to_upper(), Color("fee761"))
 		else:
 			Sfx.play("pop", 0.2)
 		if not demo:
 			add_text(e.position + Vector2(0, -10), "+%d" % e.bounty, Color("feae34"))
 	if e.def.has("split"):
 		for i in int(e.def["split"]):
-			var child := spawn_enemy("slime", e.path_i, maxf(0.0, e.dist - i * 5.0), e.spawn_mult * 2.0)
+			var child := spawn_enemy("slime", e.path_i, maxf(0.0, e.dist - i * 5.0), e.spawn_mult * 2.0, false, {},
+				e.bloated)
 			child.bounty = 1
 
 
@@ -893,7 +902,8 @@ func raise_dead(src: Node, e: Node2D) -> void:
 	var spots := road_in_range(src.position, src.range_px())
 	var at: Array = spots[rng.randi() % spots.size()] if not spots.is_empty() else [e.path_i, e.dist]
 	var u := spawn_enemy(e.type, at[0], at[1], 1.0, true,
-		{"undead": true, "car_hp": roundf(e.max_hp * float(st["raise_hp"])), "car_speed": float(e.def["speed"])})
+		{"undead": true, "car_hp": roundf(e.max_hp * float(st["raise_hp"])), "car_speed": float(e.def["speed"])},
+		e.bloated)
 	u.owner_tower = src
 	if not headless:
 		Sfx.play("rattle", 0.1)

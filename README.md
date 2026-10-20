@@ -39,6 +39,7 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 
 - **Enemy classes I–IV** only weaken control effects (stun, slow): 100% / 70% / 40% / 20%. Damage, including burning, always applies in full.
 - **Difficulties:** Light (20 waves), Medium (30), Difficult (40), Hardcore (40 waves, 1 life, no selling). Every difficulty has its own handmade waves; after a win, Continue keeps going with generated waves.
+- **Enemy HP is fixed** per enemy type, on every map and difficulty (like TDS). Later waves are harder because of tougher enemy types, bigger crowds and **Bloated** enemies: puffed up, with pink blotches and twice the HP.
 - **Tower limits:** at most 50 towers in a battle and 10 of each type. The shop shows how many you have.
 - **Maps are bought with paper maps.** Only Green Meadow is open at the start. Every battle pays paper maps: a win pays by map tier (Beginner 10, Intermediate 20, Advanced 35, Expert 60) times the difficulty (Light x1, Medium x1.5, Difficult x2.5, Hardcore x4); a loss pays 40% of that, scaled by the waves survived. A map costs 30 / 60 / 150 / 300 by tier. Repeat wins pay the same, so you can farm.
 - **Towers are unlocked by beating maps** (a higher difficulty counts too):
@@ -56,9 +57,9 @@ Hover over an enemy to see its name, class, HP, speed, armor, fire resistance, c
 - **Old Graveyard:** a second road starts at the crypt in the middle of the map. Grave plots take some of the space.
 - **Acid Refinery:** two roads, from the top left and the bottom left, join in the middle. Acid lakes, storage tanks and huge hazard barrels take some of the space.
 - **Acid** hurts over time through armor and, while it lasts, eats some of the enemy's armor, so physical towers hit harder too. The strongest acid on an enemy wins; class doesn't weaken it (it's damage, not control).
-- **Invisible enemies** (Ghost) are drawn see-through and can only be aimed at by towers that spot them: Gunslinger from Hollow Points, Soldier from AP Rounds, and the Sniper always. The Flamethrower can't aim at them, but its flames still burn any that walk through the cone. Garage cars run them over.
-- **Flying enemies** (Bat, Harpy) follow the road in the air. Gunslinger, Soldier and Sniper can shoot them. Knight, Flamethrower, grenades and cars can't reach them.
-- **Skeletons** fall apart when killed and get back up once with half HP. **Orc Berserkers** run twice as fast below half HP.
+- **Invisible enemies** (Ghost, Wraith) are drawn see-through and can only be aimed at by towers that spot them: Gunslinger from Hollow Points, Soldier from AP Rounds, and the Sniper always. The Flamethrower can't aim at them, but its flames still burn any that walk through the cone. Garage cars run them over.
+- **Flying enemies** (Bat, Harpy, Gargoyle) follow the road in the air. Gunslinger, Soldier and Sniper can shoot them. Knight, Flamethrower, grenades and cars can't reach them.
+- **Skeletons** fall apart when killed and get back up once with half HP (the **Bone Dragon** boss with 30%). **Orc Berserkers** run twice as fast below half HP. **Cave Trolls** heal 2% of their HP a second, but not while they burn or acid eats them.
 - The final boss of a run gets a big HP bar at the top of the screen. Hover other enemies to see their HP.
 - The bar under a tower shows its level by color: red → yellow → green → blue → purple → pink → gold (top level).
 
@@ -85,7 +86,7 @@ Open **Towers** in the main menu and click a portrait to see every tower's full 
 
 
 - `scripts/data/defs.gd`: all the numbers (towers, enemies, difficulties, the wave generator used after Continue).
-- `scripts/data/waves.gd`: the handmade waves of every difficulty: groups of [enemy, count, gap, start time, HP].
+- `scripts/data/waves.gd`: the handmade waves of every difficulty: groups of [enemy, count, gap, start time], optionally "bloated".
 - `scripts/battle/`: the battlefield (`battle.gd`), towers (`tower.gd`) and enemies (`enemy.gd`).
 - `scripts/ui/`: menus, the in-battle HUD and tooltips.
 - `tools/gen_art.py`, `tools/sprites.py`, `tools/units.py`: generate all the pixel art and maps (Python + Pillow). Run `python3 tools/gen_art.py` after editing them. `scripts/data/maps_data.gd` is generated too, so don't edit it by hand.

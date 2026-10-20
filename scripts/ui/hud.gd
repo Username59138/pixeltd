@@ -466,7 +466,7 @@ func _draw_boss_bars() -> void:
 		if not e.alive or not e.final_boss:
 			continue
 		var w := 320.0
-		var name: String = String(e.def["name"]).to_upper()
+		var name: String = e.display_name().to_upper()
 		boss_bar.draw_style_box(UI.box("panel_dark"), Rect2(0, y, w, 20))
 		boss_bar.draw_string(f, Vector2(6, y + 9), name, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color("fee761"))
 		var cls_t: String = "Class " + Defs.CLASS_ROMAN[e.cls]
@@ -518,7 +518,7 @@ static func enemy_lines(e) -> Array:
 		return _friendly_lines(e)
 	var cls: int = e.cls
 	var lines: Array = []
-	lines.append({"t": e.def["name"], "c": Color.WHITE, "r": "Class " + Defs.CLASS_ROMAN[cls],
+	lines.append({"t": e.display_name(), "c": Color.WHITE, "r": "Class " + Defs.CLASS_ROMAN[cls],
 		"rc": Defs.CLASS_COLORS[cls]})
 	var f: float = clampf(e.hp / e.max_hp, 0, 1)
 	lines.append({"t": "HP", "c": Color("8b9bb4"), "r": "%d / %d" % [ceili(e.hp), int(e.max_hp)],
@@ -535,6 +535,8 @@ static func enemy_lines(e) -> Array:
 			"r": "IMMUNE" if e.fire_res >= 1.0 else "%d%%" % int(e.fire_res * 100), "rc": Color("f77622")})
 	lines.append({"t": "Control effects", "c": Color("8b9bb4"), "r": "%d%%" % int(Defs.CLASS_EFFECT[cls] * 100),
 		"rc": Defs.CLASS_COLORS[cls]})
+	if e.bloated:
+		lines.append({"t": "+ BLOATED: x%s HP" % UI.fmt_num(Defs.BLOATED_HP), "c": Color("b55088")})
 	if e.flying:
 		lines.append({"t": "+ FLYING", "c": Color("c0cbdc")})
 	if e.invisible:
@@ -546,6 +548,9 @@ static func enemy_lines(e) -> Array:
 			"c": Color("e43b44")})
 	if e.def.has("heal"):
 		lines.append({"t": "+ Heals nearby enemies", "c": Color("63c74d")})
+	if e.def.has("regen"):
+		lines.append({"t": "+ Regenerates %d%%/s (not burning or in acid)" % int(float(e.def["regen"]) * 100),
+			"c": Color("63c74d")})
 	if e.def.has("split"):
 		lines.append({"t": "+ Splits into %d slimes" % e.def["split"], "c": Color("0099db")})
 	var st: Array = []
@@ -573,7 +578,7 @@ static func enemy_lines(e) -> Array:
 
 static func _friendly_lines(e) -> Array:
 	var f: float = clampf(e.hp / e.max_hp, 0, 1)
-	var nm: String = ("Undead " + e.def["name"]) if e.undead else e.def["name"]
+	var nm: String = ("Undead " + e.display_name()) if e.undead else e.def["name"]
 	var lines: Array = [{"t": nm, "c": Color.WHITE, "r": "FRIENDLY", "rc": Color("63c74d")}]
 	lines.append({"t": "HP", "c": Color("8b9bb4"), "r": "%d / %d" % [ceili(e.hp), int(e.max_hp)],
 		"rc": Color("63c74d")})

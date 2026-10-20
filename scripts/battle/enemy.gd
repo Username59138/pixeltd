@@ -20,6 +20,7 @@ var stats := {}             # for friendly units: the stats of the garage that s
 var owner_tower: Node = null
 var gun_cd := 0.0
 var undead := false        # friendly unit raised by a Necromancer (an enemy body, no abilities)
+var bloated := false       # Bloated enemy: Defs.BLOATED_HP times the HP and its own puffed-up sprite
 
 # statuses
 var stun_t := 0.0
@@ -90,7 +91,7 @@ func setup(t: String, hp_mult: float, p_i: int, p_len: float) -> void:
 	path_len = p_len
 	heal_cd = 2.5
 	anim_t = randf() * 10.0
-	_make_sprite("res://assets/sprites/enemies/%s" % t)
+	_make_sprite("res://assets/sprites/enemies/%s%s" % [t, "_bloated" if bloated else ""])
 
 
 func _setup_friendly(t: String, p_i: int, p_len: float) -> void:
@@ -107,7 +108,8 @@ func _setup_friendly(t: String, p_i: int, p_len: float) -> void:
 	path_i = p_i
 	path_len = p_len
 	anim_t = randf() * 10.0
-	_make_sprite("res://assets/sprites/%s/%s" % ["enemies" if undead else "vehicles", t])
+	_make_sprite("res://assets/sprites/%s/%s%s" % ["enemies" if undead else "vehicles", t,
+		"_bloated" if bloated else ""])
 
 
 func _make_sprite(base: String) -> void:
@@ -135,6 +137,10 @@ func _set_view(v: String) -> void:
 		sprite.offset.x = 0.5
 	if h % 2 == 1:
 		sprite.offset.y += 0.5
+
+
+func display_name() -> String:
+	return ("Bloated " if bloated else "") + String(def["name"])
 
 
 func remaining() -> float:

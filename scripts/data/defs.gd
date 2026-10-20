@@ -299,7 +299,11 @@ const TOWERS := {
 
 # ---------------------------------------------------------------- enemies
 const ENEMY_ORDER := ["slime", "rat", "bat", "goblin", "skeleton", "wolf", "ironclad", "imp", "ghost",
-	"berserker", "shaman", "slime_king", "harpy", "ogre", "golem", "demon"]
+	"berserker", "shaman", "slime_king", "harpy", "ogre", "troll", "wraith", "gargoyle", "dark_knight", "mammoth",
+	"golem", "bone_dragon", "demon"]
+# Every enemy type has fixed HP (like TDS): later waves get harder with tougher types, bigger groups and
+# Bloated enemies (BLOATED_HP times the HP), not by inflating the HP of the same enemy.
+const BLOATED_HP := 2.0
 const ENEMIES := {
 	"slime": {"name": "Slime", "class": 1, "hp": 12, "speed": 28, "bounty": 2, "radius": 6,
 		"desc": "Bouncy and squishy."},
@@ -329,9 +333,21 @@ const ENEMIES := {
 		"split": 6, "desc": "Bursts into slimes when defeated."},
 	"ogre": {"name": "Ogre", "class": 3, "hp": 520, "speed": 22, "bounty": 25, "radius": 9, "armor": 2,
 		"desc": "Big, slow and stubborn."},
-	"golem": {"name": "Stone Golem", "class": 4, "hp": 3000, "speed": 15, "bounty": 150, "radius": 12,
+	"troll": {"name": "Cave Troll", "class": 3, "hp": 1000, "speed": 24, "bounty": 24, "radius": 9, "regen": 0.02,
+		"desc": "Heals 2% of its HP a second, but not while it burns or acid eats it."},
+	"wraith": {"name": "Wraith", "class": 3, "hp": 1400, "speed": 38, "bounty": 30, "radius": 7, "invisible": true,
+		"desc": "Invisible and quick. A ghost that grew up."},
+	"gargoyle": {"name": "Gargoyle", "class": 3, "hp": 1600, "speed": 30, "bounty": 32, "radius": 8, "flying": true,
+		"armor": 3, "desc": "Stone wings. Flies, and its hide stops weak bullets."},
+	"dark_knight": {"name": "Dark Knight", "class": 3, "hp": 3000, "speed": 24, "bounty": 45, "radius": 8,
+		"armor": 8, "desc": "Black plate armor. Bring armor piercing, acid or fire."},
+	"mammoth": {"name": "War Mammoth", "class": 3, "hp": 6000, "speed": 18, "bounty": 62, "radius": 12,
+		"armor": 2, "desc": "A walking wall of fur and tusks."},
+	"golem": {"name": "Stone Golem", "class": 4, "hp": 7500, "speed": 15, "bounty": 250, "radius": 12,
 		"armor": 4, "desc": "BOSS. Living rock. Shrugs off weak hits."},
-	"demon": {"name": "Demon Lord", "class": 4, "hp": 16000, "speed": 17, "bounty": 300, "radius": 13,
+	"bone_dragon": {"name": "Bone Dragon", "class": 4, "hp": 30000, "speed": 16, "bounty": 400, "radius": 13,
+		"armor": 3, "revive": 0.3, "desc": "BOSS. Falls apart, then gets back up once with 30% HP."},
+	"demon": {"name": "Demon Lord", "class": 4, "hp": 50000, "speed": 17, "bounty": 560, "radius": 13,
 		"armor": 4, "fire_res": 0.5, "desc": "FINAL BOSS. Lord of the burning pit."},
 }
 
@@ -350,6 +366,8 @@ const POOL := [
 	["slime", 1, 1.2], ["rat", 4, 1.0], ["goblin", 5, 2.6], ["bat", 8, 2.2], ["skeleton", 9, 4.2],
 	["wolf", 10, 4.5], ["ironclad", 11, 9.0], ["ghost", 12, 7.0], ["imp", 13, 5.5], ["berserker", 15, 11.0],
 	["shaman", 16, 17.0], ["slime_king", 19, 36.0], ["harpy", 21, 42.0], ["ogre", 23, 52.0],
+	["troll", 26, 90.0], ["wraith", 28, 110.0], ["gargoyle", 30, 125.0], ["dark_knight", 33, 220.0],
+	["mammoth", 36, 400.0],
 ]
 # placement limits per battle: all towers together, and per tower type unless the tower sets its own "limit"
 const MAX_TOWERS := 50
@@ -379,10 +397,11 @@ const RAINBOW := [Color("e43b44"), Color("fee761"), Color("63c74d"), Color("2c9a
 static var BUDGET_MULT := 1.0
 static var HP_GROWTH := 1.0
 static var BOUNTY_MULT := 3.5
-const BOSS_TYPES := ["golem", "demon"]
+const BOSS_TYPES := ["golem", "bone_dragon", "demon"]
 const SPACING := {"slime": 0.55, "rat": 0.35, "goblin": 0.6, "wolf": 0.45, "ironclad": 0.9, "imp": 0.6,
 	"shaman": 1.4, "slime_king": 1.8, "ogre": 2.2, "golem": 6.0, "demon": 6.0,
-	"bat": 0.3, "skeleton": 0.6, "ghost": 0.8, "berserker": 1.1, "harpy": 2.0}
+	"bat": 0.3, "skeleton": 0.6, "ghost": 0.8, "berserker": 1.1, "harpy": 2.0, "troll": 1.8, "wraith": 1.2,
+	"gargoyle": 1.6, "dark_knight": 2.0, "mammoth": 3.0, "bone_dragon": 6.0}
 
 
 static func enemy_hp_scale(wave: int) -> float:

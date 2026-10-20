@@ -3,158 +3,157 @@ extends RefCounted
 ## Handmade waves, one list per difficulty (like TDS). After the last wave, Continue switches to the
 ## generator in Defs.build_wave().
 ##
-## A wave is a list of groups: [enemy, count, gap, at, hp]
-##   enemy  enemy id from Defs.ENEMIES
+## A wave is a list of groups: [enemy, count, gap, at] or [enemy, count, gap, at, "bloated"]
+##   enemy  enemy id from Defs.ENEMIES; its HP is fixed there, every map and difficulty uses the same
 ##   count  how many
 ##   gap    seconds between two enemies of the group
 ##   at     seconds after the wave starts when the group's first enemy comes out
-##   hp     HP of each enemy (the map's HP multiplier still applies on top; bounty grows with HP)
+##   "bloated"  the group is Bloated: Defs.BLOATED_HP times the HP (bounty grows with it)
 ## A wave with a boss type (Defs.BOSS_TYPES) in it is a boss wave.
-## Difficult is the first list written for the v0.2 balance; the others are still the old generated waves.
 
 const LISTS := {
 	"light": [
-		[["slime", 5, 0.88, 0.0, 10]],   # 1
-		[["slime", 8, 0.88, 0.0, 10]],   # 2
-		[["slime", 12, 0.88, 0.0, 10]],   # 3
-		[["slime", 9, 0.88, 0.0, 11], ["rat", 11, 0.56, 9.12, 7]],   # 4
-		[["slime", 13, 0.88, 0.0, 11], ["rat", 16, 0.56, 12.64, 7]],   # 5
-		[["goblin", 8, 0.6, 0.0, 24], ["slime", 18, 0.55, 6.0, 11]],   # 6
-		[["goblin", 11, 0.6, 0.0, 25], ["slime", 24, 0.55, 7.8, 12]],   # 7
-		[["slime", 32, 0.55, 0.0, 12], ["rat", 38, 0.35, 18.8, 8]],   # 8
-		[["goblin", 19, 0.6, 0.0, 27], ["skeleton", 12, 0.6, 12.6, 29]],   # 9
-		[["wolf", 13, 0.45, 0.0, 42], ["rat", 60, 0.35, 7.05, 8]],   # 10
-		[["wolf", 16, 0.45, 0.0, 44], ["slime", 59, 0.55, 8.4, 13]],   # 11
-		[["ghost", 8, 0.8, 0.0, 67], ["skeleton", 13, 0.6, 7.6, 31], ["ironclad", 6, 0.9, 16.6, 90]],   # 12
-		[["imp", 12, 0.6, 0.0, 64], ["wolf", 14, 0.45, 8.4, 46], ["bat", 29, 0.3, 15.9, 10]],   # 13
-		[["skeleton", 17, 0.6, 0.0, 33], ["wolf", 16, 0.45, 11.4, 48], ["imp", 13, 0.6, 19.8, 66]],   # 14
-		[["ghost", 12, 0.8, 0.0, 74], ["skeleton", 20, 0.6, 10.8, 34], ["wolf", 18, 0.45, 24.0, 49]],   # 15
-		[["shaman", 5, 1.4, 0.0, 216], ["wolf", 20, 0.45, 8.2, 51], ["skeleton", 22, 0.6, 18.4, 36]],   # 16
-		[["skeleton", 24, 0.6, 0.0, 37], ["shaman", 6, 1.4, 15.6, 222], ["ironclad", 11, 0.9, 25.2, 105]],   # 17
-		[["shaman", 7, 1.4, 0.0, 229], ["imp", 21, 0.6, 11.0, 74], ["wolf", 25, 0.45, 24.8, 54]],   # 18
-		[["berserker", 11, 1.1, 0.0, 180], ["shaman", 7, 1.4, 13.3, 236], ["wolf", 28, 0.45, 24.3, 56]],   # 19
-		[["skeleton", 15, 0.6, 0.0, 40], ["ghost", 9, 0.8, 10.2, 86], ["imp", 11, 0.6, 18.6, 79], ["golem", 1, 0.0, 27.4, 2400]],   # 20
+		[["slime", 2, 0.55, 0.0]],   # 1
+		[["slime", 3, 0.55, 0.0], ["rat", 2, 0.35, 2.6]],   # 2
+		[["goblin", 2, 0.6, 0.0], ["rat", 1, 0.35, 2.1]],   # 3
+		[["goblin", 3, 0.6, 0.0], ["skeleton", 1, 0.6, 2.7]],   # 4
+		[["skeleton", 2, 0.6, 0.0], ["goblin", 2, 0.6, 2.1], ["bat", 3, 0.3, 3.1]],   # 5
+		[["wolf", 3, 0.45, 0.0], ["skeleton", 2, 0.6, 2.4]],   # 6
+		[["goblin", 4, 0.6, 0.0, "bloated"], ["wolf", 3, 0.45, 3.3], ["imp", 1, 0.6, 4.3]],   # 7
+		[["ironclad", 2, 0.9, 0.0], ["wolf", 4, 0.45, 1.0], ["skeleton", 3, 0.6, 3.85, "bloated"]],   # 8
+		[["bat", 6, 0.3, 0.0], ["imp", 4, 0.6, 3.0], ["berserker", 1, 1.1, 4.0], ["skeleton", 3, 0.6, 6.3]],   # 9
+		[["wolf", 5, 0.45, 0.0, "bloated"], ["ironclad", 4, 0.9, 3.3], ["berserker", 3, 1.1, 4.3], ["shaman", 1, 1.4, 5.3], ["ogre", 1, 2.2, 8.0]],   # 10
+		[["ghost", 3, 0.8, 0.0, "bloated"], ["berserker", 4, 1.1, 3.1], ["ironclad", 4, 0.9, 4.1, "bloated"]],   # 11
+		[["skeleton", 5, 0.6, 0.0, "bloated"], ["imp", 5, 0.6, 1.0], ["shaman", 1, 1.4, 4.9], ["ogre", 2, 2.2, 5.9]],   # 12
+		[["wolf", 6, 0.45, 0.0, "bloated"], ["ghost", 4, 0.8, 1.0, "bloated"], ["berserker", 5, 1.1, 4.9], ["harpy", 2, 2.0, 5.9]],   # 13
+		[["ironclad", 6, 0.9, 0.0, "bloated"], ["berserker", 5, 1.1, 1.0, "bloated"], ["shaman", 2, 1.4, 6.9], ["slime_king", 1, 1.8, 7.9]],   # 14
+		[["imp", 8, 0.6, 0.0, "bloated"], ["ogre", 3, 2.2, 1.0], ["shaman", 3, 1.4, 6.9], ["slime_king", 3, 1.8, 7.9]],   # 15
+		[["bat", 10, 0.3, 0.0, "bloated"], ["ghost", 6, 0.8, 1.0, "bloated"], ["berserker", 4, 1.1, 6.5], ["harpy", 5, 2.0, 7.5]],   # 16
+		[["berserker", 8, 1.1, 0.0, "bloated"], ["shaman", 3, 1.4, 1.0], ["troll", 2, 1.8, 9.2], ["ogre", 3, 2.2, 10.2, "bloated"]],   # 17
+		[["ironclad", 10, 0.9, 0.0, "bloated"], ["slime_king", 4, 1.8, 1.0, "bloated"], ["ogre", 1, 2.2, 9.6, "bloated"]],   # 18
+		[["berserker", 8, 1.1, 0.0, "bloated"], ["ghost", 6, 0.8, 1.0, "bloated"], ["shaman", 3, 1.4, 9.2], ["troll", 5, 1.8, 10.2], ["harpy", 3, 2.0, 18.9, "bloated"]],   # 19
+		[["skeleton", 10, 0.6, 0.0, "bloated"], ["ironclad", 10, 0.9, 1.0, "bloated"], ["ogre", 3, 2.2, 10.6, "bloated"], ["troll", 4, 1.8, 11.6], ["golem", 2, 6.0, 12.6]],   # 20
 	],
 	"medium": [
-		[["slime", 5, 0.88, 0.0, 12]],   # 1
-		[["slime", 8, 0.88, 0.0, 12]],   # 2
-		[["slime", 12, 0.88, 0.0, 13]],   # 3
-		[["slime", 9, 0.88, 0.0, 13], ["rat", 11, 0.56, 9.12, 9]],   # 4
-		[["slime", 13, 0.88, 0.0, 14], ["rat", 16, 0.56, 12.64, 9]],   # 5
-		[["goblin", 8, 0.6, 0.0, 30], ["slime", 18, 0.55, 6.0, 14]],   # 6
-		[["goblin", 11, 0.6, 0.0, 31], ["slime", 24, 0.55, 7.8, 14]],   # 7
-		[["slime", 32, 0.55, 0.0, 15], ["rat", 38, 0.35, 18.8, 10]],   # 8
-		[["goblin", 19, 0.6, 0.0, 33], ["skeleton", 12, 0.6, 12.6, 36]],   # 9
-		[["wolf", 13, 0.45, 0.0, 53], ["rat", 60, 0.35, 7.05, 11]],   # 10
-		[["wolf", 16, 0.45, 0.0, 54], ["slime", 59, 0.55, 8.4, 16]],   # 11
-		[["ghost", 8, 0.8, 0.0, 84], ["skeleton", 13, 0.6, 7.6, 39], ["ironclad", 6, 0.9, 16.6, 112]],   # 12
-		[["imp", 12, 0.6, 0.0, 80], ["wolf", 14, 0.45, 8.4, 58], ["bat", 29, 0.3, 15.9, 13]],   # 13
-		[["skeleton", 17, 0.6, 0.0, 42], ["wolf", 16, 0.45, 11.4, 60], ["imp", 13, 0.6, 19.8, 82]],   # 14
-		[["ghost", 12, 0.8, 0.0, 92], ["skeleton", 20, 0.6, 10.8, 43], ["wolf", 18, 0.45, 24.0, 62]],   # 15
-		[["shaman", 5, 1.4, 0.0, 269], ["wolf", 20, 0.45, 8.2, 63], ["skeleton", 22, 0.6, 18.4, 44]],   # 16
-		[["skeleton", 24, 0.6, 0.0, 46], ["shaman", 6, 1.4, 15.6, 278], ["ironclad", 11, 0.9, 25.2, 131]],   # 17
-		[["shaman", 7, 1.4, 0.0, 286], ["imp", 21, 0.6, 11.0, 93], ["wolf", 25, 0.45, 24.8, 67]],   # 18
-		[["berserker", 11, 1.1, 0.0, 225], ["shaman", 7, 1.4, 13.3, 295], ["wolf", 28, 0.45, 24.3, 69]],   # 19
-		[["skeleton", 15, 0.6, 0.0, 50], ["ghost", 9, 0.8, 10.2, 107], ["imp", 11, 0.6, 18.6, 98], ["golem", 1, 0.0, 27.4, 3000]],   # 20
-		[["wolf", 34, 0.4, 0.0, 74], ["skeleton", 37, 0.54, 14.97, 52], ["ironclad", 17, 0.81, 36.15, 147]],   # 21
-		[["harpy", 4, 1.8, 0.0, 796], ["ghost", 24, 0.72, 8.4, 114], ["skeleton", 40, 0.54, 26.88, 53]],   # 22
-		[["bat", 60, 0.27, 0.0, 18], ["wolf", 41, 0.41, 17.4, 78], ["ogre", 4, 1.98, 35.21, 1014]],   # 23
-		[["skeleton", 49, 0.54, 0.0, 56], ["ogre", 4, 1.98, 27.66, 1044], ["slime_king", 6, 1.62, 36.78, 723]],   # 24
-		[["berserker", 20, 0.99, 0.0, 269], ["slime_king", 6, 1.62, 21.0, 744], ["ogre", 4, 1.98, 31.92, 1074]],   # 25
-		[["berserker", 17, 0.99, 0.0, 276], ["harpy", 4, 1.8, 18.03, 893], ["shaman", 11, 1.26, 26.43, 361], ["ogre", 4, 1.98, 41.49, 1105]],   # 26
-		[["berserker", 18, 0.99, 0.0, 284], ["imp", 36, 0.54, 19.02, 120], ["ghost", 28, 0.72, 39.66, 131], ["ironclad", 22, 0.81, 61.02, 175]],   # 27
-		[["ogre", 4, 1.98, 0.0, 1169], ["imp", 39, 0.54, 9.12, 124], ["shaman", 13, 1.26, 31.38, 382], ["bat", 60, 0.27, 48.96, 20]],   # 28
-		[["slime_king", 6, 1.62, 0.0, 832], ["imp", 42, 0.54, 10.92, 127], ["ogre", 4, 1.98, 34.8, 1201], ["harpy", 6, 1.8, 43.92, 970]],   # 29
-		[["ogre", 2, 1.98, 0.0, 1235], ["ironclad", 12, 0.81, 5.16, 190], ["harpy", 3, 1.8, 16.08, 997], ["wolf", 25, 0.41, 22.68, 95], ["golem", 2, 6.0, 35.01, 3000]],   # 30
+		[["slime", 2, 0.55, 0.0]],   # 1
+		[["slime", 3, 0.55, 0.0], ["rat", 2, 0.35, 2.6]],   # 2
+		[["goblin", 2, 0.6, 0.0], ["rat", 2, 0.35, 2.1]],   # 3
+		[["goblin", 3, 0.6, 0.0], ["skeleton", 2, 0.6, 2.7]],   # 4
+		[["skeleton", 2, 0.6, 0.0], ["goblin", 2, 0.6, 2.1], ["bat", 3, 0.3, 3.1]],   # 5
+		[["wolf", 3, 0.45, 0.0], ["skeleton", 2, 0.6, 2.4]],   # 6
+		[["goblin", 5, 0.6, 0.0, "bloated"], ["wolf", 3, 0.45, 3.9], ["imp", 2, 0.6, 4.9]],   # 7
+		[["ironclad", 2, 0.9, 0.0], ["wolf", 5, 0.45, 1.0], ["skeleton", 3, 0.6, 4.3, "bloated"]],   # 8
+		[["bat", 8, 0.3, 0.0], ["imp", 5, 0.6, 3.6], ["berserker", 2, 1.1, 4.6], ["skeleton", 3, 0.6, 7.5]],   # 9
+		[["wolf", 6, 0.45, 0.0, "bloated"], ["ironclad", 5, 0.9, 3.75], ["berserker", 3, 1.1, 4.75], ["shaman", 1, 1.4, 5.75], ["ogre", 1, 2.2, 8.85]],   # 10
+		[["ghost", 3, 0.8, 0.0, "bloated"], ["berserker", 5, 1.1, 3.1], ["ironclad", 5, 0.9, 4.1, "bloated"]],   # 11
+		[["skeleton", 6, 0.6, 0.0, "bloated"], ["imp", 6, 0.6, 1.0], ["shaman", 2, 1.4, 5.5], ["ogre", 2, 2.2, 6.5]],   # 12
+		[["wolf", 8, 0.45, 0.0, "bloated"], ["ghost", 5, 0.8, 1.0, "bloated"], ["berserker", 6, 1.1, 5.7], ["harpy", 2, 2.0, 6.7]],   # 13
+		[["ironclad", 8, 0.9, 0.0, "bloated"], ["berserker", 6, 1.1, 1.0, "bloated"], ["shaman", 2, 1.4, 8.0], ["slime_king", 2, 1.8, 9.0]],   # 14
+		[["imp", 10, 0.6, 0.0, "bloated"], ["ogre", 4, 2.2, 1.0], ["shaman", 3, 1.4, 9.1], ["slime_king", 3, 1.8, 10.1]],   # 15
+		[["bat", 13, 0.3, 0.0, "bloated"], ["ghost", 8, 0.8, 1.0, "bloated"], ["berserker", 5, 1.1, 8.1], ["harpy", 6, 2.0, 9.1]],   # 16
+		[["berserker", 10, 1.1, 0.0, "bloated"], ["shaman", 3, 1.4, 1.0], ["troll", 2, 1.8, 11.4], ["ogre", 3, 2.2, 12.4, "bloated"]],   # 17
+		[["ironclad", 13, 0.9, 0.0, "bloated"], ["slime_king", 5, 1.8, 1.0, "bloated"], ["ogre", 2, 2.2, 12.3, "bloated"]],   # 18
+		[["berserker", 10, 1.1, 0.0, "bloated"], ["ghost", 8, 0.8, 1.0, "bloated"], ["shaman", 3, 1.4, 11.4], ["troll", 6, 1.8, 12.4], ["harpy", 3, 2.0, 22.9, "bloated"]],   # 19
+		[["skeleton", 13, 0.6, 0.0, "bloated"], ["ironclad", 13, 0.9, 1.0, "bloated"], ["ogre", 3, 2.2, 13.3, "bloated"], ["troll", 5, 1.8, 14.3], ["golem", 1, 6.0, 15.3]],   # 20
+		[["bat", 16, 0.27, 0.0, "bloated"], ["ghost", 10, 0.72, 1.0, "bloated"], ["harpy", 8, 1.8, 8.98, "bloated"], ["gargoyle", 3, 1.44, 9.98], ["troll", 2, 1.62, 23.08]],   # 21
+		[["ironclad", 16, 0.81, 0.0, "bloated"], ["ogre", 10, 1.98, 1.0, "bloated"], ["troll", 5, 1.62, 20.32], ["dark_knight", 2, 1.8, 21.32]],   # 22
+		[["imp", 16, 0.54, 0.0, "bloated"], ["ghost", 13, 0.72, 1.0, "bloated"], ["troll", 8, 1.62, 11.14], ["shaman", 5, 1.26, 12.14], ["wraith", 8, 1.08, 23.98], ["gargoyle", 2, 1.44, 24.98]],   # 23
+		[["ironclad", 16, 0.81, 0.0, "bloated"], ["slime_king", 8, 1.62, 1.0, "bloated"], ["shaman", 6, 1.26, 13.84], ["troll", 6, 1.62, 14.84], ["gargoyle", 3, 1.44, 24.44]],   # 24
+		[["harpy", 6, 1.8, 0.0, "bloated"], ["ogre", 10, 1.98, 1.0, "bloated"], ["troll", 8, 1.62, 20.32], ["dark_knight", 6, 1.8, 21.32], ["mammoth", 2, 2.7, 33.16]],   # 25
+		[["ironclad", 13, 0.81, 0.0, "bloated"], ["ogre", 10, 1.98, 1.0, "bloated"], ["troll", 10, 1.62, 20.32], ["dark_knight", 8, 1.8, 21.32]],   # 26
+		[["ghost", 13, 0.72, 0.0, "bloated"], ["wraith", 19, 1.08, 1.0], ["troll", 13, 1.62, 21.94, "bloated"]],   # 27
+		[["bat", 16, 0.27, 0.0, "bloated"], ["harpy", 13, 1.8, 1.0, "bloated"], ["gargoyle", 16, 1.44, 24.1], ["wraith", 6, 1.08, 25.1]],   # 28
+		[["berserker", 19, 0.99, 0.0, "bloated"], ["shaman", 8, 1.26, 1.0], ["ogre", 16, 1.98, 19.32, "bloated"], ["dark_knight", 11, 1.8, 20.32], ["mammoth", 5, 2.7, 50.52]],   # 29
+		[["ironclad", 16, 0.81, 0.0, "bloated"], ["troll", 16, 1.62, 1.0], ["harpy", 10, 1.8, 26.8, "bloated"], ["dark_knight", 8, 1.8, 27.8], ["bone_dragon", 1, 6.0, 28.8]],   # 30
 	],
 	"difficult": [
-		[["slime", 4, 0.55, 0.0, 9]],   # 1
-		[["slime", 5, 0.55, 0.0, 11], ["rat", 2, 0.35, 3.7, 9]],   # 2
-		[["goblin", 4, 0.6, 0.0, 23]],   # 3
-		[["goblin", 4, 0.6, 0.0, 31], ["rat", 4, 0.35, 3.3, 15]],   # 4
-		[["goblin", 5, 0.6, 0.0, 43], ["bat", 3, 0.3, 3.9, 21]],   # 5
-		[["skeleton", 5, 0.6, 0.0, 58]],   # 6
-		[["goblin", 4, 0.6, 0.0, 79], ["wolf", 3, 0.45, 3.3, 95]],   # 7
-		[["ironclad", 2, 0.9, 0.0, 167], ["goblin", 5, 0.6, 2.4, 104]],   # 8
-		[["bat", 6, 0.3, 0.0, 67], ["skeleton", 4, 0.6, 3.0, 135]],   # 9
-		[["ironclad", 3, 0.9, 0.0, 273], ["wolf", 4, 0.45, 3.3, 205], ["ogre", 1, 2.2, 6.15, 684]],   # 10
-		[["ghost", 3, 0.8, 0.0, 319], ["goblin", 6, 0.6, 3.1, 213]],   # 11
-		[["imp", 5, 0.6, 0.0, 313], ["skeleton", 6, 0.6, 3.9, 261]],   # 12
-		[["wolf", 7, 0.45, 0.0, 378], ["ghost", 3, 0.8, 4.2, 473]],   # 13
-		[["berserker", 3, 1.1, 0.0, 828], ["ironclad", 4, 0.9, 3.7, 602]],   # 14
-		[["shaman", 2, 1.4, 0.0, 889], ["goblin", 8, 0.6, 2.9, 445], ["imp", 3, 0.6, 8.6, 534]],   # 15
-		[["bat", 10, 0.3, 0.0, 260], ["ghost", 4, 0.8, 4.2, 780]],   # 16
-		[["berserker", 5, 1.1, 0.0, 1325], ["wolf", 6, 0.45, 5.9, 723]],   # 17
-		[["slime_king", 2, 1.8, 0.0, 2078], ["ironclad", 5, 0.9, 3.3, 1108]],   # 18
-		[["shaman", 2, 1.4, 0.0, 1582], ["berserker", 5, 1.1, 2.9, 1740], ["ghost", 4, 0.8, 8.8, 1186]],   # 19
-		[["skeleton", 6, 0.6, 0.0, 897], ["ironclad", 4, 0.9, 4.5, 1435], ["golem", 1, 6.0, 8.7, 10000]],   # 20
-		[["harpy", 4, 1.8, 0.0, 3034], ["bat", 14, 0.27, 6.9, 506]],   # 21
-		[["ogre", 3, 1.98, 0.0, 4537], ["ironclad", 8, 0.81, 5.46, 1815]],   # 22
-		[["ghost", 10, 0.72, 0.0, 1899], ["imp", 10, 0.54, 7.98, 1519]],   # 23
-		[["slime_king", 5, 1.62, 0.0, 4218], ["shaman", 3, 1.26, 7.98, 2812]],   # 24
-		[["berserker", 12, 0.99, 0.0, 3422], ["harpy", 4, 1.8, 12.39, 4667], ["ogre", 1, 1.98, 19.29, 8000]],   # 25
-		[["ironclad", 12, 0.81, 0.0, 2743], ["ogre", 4, 1.98, 10.41, 6857]],   # 26
-		[["wolf", 20, 0.41, 0.0, 2259], ["ghost", 8, 0.72, 9.2, 2824]],   # 27
-		[["harpy", 6, 1.8, 0.0, 6181], ["bat", 20, 0.27, 10.5, 1030]],   # 28
-		[["shaman", 5, 1.26, 0.0, 4496], ["ogre", 5, 1.98, 6.54, 8991], ["berserker", 8, 0.99, 15.96, 4945]],   # 29
-		[["ironclad", 10, 0.81, 0.0, 3912], ["harpy", 4, 1.8, 8.79, 7336], ["golem", 2, 5.4, 15.69, 20000]],   # 30
-		[["slime_king", 6, 1.62, 0.0, 7959], ["imp", 14, 0.54, 9.6, 3183]],   # 31
-		[["ogre", 6, 1.98, 0.0, 11483], ["ghost", 10, 0.72, 11.4, 4306]],   # 32
-		[["berserker", 16, 0.99, 0.0, 6818], ["shaman", 4, 1.26, 16.35, 6198]],   # 33
-		[["harpy", 8, 1.8, 0.0, 10014], ["bat", 24, 0.27, 14.1, 1669]],   # 34
-		[["ogre", 8, 1.98, 0.0, 14351], ["ironclad", 12, 0.81, 15.36, 5741], ["ogre", 2, 1.98, 25.77, 15000]],   # 35
-		[["ghost", 14, 0.72, 0.0, 5773], ["wolf", 20, 0.41, 10.86, 4618]],   # 36
-		[["slime_king", 8, 1.62, 0.0, 12361], ["shaman", 6, 1.26, 12.84, 8241]],   # 37
-		[["harpy", 10, 1.8, 0.0, 13210], ["berserker", 14, 0.99, 17.7, 9687]],   # 38
-		[["ogre", 10, 1.98, 0.0, 18791], ["ironclad", 14, 0.81, 19.32, 7517], ["golem", 1, 5.4, 31.35, 30000]],   # 39
-		[["ogre", 6, 1.98, 0.0, 20015], ["harpy", 6, 1.8, 11.4, 15011], ["demon", 1, 5.4, 21.9, 50000]],   # 40
+		[["slime", 3, 0.55, 0.0]],   # 1
+		[["slime", 4, 0.55, 0.0], ["rat", 3, 0.35, 3.15]],   # 2
+		[["goblin", 3, 0.6, 0.0], ["rat", 2, 0.35, 2.7]],   # 3
+		[["goblin", 4, 0.6, 0.0], ["skeleton", 2, 0.6, 3.3]],   # 4
+		[["skeleton", 3, 0.6, 0.0], ["goblin", 3, 0.6, 2.7], ["bat", 4, 0.3, 3.7]],   # 5
+		[["wolf", 4, 0.45, 0.0], ["skeleton", 3, 0.6, 2.85]],   # 6
+		[["goblin", 6, 0.6, 0.0, "bloated"], ["wolf", 4, 0.45, 4.5], ["imp", 2, 0.6, 5.5]],   # 7
+		[["ironclad", 3, 0.9, 0.0], ["wolf", 6, 0.45, 1.0], ["skeleton", 4, 0.6, 4.75, "bloated"]],   # 8
+		[["bat", 10, 0.3, 0.0], ["imp", 6, 0.6, 4.2], ["berserker", 2, 1.1, 5.2], ["skeleton", 4, 0.6, 8.7]],   # 9
+		[["wolf", 8, 0.45, 0.0, "bloated"], ["ironclad", 6, 0.9, 4.65], ["berserker", 4, 1.1, 5.65], ["shaman", 1, 1.4, 6.65], ["ogre", 1, 2.2, 10.65]],   # 10
+		[["ghost", 4, 0.8, 0.0, "bloated"], ["berserker", 6, 1.1, 3.9], ["ironclad", 6, 0.9, 4.9, "bloated"]],   # 11
+		[["skeleton", 8, 0.6, 0.0, "bloated"], ["imp", 8, 0.6, 1.0], ["shaman", 2, 1.4, 6.7], ["ogre", 3, 2.2, 7.7]],   # 12
+		[["wolf", 10, 0.45, 0.0, "bloated"], ["ghost", 6, 0.8, 1.0, "bloated"], ["berserker", 8, 1.1, 6.5], ["harpy", 3, 2.0, 7.5]],   # 13
+		[["ironclad", 10, 0.9, 0.0, "bloated"], ["berserker", 8, 1.1, 1.0, "bloated"], ["shaman", 3, 1.4, 10.2], ["slime_king", 2, 1.8, 11.2]],   # 14
+		[["imp", 12, 0.6, 0.0, "bloated"], ["ogre", 5, 2.2, 1.0], ["shaman", 4, 1.4, 11.3], ["slime_king", 4, 1.8, 12.3]],   # 15
+		[["bat", 16, 0.3, 0.0, "bloated"], ["ghost", 10, 0.8, 1.0, "bloated"], ["berserker", 6, 1.1, 9.7], ["harpy", 8, 2.0, 10.7]],   # 16
+		[["berserker", 12, 1.1, 0.0, "bloated"], ["shaman", 4, 1.4, 1.0], ["troll", 3, 1.8, 13.6], ["ogre", 4, 2.2, 14.6, "bloated"]],   # 17
+		[["ironclad", 16, 0.9, 0.0, "bloated"], ["slime_king", 6, 1.8, 1.0, "bloated"], ["ogre", 2, 2.2, 15.0, "bloated"]],   # 18
+		[["berserker", 12, 1.1, 0.0, "bloated"], ["ghost", 10, 0.8, 1.0, "bloated"], ["shaman", 4, 1.4, 13.6], ["troll", 8, 1.8, 14.6], ["harpy", 4, 2.0, 28.7, "bloated"]],   # 19
+		[["skeleton", 16, 0.6, 0.0, "bloated"], ["ironclad", 16, 0.9, 1.0, "bloated"], ["ogre", 4, 2.2, 16.0, "bloated"], ["troll", 6, 1.8, 17.0], ["golem", 1, 6.0, 27.5]],   # 20
+		[["bat", 20, 0.27, 0.0, "bloated"], ["ghost", 12, 0.72, 1.0, "bloated"], ["harpy", 10, 1.8, 10.42, "bloated"], ["gargoyle", 4, 1.44, 11.42], ["troll", 2, 1.62, 28.12]],   # 21
+		[["ironclad", 20, 0.81, 0.0, "bloated"], ["ogre", 12, 1.98, 1.0, "bloated"], ["troll", 6, 1.62, 24.28], ["dark_knight", 2, 1.8, 25.28]],   # 22
+		[["imp", 20, 0.54, 0.0, "bloated"], ["ghost", 16, 0.72, 1.0, "bloated"], ["troll", 10, 1.62, 13.3], ["shaman", 6, 1.26, 14.3], ["wraith", 10, 1.08, 29.38], ["gargoyle", 3, 1.44, 30.38]],   # 23
+		[["ironclad", 20, 0.81, 0.0, "bloated"], ["slime_king", 10, 1.62, 1.0, "bloated"], ["shaman", 8, 1.26, 17.08], ["troll", 8, 1.62, 18.08], ["gargoyle", 4, 1.44, 30.92]],   # 24
+		[["harpy", 8, 1.8, 0.0, "bloated"], ["ogre", 12, 1.98, 1.0, "bloated"], ["troll", 10, 1.62, 24.28], ["dark_knight", 8, 1.8, 25.28], ["mammoth", 2, 2.7, 40.36]],   # 25
+		[["ironclad", 16, 0.81, 0.0, "bloated"], ["ogre", 12, 1.98, 1.0, "bloated"], ["troll", 12, 1.62, 24.28], ["dark_knight", 10, 1.8, 25.28]],   # 26
+		[["ghost", 16, 0.72, 0.0, "bloated"], ["wraith", 24, 1.08, 1.0], ["troll", 16, 1.62, 27.34, "bloated"]],   # 27
+		[["bat", 20, 0.27, 0.0, "bloated"], ["harpy", 16, 1.8, 1.0, "bloated"], ["gargoyle", 20, 1.44, 29.5], ["wraith", 8, 1.08, 30.5]],   # 28
+		[["berserker", 24, 0.99, 0.0, "bloated"], ["shaman", 10, 1.26, 1.0], ["ogre", 20, 1.98, 24.27, "bloated"], ["dark_knight", 14, 1.8, 25.27], ["mammoth", 6, 2.7, 63.39]],   # 29
+		[["ironclad", 20, 0.81, 0.0, "bloated"], ["troll", 20, 1.62, 1.0], ["harpy", 12, 1.8, 33.28, "bloated"], ["dark_knight", 10, 1.8, 34.28], ["bone_dragon", 1, 6.0, 54.58]],   # 30
+		[["imp", 20, 0.54, 0.0, "bloated"], ["slime_king", 16, 1.62, 1.0, "bloated"], ["troll", 20, 1.62, 26.8, "bloated"], ["gargoyle", 16, 1.44, 27.8]],   # 31
+		[["ghost", 24, 0.72, 0.0, "bloated"], ["wraith", 30, 1.08, 1.0], ["ogre", 20, 1.98, 33.82, "bloated"], ["mammoth", 8, 2.7, 34.82]],   # 32
+		[["berserker", 30, 0.99, 0.0, "bloated"], ["shaman", 12, 1.26, 1.0], ["dark_knight", 30, 1.8, 30.21], ["troll", 16, 1.62, 31.21, "bloated"]],   # 33
+		[["bat", 40, 0.27, 0.0, "bloated"], ["harpy", 20, 1.8, 1.0, "bloated"], ["gargoyle", 30, 1.44, 36.7, "bloated"]],   # 34
+		[["ironclad", 30, 0.81, 0.0, "bloated"], ["mammoth", 12, 2.7, 1.0], ["dark_knight", 15, 1.8, 32.2, "bloated"], ["mammoth", 4, 2.7, 33.2, "bloated"]],   # 35
+		[["ghost", 30, 0.72, 0.0, "bloated"], ["wraith", 30, 1.08, 1.0, "bloated"], ["troll", 30, 1.62, 33.82, "bloated"], ["gargoyle", 10, 1.44, 34.82, "bloated"]],   # 36
+		[["shaman", 16, 1.26, 0.0], ["slime_king", 24, 1.62, 1.0, "bloated"], ["troll", 30, 1.62, 39.76, "bloated"], ["mammoth", 10, 2.7, 40.76]],   # 37
+		[["berserker", 30, 0.99, 0.0, "bloated"], ["harpy", 12, 1.8, 1.0, "bloated"], ["gargoyle", 30, 1.44, 30.21, "bloated"], ["dark_knight", 25, 1.8, 31.21, "bloated"]],   # 38
+		[["ironclad", 40, 0.81, 0.0, "bloated"], ["dark_knight", 10, 1.8, 1.0, "bloated"], ["mammoth", 18, 2.7, 33.09, "bloated"], ["golem", 2, 6.0, 34.09, "bloated"]],   # 39
+		[["gargoyle", 8, 1.44, 0.0, "bloated"], ["dark_knight", 10, 1.8, 1.0, "bloated"], ["mammoth", 12, 2.7, 18.7, "bloated"], ["demon", 1, 6.0, 19.7]],   # 40
 	],
 	"hardcore": [
-		[["slime", 5, 0.88, 0.0, 13]],   # 1
-		[["slime", 8, 0.88, 0.0, 14]],   # 2
-		[["slime", 12, 0.88, 0.0, 14]],   # 3
-		[["slime", 9, 0.88, 0.0, 15], ["rat", 11, 0.56, 9.12, 10]],   # 4
-		[["slime", 13, 0.88, 0.0, 15], ["rat", 16, 0.56, 12.64, 10]],   # 5
-		[["goblin", 8, 0.6, 0.0, 34], ["slime", 18, 0.55, 6.0, 16]],   # 6
-		[["goblin", 11, 0.6, 0.0, 35], ["slime", 24, 0.55, 7.8, 16]],   # 7
-		[["slime", 32, 0.55, 0.0, 17], ["rat", 38, 0.35, 18.8, 11]],   # 8
-		[["goblin", 19, 0.6, 0.0, 37], ["skeleton", 12, 0.6, 12.6, 40]],   # 9
-		[["wolf", 13, 0.45, 0.0, 59], ["rat", 60, 0.35, 7.05, 12]],   # 10
-		[["wolf", 16, 0.45, 0.0, 61], ["slime", 59, 0.55, 8.4, 18]],   # 11
-		[["ghost", 8, 0.8, 0.0, 94], ["skeleton", 13, 0.6, 7.6, 44], ["ironclad", 6, 0.9, 16.6, 126]],   # 12
-		[["imp", 12, 0.6, 0.0, 89], ["wolf", 14, 0.45, 8.4, 65], ["bat", 29, 0.3, 15.9, 15]],   # 13
-		[["skeleton", 17, 0.6, 0.0, 47], ["wolf", 16, 0.45, 11.4, 67], ["imp", 13, 0.6, 19.8, 92]],   # 14
-		[["ghost", 12, 0.8, 0.0, 103], ["skeleton", 20, 0.6, 10.8, 48], ["wolf", 18, 0.45, 24.0, 69]],   # 15
-		[["shaman", 5, 1.4, 0.0, 302], ["wolf", 20, 0.45, 8.2, 71], ["skeleton", 22, 0.6, 18.4, 50]],   # 16
-		[["skeleton", 24, 0.6, 0.0, 51], ["shaman", 6, 1.4, 15.6, 311], ["ironclad", 11, 0.9, 25.2, 146]],   # 17
-		[["shaman", 7, 1.4, 0.0, 321], ["imp", 21, 0.6, 11.0, 104], ["wolf", 25, 0.45, 24.8, 75]],   # 18
-		[["berserker", 11, 1.1, 0.0, 253], ["shaman", 7, 1.4, 13.3, 330], ["wolf", 28, 0.45, 24.3, 78]],   # 19
-		[["skeleton", 15, 0.6, 0.0, 56], ["ghost", 9, 0.8, 10.2, 120], ["imp", 11, 0.6, 18.6, 110], ["golem", 1, 0.0, 27.4, 3360]],   # 20
-		[["wolf", 34, 0.4, 0.0, 82], ["skeleton", 37, 0.54, 14.97, 58], ["ironclad", 17, 0.81, 36.15, 165]],   # 21
-		[["harpy", 4, 1.8, 0.0, 891], ["ghost", 24, 0.72, 8.4, 127], ["skeleton", 40, 0.54, 26.88, 59]],   # 22
-		[["bat", 60, 0.27, 0.0, 20], ["wolf", 41, 0.41, 17.4, 87], ["ogre", 4, 1.98, 35.21, 1136]],   # 23
-		[["skeleton", 49, 0.54, 0.0, 63], ["ogre", 4, 1.98, 27.66, 1169], ["slime_king", 6, 1.62, 36.78, 809]],   # 24
-		[["berserker", 20, 0.99, 0.0, 301], ["slime_king", 6, 1.62, 21.0, 833], ["ogre", 4, 1.98, 31.92, 1203]],   # 25
-		[["berserker", 17, 0.99, 0.0, 309], ["harpy", 4, 1.8, 18.03, 1000], ["shaman", 11, 1.26, 26.43, 405], ["ogre", 4, 1.98, 41.49, 1238]],   # 26
-		[["berserker", 18, 0.99, 0.0, 318], ["imp", 36, 0.54, 19.02, 135], ["ghost", 28, 0.72, 39.66, 147], ["ironclad", 22, 0.81, 61.02, 196]],   # 27
-		[["ogre", 4, 1.98, 0.0, 1309], ["imp", 39, 0.54, 9.12, 138], ["shaman", 13, 1.26, 31.38, 428], ["bat", 60, 0.27, 48.96, 23]],   # 28
-		[["slime_king", 6, 1.62, 0.0, 932], ["imp", 42, 0.54, 10.92, 142], ["ogre", 4, 1.98, 34.8, 1346], ["harpy", 6, 1.8, 43.92, 1087]],   # 29
-		[["ogre", 2, 1.98, 0.0, 1383], ["ironclad", 12, 0.81, 5.16, 213], ["harpy", 3, 1.8, 16.08, 1117], ["wolf", 25, 0.41, 22.68, 106], ["golem", 2, 6.0, 35.01, 3360]],   # 30
-		[["ogre", 5, 1.98, 0.0, 1421], ["berserker", 24, 0.99, 11.1, 355], ["harpy", 6, 1.8, 36.06, 1148], ["ironclad", 30, 0.81, 48.06, 219]],   # 31
-		[["imp", 52, 0.54, 0.0, 154], ["ogre", 6, 1.98, 29.28, 1460], ["ghost", 41, 0.72, 42.36, 168], ["harpy", 7, 1.8, 73.08, 1179]],   # 32
-		[["ghost", 44, 0.72, 0.0, 173], ["ogre", 6, 1.98, 32.88, 1499], ["slime_king", 9, 1.62, 45.96, 1038], ["shaman", 18, 1.26, 61.74, 490]],   # 33
-		[["harpy", 8, 1.8, 0.0, 1243], ["shaman", 19, 1.26, 15.6, 503], ["bat", 60, 0.27, 40.74, 27], ["wolf", 60, 0.41, 58.14, 118]],   # 34
-		[["harpy", 8, 1.8, 0.0, 1276], ["ogre", 7, 1.98, 15.6, 1580], ["ironclad", 39, 0.81, 30.66, 243], ["slime_king", 10, 1.62, 63.45, 1094]],   # 35
-		[["harpy", 9, 1.8, 0.0, 1310], ["shaman", 22, 1.26, 17.4, 530], ["ghost", 54, 0.72, 46.32, 187], ["slime_king", 10, 1.62, 86.4, 1123]],   # 36
-		[["skeleton", 60, 0.54, 0.0, 90], ["imp", 60, 0.54, 33.6, 176], ["wolf", 60, 0.41, 67.2, 128], ["slime_king", 11, 1.62, 92.7, 1152]],   # 37
-		[["harpy", 10, 1.8, 0.0, 1379], ["ogre", 8, 1.98, 19.2, 1707], ["skeleton", 60, 0.54, 36.24, 92], ["wolf", 60, 0.41, 69.84, 131]],   # 38
-		[["skeleton", 60, 0.54, 0.0, 94], ["slime_king", 13, 1.62, 33.6, 1212], ["ogre", 9, 1.98, 55.86, 1751], ["berserker", 41, 0.99, 74.88, 438]],   # 39
-		[["berserker", 20, 0.99, 0.0, 449], ["slime_king", 6, 1.62, 21.0, 1243], ["harpy", 5, 1.8, 31.92, 1450], ["ogre", 4, 1.98, 42.12, 1795], ["demon", 1, 0.0, 52.24, 17920]],   # 40
+		[["slime", 4, 0.55, 0.0]],   # 1
+		[["slime", 5, 0.55, 0.0], ["rat", 4, 0.35, 3.7]],   # 2
+		[["goblin", 4, 0.6, 0.0], ["rat", 2, 0.35, 3.3]],   # 3
+		[["goblin", 5, 0.6, 0.0], ["skeleton", 2, 0.6, 3.9]],   # 4
+		[["skeleton", 4, 0.6, 0.0], ["goblin", 4, 0.6, 3.3], ["bat", 5, 0.3, 4.3]],   # 5
+		[["wolf", 5, 0.45, 0.0], ["skeleton", 4, 0.6, 3.3]],   # 6
+		[["goblin", 8, 0.6, 0.0, "bloated"], ["wolf", 5, 0.45, 5.7], ["imp", 2, 0.6, 6.7]],   # 7
+		[["ironclad", 4, 0.9, 0.0], ["wolf", 8, 0.45, 1.0], ["skeleton", 5, 0.6, 5.65, "bloated"]],   # 8
+		[["bat", 12, 0.3, 0.0], ["imp", 8, 0.6, 4.8], ["berserker", 2, 1.1, 5.8], ["skeleton", 5, 0.6, 10.5]],   # 9
+		[["wolf", 10, 0.45, 0.0, "bloated"], ["ironclad", 8, 0.9, 5.55], ["berserker", 5, 1.1, 6.55], ["shaman", 1, 1.4, 7.55], ["ogre", 1, 2.2, 13.35]],   # 10
+		[["ghost", 5, 0.8, 0.0, "bloated"], ["berserker", 8, 1.1, 4.7], ["ironclad", 8, 0.9, 5.7, "bloated"]],   # 11
+		[["skeleton", 10, 0.6, 0.0, "bloated"], ["imp", 10, 0.6, 1.0], ["shaman", 2, 1.4, 7.9], ["ogre", 4, 2.2, 8.9]],   # 12
+		[["wolf", 12, 0.45, 0.0, "bloated"], ["ghost", 8, 0.8, 1.0, "bloated"], ["berserker", 10, 1.1, 8.1], ["harpy", 4, 2.0, 9.1]],   # 13
+		[["ironclad", 12, 0.9, 0.0, "bloated"], ["berserker", 10, 1.1, 1.0, "bloated"], ["shaman", 4, 1.4, 12.4], ["slime_king", 2, 1.8, 13.4]],   # 14
+		[["imp", 15, 0.6, 0.0, "bloated"], ["ogre", 6, 2.2, 1.0], ["shaman", 5, 1.4, 13.5], ["slime_king", 5, 1.8, 14.5]],   # 15
+		[["bat", 20, 0.3, 0.0, "bloated"], ["ghost", 12, 0.8, 1.0, "bloated"], ["berserker", 8, 1.1, 11.3], ["harpy", 10, 2.0, 12.3]],   # 16
+		[["berserker", 15, 1.1, 0.0, "bloated"], ["shaman", 5, 1.4, 1.0], ["troll", 4, 1.8, 16.9], ["ogre", 5, 2.2, 17.9, "bloated"]],   # 17
+		[["ironclad", 20, 0.9, 0.0, "bloated"], ["slime_king", 8, 1.8, 1.0, "bloated"], ["ogre", 2, 2.2, 18.6, "bloated"]],   # 18
+		[["berserker", 15, 1.1, 0.0, "bloated"], ["ghost", 12, 0.8, 1.0, "bloated"], ["shaman", 5, 1.4, 16.9], ["troll", 10, 1.8, 17.9], ["harpy", 5, 2.0, 35.6, "bloated"]],   # 19
+		[["skeleton", 20, 0.6, 0.0, "bloated"], ["ironclad", 20, 0.9, 1.0, "bloated"], ["ogre", 5, 2.2, 19.6, "bloated"], ["troll", 8, 1.8, 20.6], ["golem", 1, 6.0, 21.6, "bloated"]],   # 20
+		[["bat", 25, 0.27, 0.0, "bloated"], ["ghost", 15, 0.72, 1.0, "bloated"], ["harpy", 12, 1.8, 12.58, "bloated"], ["gargoyle", 5, 1.44, 13.58], ["troll", 2, 1.62, 33.88]],   # 21
+		[["ironclad", 25, 0.81, 0.0, "bloated"], ["ogre", 15, 1.98, 1.0, "bloated"], ["troll", 8, 1.62, 30.22], ["dark_knight", 2, 1.8, 31.22]],   # 22
+		[["imp", 25, 0.54, 0.0, "bloated"], ["ghost", 20, 0.72, 1.0, "bloated"], ["troll", 12, 1.62, 16.18], ["shaman", 8, 1.26, 17.18], ["wraith", 12, 1.08, 35.5], ["gargoyle", 4, 1.44, 36.5]],   # 23
+		[["ironclad", 25, 0.81, 0.0, "bloated"], ["slime_king", 12, 1.62, 1.0, "bloated"], ["shaman", 10, 1.26, 20.94], ["troll", 10, 1.62, 21.94], ["gargoyle", 5, 1.44, 38.02]],   # 24
+		[["harpy", 10, 1.8, 0.0, "bloated"], ["ogre", 15, 1.98, 1.0, "bloated"], ["troll", 12, 1.62, 30.22], ["dark_knight", 10, 1.8, 31.22], ["mammoth", 2, 2.7, 49.54]],   # 25
+		[["ironclad", 20, 0.81, 0.0, "bloated"], ["ogre", 15, 1.98, 1.0, "bloated"], ["troll", 15, 1.62, 30.22], ["dark_knight", 12, 1.8, 31.22]],   # 26
+		[["ghost", 20, 0.72, 0.0, "bloated"], ["wraith", 30, 1.08, 1.0], ["troll", 20, 1.62, 33.82, "bloated"]],   # 27
+		[["bat", 25, 0.27, 0.0, "bloated"], ["harpy", 20, 1.8, 1.0, "bloated"], ["gargoyle", 25, 1.44, 36.7], ["wraith", 10, 1.08, 37.7]],   # 28
+		[["berserker", 30, 0.99, 0.0, "bloated"], ["shaman", 12, 1.26, 1.0], ["ogre", 25, 1.98, 30.21, "bloated"], ["dark_knight", 18, 1.8, 31.21], ["mammoth", 8, 2.7, 79.23]],   # 29
+		[["ironclad", 25, 0.81, 0.0, "bloated"], ["troll", 25, 1.62, 1.0], ["harpy", 15, 1.8, 41.38, "bloated"], ["dark_knight", 12, 1.8, 42.38], ["bone_dragon", 1, 6.0, 43.38, "bloated"]],   # 30
+		[["imp", 25, 0.54, 0.0, "bloated"], ["slime_king", 20, 1.62, 1.0, "bloated"], ["troll", 25, 1.62, 33.28, "bloated"], ["gargoyle", 20, 1.44, 34.28]],   # 31
+		[["ghost", 30, 0.72, 0.0, "bloated"], ["wraith", 38, 1.08, 1.0], ["ogre", 25, 1.98, 42.46, "bloated"], ["mammoth", 10, 2.7, 43.46]],   # 32
+		[["berserker", 38, 0.99, 0.0, "bloated"], ["shaman", 15, 1.26, 1.0], ["dark_knight", 38, 1.8, 38.13], ["troll", 20, 1.62, 39.13, "bloated"]],   # 33
+		[["bat", 50, 0.27, 0.0, "bloated"], ["harpy", 25, 1.8, 1.0, "bloated"], ["gargoyle", 38, 1.44, 45.7, "bloated"]],   # 34
+		[["ironclad", 38, 0.81, 0.0, "bloated"], ["mammoth", 15, 2.7, 1.0], ["dark_knight", 19, 1.8, 40.3, "bloated"], ["mammoth", 5, 2.7, 41.3, "bloated"]],   # 35
+		[["ghost", 38, 0.72, 0.0, "bloated"], ["wraith", 38, 1.08, 1.0, "bloated"], ["troll", 38, 1.62, 42.46, "bloated"], ["gargoyle", 12, 1.44, 43.46, "bloated"]],   # 36
+		[["shaman", 20, 1.26, 0.0], ["slime_king", 30, 1.62, 1.0, "bloated"], ["troll", 38, 1.62, 49.48, "bloated"], ["mammoth", 12, 2.7, 50.48]],   # 37
+		[["berserker", 38, 0.99, 0.0, "bloated"], ["harpy", 15, 1.8, 1.0, "bloated"], ["gargoyle", 38, 1.44, 38.13, "bloated"], ["dark_knight", 31, 1.8, 39.13, "bloated"]],   # 38
+		[["ironclad", 50, 0.81, 0.0, "bloated"], ["dark_knight", 12, 1.8, 1.0, "bloated"], ["mammoth", 22, 2.7, 41.19, "bloated"], ["golem", 3, 6.0, 42.19, "bloated"]],   # 39
+		[["gargoyle", 10, 1.44, 0.0, "bloated"], ["dark_knight", 12, 1.8, 1.0, "bloated"], ["mammoth", 15, 2.7, 22.3, "bloated"], ["demon", 2, 6.0, 23.3, "bloated"]],   # 40
 	],
 }
 
 
-## {"spawns": [[time, enemy, hp], ...] sorted by time, "boss": bool}, or {} past the end of the list.
+## {"spawns": [[time, enemy, hp multiplier, bloated], ...] sorted by time, "boss": bool}, or {} past the end.
 static func build(diff_id: String, wave: int) -> Dictionary:
 	var list: Array = LISTS.get(diff_id, [])
 	if wave < 1 or wave > list.size():
@@ -162,8 +161,9 @@ static func build(diff_id: String, wave: int) -> Dictionary:
 	var spawns: Array = []
 	var boss := false
 	for g in list[wave - 1]:
+		var bloated: bool = g.size() > 4 and g[4] == "bloated"
 		for i in int(g[1]):
-			spawns.append([float(g[3]) + i * float(g[2]), g[0], float(g[4])])
+			spawns.append([float(g[3]) + i * float(g[2]), g[0], Defs.BLOATED_HP if bloated else 1.0, bloated])
 		if Defs.BOSS_TYPES.has(g[0]):
 			boss = true
 	spawns.sort_custom(func(a, b): return a[0] < b[0])
@@ -174,19 +174,22 @@ static func count(diff_id: String) -> int:
 	return (LISTS.get(diff_id, []) as Array).size()
 
 
-## How much tougher than the generator's own HP curve the last handmade wave is, so the waves after
-## Continue pick up from there instead of dropping back.
-static func endless_factor(diff: Dictionary) -> float:
-	var n := count(diff["id"])
-	if n == 0:
+## The generator after Continue scales HP up; this extra factor makes its first waves about as tough as the
+## last handmade waves instead of dropping back. Compared on the second to last wave, bosses left out: the
+## generator thins out the rest of a boss wave.
+static func endless_factor(diff: Dictionary, seed_base: int) -> float:
+	var n := count(diff["id"]) - 1
+	if n < 1:
 		return 1.0
-	var sum := 0.0
-	var k := 0
-	for g in LISTS[diff["id"]][n - 1]:
-		if Defs.BOSS_TYPES.has(g[0]):
-			continue
-		sum += float(g[4]) / float(Defs.ENEMIES[g[0]]["hp"])
-		k += 1
-	if k == 0:
+	var mine := 0.0
+	for sp in build(diff["id"], n)["spawns"]:
+		if not Defs.BOSS_TYPES.has(sp[1]):
+			mine += float(Defs.ENEMIES[sp[1]]["hp"]) * float(sp[2])
+	var gen := 0.0
+	for sp in Defs.build_wave(n, n + 1, seed_base)["spawns"]:
+		if not Defs.BOSS_TYPES.has(sp[1]):
+			gen += float(Defs.ENEMIES[sp[1]]["hp"])
+	gen *= float(diff["hp"]) * Defs.enemy_hp_scale(n)
+	if mine <= 0.0 or gen <= 0.0:
 		return 1.0
-	return (sum / k) / (float(diff["hp"]) * Defs.enemy_hp_scale(n))
+	return maxf(1.0, mine / gen)

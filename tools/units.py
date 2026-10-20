@@ -12,6 +12,13 @@ P.update({
     'sl_l': (176, 244, 140), 'sl': (99, 199, 77), 'sl_m': (62, 150, 72), 'sl_d': (38, 100, 66),
     'lea_l': (190, 130, 90), 'lea': (140, 88, 62), 'lea_d': (96, 58, 48),
 })
+P.update({  # v0.2 late enemies
+    'trl_l': (134, 178, 148), 'trl': (92, 140, 116), 'trl_d': (60, 100, 88), 'trl_dd': (38, 66, 64),
+    'gar_l': (168, 160, 182), 'gar': (124, 116, 142), 'gar_d': (86, 80, 104), 'gar_dd': (56, 52, 72),
+    'wr_l': (110, 96, 150), 'wr': (72, 60, 108), 'wr_d': (46, 38, 74), 'wr_dd': (28, 24, 48),
+    'dk_l': (104, 104, 130), 'dk': (66, 64, 88), 'dk_d': (42, 40, 60),
+    'mam_l': (176, 116, 84), 'mam': (134, 84, 60), 'mam_d': (96, 58, 46), 'mam_dd': (62, 39, 49),
+})
 
 
 def sym(half):
@@ -864,6 +871,399 @@ UNITS['berserker'] = dict(colors=ORC_C, side=[
     "....dd.",
     "...ff..",
 ]), 2), 0, 8, ["..x", "aAx", "AAx", "..x", "..x"]))
+
+# ------------------------------------------------------------------ v0.2 late enemies
+# CAVE TROLL (class III, regenerates)
+TROLL_C = {'T': 'trl', 't': 'trl_l', 'd': 'trl_d', 'D': 'trl_dd', 'm': 'lgreen', 'M': 'green', 'Y': 'yellow',
+           'N': 'trl_d', 'n': 'trl_dd', 'w': 'white', 'L': 'lea', 'l': 'lea_d', 'F': 'trl_dd'}
+UNITS['troll'] = dict(colors=TROLL_C, side=[
+    "...mMmm...........",
+    "..mTTTTmm.........",
+    ".tTTTTTTTt..ttt...",
+    ".TTTTTTTTTTtTTTt..",
+    "tTTTTTTTTTTTTTYTt.",
+    "TTTTTTTTTTTTTTTTNN",
+    "TTTTTTTTTTTdTTTTNn",
+    "dTTTTTTTTTTTdTwTd.",
+    "dTTTTTTTTTTTTddd..",
+    ".dTTLLLLLLTTTTt...",
+    ".dTTLLlLLLLdTTTt..",
+    "..dLLLLLLLL.dTTT..",
+    "...LLLLLLLL..TTT..",
+    "....TTT.TTT..ttt..",
+    "....TTd.TTd.......",
+    "....TTd.TTd.......",
+    "...FFFF.FFFF......",
+], down=sym([
+    "......mmMm",
+    ".....mTTTT",
+    ".....TTTTT",
+    ".....TYTTT",
+    ".....TTTTN",
+    "..mMmdwTTN",
+    ".tTTTTTddd",
+    "tTTTTTTTTT",
+    "TTTdTTTTTT",
+    "TTd.TTTTTT",
+    "TT..LLLLLL",
+    "TT..LLLlLL",
+    "dT..LLLLLL",
+    "TT...LLLLL",
+    "ttt..TTTd.",
+    ".....TTTd.",
+    "....FFFF..",
+]), up=sym([
+    "......mmMm",
+    ".....mTTTT",
+    ".....TTTTT",
+    ".....TTTTT",
+    ".....TTTTT",
+    "..mMmmTTTT",
+    ".tTTTmMTTT",
+    "tTTTTTmTTT",
+    "TTTdTTTTTT",
+    "TTd.TTTTTd",
+    "TT..TTTTTT",
+    "TT..LLLLLL",
+    "dT..LLLLLL",
+    "TT...LLLLL",
+    "ttt..TTTd.",
+    ".....TTTd.",
+    "....FFFF..",
+]))
+
+# WRAITH (class III, invisible)
+WRAITH_C = {'W': 'wr', 'w': 'wr_l', 'd': 'wr_d', 'k': 'wr_dd', 'c': 'cyan', 'h': 'stl', 's': 'stl_l'}
+UNITS['wraith'] = dict(colors=WRAITH_C, side=[
+    "....wwww......",
+    "...wWWWWw.....",
+    "..wWWWWWWW....",
+    "..WWWWWkkkd...",
+    "..WWWWkkckd...",
+    "..WWWWkkkkd...",
+    "..wWWWWkkd....",
+    ".wWWWWWWWWh...",
+    "wWWWWWWWWWWhh.",
+    "WWWWWWWWWWW.hh",
+    "WWWWdWWWWWW...",
+    ".WWWdWWWWWd...",
+    ".WWWdWWWWWd...",
+    "..WWdWWWWWd...",
+    "..WdWWdWWdW...",
+    "...W.dW.Wd....",
+    "...W..W..d....",
+], down=sym([
+    "....www",
+    "..wwWWW",
+    ".wWWWWW",
+    ".WWkkkk",
+    ".WWkckk",
+    ".WWkkkk",
+    ".wWWkkk",
+    "hwWWWWW",
+    "hWWWWWW",
+    ".WWWWWW",
+    ".WWdWWW",
+    ".WWdWWW",
+    ".WWdWWd",
+    "..WdWWd",
+    "..W.dWd",
+    "..W..d.",
+    "......d",
+]), up=sym([
+    "....www",
+    "..wwWWW",
+    ".wWWWWW",
+    ".WWWWWW",
+    ".WWWWWW",
+    ".WWWWWd",
+    ".wWWWWd",
+    "hwWWWWW",
+    "hWWWWWW",
+    ".WWWWdW",
+    ".WWdWWW",
+    ".WWdWWW",
+    ".WWdWWd",
+    "..WdWWd",
+    "..W.dWd",
+    "..W..d.",
+    "......d",
+]))
+
+# GARGOYLE (class III, flying, armored)
+GARG_C = {'S': 'gar', 's': 'gar_l', 'd': 'gar_d', 'W': 'gar_dd', 'h': 'gar_l', 'r': 'red_l', 'n': 'gar_d',
+          'w': 'white', 't': 'gar_d', 'k': 'black'}
+UNITS['gargoyle'] = dict(colors=GARG_C, side=[
+    "........h...h...",
+    "WW......hSSSh...",
+    "WWW.....SSSSSS..",
+    ".WWW....SSSSrS..",
+    ".WsWW...SSSSSSn.",
+    "..WsWW..dSSwSS..",
+    "..WWsWW.SSSSSS..",
+    "...WWsWWSSSSSSS.",
+    "....WWsWSSdSSSS.",
+    ".....WWWSSdSSs..",
+    "......WWSSSSS...",
+    "..t....dSSSSd...",
+    "...tt..SSd.SS...",
+    ".....ttsS..sS...",
+    "........kk..kk..",
+], down=sym([
+    "....h...",
+    "W...hSSS",
+    "WW..SSSS",
+    "WsW.SrSS",
+    "WWsWSSSS",
+    ".WWsdSwS",
+    ".WWWSSSS",
+    "..WWSSSS",
+    "...WSSdS",
+    "....SSSS",
+    "....dSS.",
+    "....SS..",
+    "....kk..",
+]), up=sym([
+    "....h...",
+    "W...hSSS",
+    "WW..SSSS",
+    "WsW.SSSS",
+    "WWsWSSSS",
+    ".WWsdSSS",
+    ".WWWSSdS",
+    "..WWSSdS",
+    "...WSSdS",
+    "....SSSS",
+    "....dSSt",
+    "....SS.t",
+    "....kk.t",
+]))
+
+# DARK KNIGHT (class III, heavy armor)
+DK_C = {'K': 'dk', 'k': 'dk_d', 'P': 'dk_l', 'p': 'gun_l', 'h': 'sand', 'r': 'red_l', 'c': 'magenta', 'C': 'purple',
+        'M': 'black', 'm': 'gld', 's': 'stl_l', 'g': 'gld'}
+DK_SWORD = ["s", "s", "s", "s", "s", "s", "ggg", ".M."]
+UNITS['dark_knight'] = dict(colors=DK_C, side=[
+    "....h....h......",
+    "....hkkkkh......",
+    "...kKKKKKKk.....",
+    "...KKKKKKKK.....",
+    "...KKKKrrrK.....",
+    "...KKKKKKKK.....",
+    "....kKKKKk....s.",
+    ".pPPPPPPPPp..s..",
+    "cPPKKKKKKPP.s...",
+    "cPKKKkKKKPPPs...",
+    "cCKKKKKKKPPgg...",
+    "cCKKKKKKKKgg....",
+    "cCkKKKKKKK......",
+    "cCMMMMMMMM......",
+    ".CmMmMmMmM......",
+    "..KKk..KKk......",
+    "..KKk..KKk......",
+    ".kKKk..KKk......",
+    ".kkkk.kkkk......",
+], down=put(sym([
+    "...h....",
+    "...hkkkk",
+    "..kKKKKK",
+    "..KKKKKK",
+    "..KKrrrr",
+    "..KKKKKK",
+    "...kKKKK",
+    ".pPPPPPP",
+    "pPPKKKKK",
+    "PPKKKkKK",
+    ".PKKKKKK",
+    ".KKKKKKm",
+    ".kKKKKKK",
+    "..MMMMMM",
+    "..mMmMmM",
+    "...KKk..",
+    "...KKk..",
+    "..kKKk..",
+    "..kkkk..",
+]), 14, 3, DK_SWORD), up=put(pad_left(sym([
+    "...h....",
+    "...hkkkk",
+    "..kKKKKK",
+    "..KKKKKK",
+    "..KKKKKK",
+    "..KKKKKK",
+    "...kKKKK",
+    ".pPPPPPP",
+    "pPPccccc",
+    "PPcccccc",
+    ".Pcccccc",
+    ".KcCcccc",
+    ".kcCcccc",
+    "..CCCCCC",
+    "..mMmMmM",
+    "...KKk..",
+    "...KKk..",
+    "..kKKk..",
+    "..kkkk..",
+]), 2), 0, 3, [".s.", ".s.", ".s.", ".s.", ".s.", ".s.", "ggg", ".M."]))
+
+# WAR MAMMOTH (class III, big tank)
+MAM_C = {'M': 'mam', 'm': 'mam_l', 'd': 'mam_d', 'D': 'mam_dd', 'k': 'sand', 'R': 'red_m', 'r': 'red_l',
+         'Y': 'gld', 'W': 'white', 'w': 'sand', 'e': 'black'}
+UNITS['mammoth'] = dict(colors=MAM_C, side=[
+    "......RRRRRRRR..............",
+    ".....rRRRRRRRRR....mmmm.....",
+    "....YYYYYYYYYYYY.mmMMMMm....",
+    "...mmmmmmmmmmmmmmMMMMMMMm...",
+    "..mMMMMMMMMMMMMMMMMMMMMMMm..",
+    ".mMMMMMMMMMMMMMMMMMMMMeMMM..",
+    ".MMMMMMMMMMMMMMMMMMMMMMMMMM.",
+    "mMMMMMMMMMMMMMMMMMMMdMMMMMM.",
+    "MMMMMMMMMMMMMMMMMMMMdMMMMMMW",
+    "MMMMMMMMMMMMMMMMMMMdMMMMWwwW",
+    "dMMMMMMMMMMMMMMMMMMdMMMwMMM.",
+    "dMMMMMMMMMMMMMMMMMdddMMwMMd.",
+    ".dMMMdddddddddddMMMd.dMMMd..",
+    ".dMMMd.........dMMMd..dMMd..",
+    "..MMMd.........MMMMd...dMd..",
+    "..MMMd.........MMMMd....Md..",
+    "..MMMd.........dMMMd....dd..",
+    ".DkDkD.........DkDkD........",
+], down=sym([
+    "........mmmm",
+    "......mmMMMM",
+    "....RmMMMMMM",
+    "...mmMMMMMMM",
+    "..mMMMMMeMMM",
+    ".mMMMMMMMMMM",
+    "mMMMMMMMMMdM",
+    "MMMMMMMWMMdM",
+    "MMMMMMWwMMdM",
+    "MMMMMWw.MdMM",
+    "dMMMMWw..MMM",
+    "dMMMM.W..dMM",
+    ".dMMM.....MM",
+    ".dMMM.....Md",
+    "..MMM.....dd",
+    "..MMM.......",
+    ".DkDk.......",
+]), up=sym([
+    "........mmmm",
+    "......mmMMMM",
+    "....mmMMMMMM",
+    "...mRRRRRRRR",
+    "..mMRrrrrrrr",
+    ".mMMRrRRRRRR",
+    "mMMMYYYYYYYY",
+    "MMMMMMMMMMMM",
+    "MMMMMMMMMMMM",
+    "MMMMMMMMMMMd",
+    "dMMMMMMMMMdM",
+    "dMMMMMMMMMdM",
+    ".dMMMd....dd",
+    ".dMMMd......",
+    "..MMMd......",
+    "..MMMd......",
+    ".DkDkD......",
+]))
+
+# BONE DRAGON (class IV boss, gets back up once)
+BD_C = {'b': 'white', 'B': 'sand', 'd': 'tan_m', 'k': 'xdbrown', 'g': 'lgreen', 'w': 'white', 'W': 'purple',
+        'V': 'magenta'}
+UNITS['bone_dragon'] = dict(colors=BD_C, side=[
+    "...........W..........bbb.....",
+    "..........WWW........bBBBb....",
+    ".........WVVW.......bBBBBBb...",
+    "........WVVVW.......BBkgBBBB..",
+    ".......WVVVVW........BBBBBBBB.",
+    "......WVVVVVW.........dBwBwBd.",
+    ".....WVVWVVVW........BBd......",
+    "....WVV.WVVW........BBd.......",
+    "...WV...WVW........BBd........",
+    "..W.....bW........BBd.........",
+    "........bBBBBBBBBBBBd.........",
+    ".......bBkBkBkBkBkBBd.........",
+    "......bBdBkBkBkBkBdBB.........",
+    "bBBBBBBBdBBBBBBBBBdBB.........",
+    ".dddd.BB.dBkBkBkBd.BB.........",
+    "......BB...dddddd..BB.........",
+    "......BBd.........BBd.........",
+    "......Bd..........Bd..........",
+    ".....bBd.........bBd..........",
+    ".....BBB.........BBB..........",
+], down=sym([
+    "..............b",
+    ".W..........bBB",
+    ".WW........bBBB",
+    ".WVW.......BkgB",
+    ".WVVW......BBBB",
+    ".WVVVW.....dBwB",
+    ".WVVVVW.....BBB",
+    ".WVWVVVW....dBB",
+    ".WV.WVVVW...bBB",
+    ".W..WVWVVW.bBBB",
+    ".W...W.WVWbBkBk",
+    "........WbBdBkB",
+    "........BBdBkBk",
+    "........BBBdBkB",
+    "........BB.dddd",
+    ".......bBd.....",
+    ".......BBd.....",
+    ".......BBd.....",
+    "......bBBB.....",
+]), up=sym([
+    "..............b",
+    ".W..........bBB",
+    ".WW........bBBB",
+    ".WVW.......BBBB",
+    ".WVVW......BBBB",
+    ".WVVVW.....dBBB",
+    ".WVVVVW.....BBB",
+    ".WVWVVVW....dBB",
+    ".WV.WVVVW...bBB",
+    ".W..WVWVVW.bBBB",
+    ".W...W.WVWbBkBB",
+    "........WbBdBkB",
+    "........BBdBkBB",
+    "........BBBdBkB",
+    "........BB.ddBd",
+    ".......bBd...Bd",
+    ".......BBd....B",
+    ".......BBd....B",
+    "......bBBB.....",
+]))
+
+
+def bloat_rows(rows, view):
+    """Bloated look: wider through the middle, a taller belly and a few swollen blotches on it."""
+    w = max(len(r) for r in rows)
+    rows = [r.ljust(w, '.') for r in rows]
+    h = len(rows)
+    if view == 'side':
+        cols = [x for x in range(w) for y in range(h) if rows[y][x] != '.']
+        cx = round(sum(cols) / len(cols))
+    else:
+        cx = w // 2
+    n = 2 if w < 20 else 3
+    rows = [r[:cx] + r[cx] * n + r[cx:] for r in rows]
+    w += n
+    # the widest row in the lower middle is the belly: it gets doubled
+    by = max(range(h // 3, h - h // 5), key=lambda y: sum(c != '.' for c in rows[y]))
+    rows = rows[:by] + [rows[by]] + rows[by:]
+    h += 1
+    spots = [(x, y) for y in range(by - 3, by + 2) for x in range(w - 1)
+             if all(0 <= y + dy < h and 0 <= x + dx < w and rows[y + dy][x + dx] != '.'
+                    for dx in (-1, 0, 1, 2) for dy in (-1, 0, 1, 2))]
+    out = [list(r) for r in rows]
+    if spots:
+        picks = [spots[len(spots) // 6]]
+        far = max(spots, key=lambda p: abs(p[0] - picks[0][0]) + abs(p[1] - picks[0][1]))
+        if abs(far[0] - picks[0][0]) > 2:
+            picks.append(far)
+        for x, y in picks:
+            out[y][x], out[y][x + 1], out[y + 1][x], out[y + 1][x + 1] = '&', '%', '%', '%'
+    return [''.join(r) for r in out]
+
+
+BLOAT_C = {'%': (181, 80, 136), '&': (246, 117, 122)}   # swollen blotches of Bloated enemies
 
 # ------------------------------------------------------------------ FRIENDLY VEHICLES (garage)
 CAR_C = {'r': 'red_l', 'R': 'red_m', 'D': 'red_d', 'c': 'glass', 'd': 'glass_d', 'y': 'yellow', 'k': 'black',

@@ -411,7 +411,8 @@ func _build_enemies() -> void:
 		traits.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		traits.custom_minimum_size.x = CARD.x - 8
 		lines.add_child(traits)
-	var foot := UI.label("Class weakens only CONTROL (stun, slow, chill):  I 100%  II 70%  III 40%  IV 20%.",
+	var foot := UI.label("Class weakens CONTROL (stun, slow, chill): I 100%% II 70%% III 40%% IV 20%%.  Bloated: x%s HP."
+		% UI.fmt_num(Defs.BLOATED_HP),
 		10, Color("c0cbdc"), HORIZONTAL_ALIGNMENT_CENTER)
 	foot.position = Vector2(0, 2 * CARD.y + GAP + 8)
 	foot.size = Vector2(640, 12)
@@ -436,6 +437,8 @@ static func _traits(e: Dictionary) -> Array:
 		tr.append("Fire res %d%%" % int(e["fire_res"] * 100))
 	if e.has("heal"):
 		tr.append("Heals")
+	if e.has("regen"):
+		tr.append("Regenerates")
 	if e.has("split"):
 		tr.append("Splits")
 	return tr

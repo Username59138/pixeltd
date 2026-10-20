@@ -523,6 +523,27 @@ func _mech_test() -> void:
 	var bh: float = bz.hp
 	b.damage_enemy(bz, 100.0, "pure", null)
 	check.call("brittle ice: +25% damage while frozen", absf(bh - bz.hp - 125.0) < 0.01)
+	# fixed HP per enemy type: handmade waves only ever spawn x1 or Bloated (x2)
+	var fixed := true
+	for d in Defs.DIFFICULTIES:
+		for w in range(1, Waves.count(d["id"]) + 1):
+			for sp in Waves.build(d["id"], w)["spawns"]:
+				fixed = fixed and float(sp[2]) == (Defs.BLOATED_HP if sp[3] else 1.0)
+	check.call("handmade waves: fixed HP, Bloated x2", fixed and Waves.count("light") == 20 and Waves.count("hardcore") == 40)
+	b.enemies.clear()
+	var fat = b.spawn_enemy("ogre", 0, 120.0, Defs.BLOATED_HP, false, {}, true)
+	check.call("Bloated Ogre: x2 HP, own sprite", fat.max_hp == 1040.0 and fat.display_name() == "Bloated Ogre"
+		and fat.tex_normal.resource_path.ends_with("ogre_bloated.png"))
+	var troll = b.spawn_enemy("troll", 0, 120.0, 1.0)
+	troll.hp = 500.0
+	b._tick_enemies(1.0)
+	check.call("troll regenerates", absf(troll.hp - 520.0) < 0.01)
+	troll.apply_burn(0.0, 3.0, 0.0, null)
+	b._tick_enemies(1.0)
+	check.call("no regen while burning", absf(troll.hp - 520.0) < 0.01)
+	var dragon = b.spawn_enemy("bone_dragon", 0, 120.0, 1.0)
+	b.damage_enemy(dragon, 40000.0, "pure", null)
+	check.call("Bone Dragon gets back up with 30%", dragon.alive and absf(dragon.hp - 9000.0) < 0.01)
 	# tower limits: 10 of a type, 50 in all
 	for tw in b.towers.values():
 		b.sell_tower(tw)
