@@ -1290,7 +1290,7 @@ func _draw_under(n: Node2D) -> void:
 			var r := float(Defs.TOWERS[placing]["base"]["range"])
 			if r > 0:
 				_draw_range(n, tile_center(hover_tile), r, ok)
-			elif ok:
+			elif ok and placing == "garage":   # where its cars will drive out
 				var rd := nearest_road(tile_center(hover_tile))
 				_draw_road_marker(n, path_point(rd[0], rd[1])[0])
 			n.draw_rect(Rect2(hover_tile * TILE, Vector2(TILE, TILE)),
